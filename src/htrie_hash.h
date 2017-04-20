@@ -949,6 +949,7 @@ private:
                     auto insert_it = hnode->m_array_hash.emplace_ks(key + ikey + 1, key_size - ikey - 1, 
                                                                     std::forward<ValueArgs>(value_args)...);
                     
+                    hnode->m_child_of_char = key[ikey];
                     tnode->m_children[pos] = std::move(hnode);
                     m_nb_elements++;
                     
