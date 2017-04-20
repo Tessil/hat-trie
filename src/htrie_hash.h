@@ -1046,31 +1046,42 @@ private:
                             next_array_hash_it, pos.m_current_hash_node->m_array_hash.end());
         }
         else {
-            clear_empty_nodes(*pos.m_current_hash_node, pos.m_current_trie_node);
+            if(pos.m_current_hash_node->m_array_hash.empty()) {
+                clear_empty_nodes(*pos.m_current_hash_node, pos.m_current_trie_node);
+            }
                         
             return next_pos;
         }
     }
     
-    void clear_empty_nodes(hash_node& hnode, trie_node* parent) noexcept {
-        if(!hnode.m_array_hash.empty() || parent == nullptr) {
+    void clear_empty_nodes(hash_node& empty_hnode, trie_node* parent) noexcept {
+        tsl_assert(empty_hnode.m_array_hash.empty());
+        
+        if(parent == nullptr || parent->m_value_node != nullptr) {
             return;
         }
         
-        
-        parent->m_children[as_position(hnode.m_child_of_char)].reset(nullptr);
-
-        trie_node* tnode = parent;
-        while(tnode->m_parent_node != nullptr && tnode->empty()) {
-            trie_node* parent = tnode->m_parent_node;
-            
-            parent->m_children[as_position(tnode->m_child_of_char)].reset(nullptr);
-            tnode = parent;
+        if(!parent->empty()) {
+            parent->m_children[as_position(empty_hnode.m_child_of_char)].reset(nullptr);
         }
-        
-        if(tnode->empty()) {
-            tsl_assert(m_nb_elements == 0);
-            m_root.reset(nullptr);
+        else if(parent->m_parent_node == nullptr) {
+            m_root = std::move(parent->m_children[as_position(empty_hnode.m_child_of_char)]);
+        }
+        else {
+            /**
+             * Parent is empty. Put empty_hnode as new child of the grand parent instead of parent (move hnode up,
+             * and delete the parent).
+             */
+            const char hnode_new_child_of_char = parent->m_child_of_char;
+            
+            trie_node* grand_parent = parent->m_parent_node;
+            grand_parent->m_children[as_position(parent->m_child_of_char)] = 
+                                        std::move(parent->m_children[as_position(empty_hnode.m_child_of_char)]);
+            empty_hnode.m_child_of_char = hnode_new_child_of_char;
+            
+            
+            
+            clear_empty_nodes(empty_hnode, grand_parent);
         }
     }    
     
