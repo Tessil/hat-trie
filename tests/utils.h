@@ -95,7 +95,7 @@ public:
     static T get_value(size_t counter);
     
     template<typename TMap>
-    static TMap get_filled_map(size_t nb_elements);
+    static TMap get_filled_map(size_t nb_elements, size_t burst_threshold);
 };
 
 
@@ -132,11 +132,12 @@ inline move_only_test utils::get_value<move_only_test>(size_t counter) {
 
 
 template<typename TMap>
-inline TMap utils::get_filled_map(size_t nb_elements) {
+inline TMap utils::get_filled_map(size_t nb_elements, size_t burst_threshold) {
     using char_tt = typename TMap::char_type; 
     using value_tt = typename TMap::mapped_type;
     
     TMap map;
+    map.burst_threshold(burst_threshold);
     for(size_t i = 0; i < nb_elements; i++) {
         map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
     }
