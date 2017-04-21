@@ -65,7 +65,10 @@ public:
     using const_iterator = typename ht::const_iterator;
     
 public:
-    explicit htrie_map(const Hash& hash = Hash()): m_ht(hash, ht::HASH_NODE_DEFAULT_MAX_LOAD_FACTOR) {
+    explicit htrie_map(const Hash& hash = Hash()): m_ht(hash, 
+                                                        ht::HASH_NODE_DEFAULT_MAX_LOAD_FACTOR,
+                                                        ht::DEFAULT_BURST_THRESHOLD)
+    {
     }
     
     
@@ -358,6 +361,12 @@ public:
     float max_load_factor() const { return m_ht.max_load_factor(); }
     void max_load_factor(float ml) { m_ht.max_load_factor(ml); }
     
+    
+    /*
+     * Burst policy
+     */
+    size_type burst_threshold() const { return m_ht.burst_threshold(); }
+    void burst_threshold(size_type threshold) { m_ht.burst_threshold(threshold); }
     
     
     /*

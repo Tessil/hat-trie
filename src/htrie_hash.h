@@ -670,13 +670,16 @@ public:
     
     
 public:
-    htrie_hash(const Hash& hash, float max_load_factor): m_root(nullptr), m_nb_elements(0), 
-                                  m_hash(hash), m_max_load_factor(max_load_factor) 
+    htrie_hash(const Hash& hash, float max_load_factor, size_type burst_threshold): 
+                                  m_root(nullptr), m_nb_elements(0), 
+                                  m_hash(hash), m_max_load_factor(max_load_factor), 
+                                  m_burst_threshold(burst_threshold) 
     {
     }
     
     htrie_hash(const htrie_hash& other): m_root(nullptr), m_nb_elements(other.m_nb_elements), 
-                                         m_hash(other.m_hash), m_max_load_factor(other.m_max_load_factor) 
+                                         m_hash(other.m_hash), m_max_load_factor(other.m_max_load_factor),
+                                         m_burst_threshold(other.m_burst_threshold)
     {
         if(other.m_root != nullptr) {
             if(other.m_root->is_hash_node()) {
@@ -692,7 +695,8 @@ public:
                                   : m_root(std::move(other.m_root)),
                                     m_nb_elements(other.m_nb_elements),
                                     m_hash(std::move(other.m_hash)),
-                                    m_max_load_factor(other.m_max_load_factor)
+                                    m_max_load_factor(other.m_max_load_factor),
+                                    m_burst_threshold(other.m_burst_threshold)
     {
         other.clear();
     }
@@ -713,6 +717,7 @@ public:
             m_root = std::move(new_root);
             m_nb_elements = other.m_nb_elements;
             m_max_load_factor = other.m_max_load_factor;
+            m_burst_threshold = other.m_burst_threshold;
         }
         
         return *this;
@@ -845,6 +850,7 @@ public:
         swap(m_root, other.m_root);
         swap(m_nb_elements, other.m_nb_elements);
         swap(m_max_load_factor, other.m_max_load_factor);
+        swap(m_burst_threshold, other.m_burst_threshold);
     }
     
     /*
@@ -914,14 +920,25 @@ public:
     }
     
     /*
-     *  Hash policy 
+     * Hash policy 
      */
     float max_load_factor() const { 
         return m_max_load_factor; 
     }
     
-    void max_load_factor(float ml) { 
+    void max_load_factor(float ml) {
         m_max_load_factor = ml; 
+    }
+    
+    /*
+     * Burst policy
+     */
+    size_type burst_threshold() const {
+        return m_burst_threshold;
+    }
+    
+    void burst_threshold(size_type threshold) {
+        m_burst_threshold = threshold;
     }
     
     /*
@@ -1144,10 +1161,7 @@ private:
      * Burst
      */
     bool need_burst(hash_node& node) const {
-        const size_type threshold = size_type(80/m_max_load_factor*
-                                              HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT*
-                                              m_max_load_factor); // ~2500
-        return node.m_array_hash.size() >= threshold;
+        return node.m_array_hash.size() >= m_burst_threshold;
     }
     
     
@@ -1262,7 +1276,7 @@ private:
     std::array<size_type, ALPHABET_SIZE> get_first_char_count(typename array_hash::const_iterator begin, 
                                                               typename array_hash::const_iterator end) const
     {
-        std::array<size_type, ALPHABET_SIZE> count = {};
+        std::array<size_type, ALPHABET_SIZE> count{{}};
         for(auto it = begin; it != end; ++it) {
             if(it.key_size() == 0) {
                 continue;
@@ -1312,6 +1326,7 @@ private:
     }
 public:    
     static constexpr float HASH_NODE_DEFAULT_MAX_LOAD_FACTOR = 5.0f;
+    static const size_type DEFAULT_BURST_THRESHOLD = 2560;
     
 private:
     static const size_type HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT = 32;
@@ -1320,6 +1335,7 @@ private:
     size_type m_nb_elements;
     Hash m_hash;
     float m_max_load_factor;
+    size_type m_burst_threshold;
     
 };
 
