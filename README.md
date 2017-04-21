@@ -25,7 +25,7 @@ make
 
 ### Benchmark
 
-The benchmark consists in inserting all the titles of the wikipedia archive in the main namespace, check the size of the structure and read all the titles again.
+The benchmark consists in inserting all the titles in the main namespace of the wikipedia archive, check the size of the structure and read all the titles again.
 
 * Dataset: enwiki-20170320-all-titles-in-ns0.gz
 * Size: 262.7 MiB
@@ -36,6 +36,8 @@ The benchmark consists in inserting all the titles of the wikipedia archive in t
 Each title is associated with an int (32 bits). All the hash based structures use [CityHash64](https://github.com/google/cityhash) as hash function.
 
 The benchmark was compiled with GCC 6.3 and ran on Debian Stretch x64 with an Intel i5-5200u and 8Go of RAM. Best of 20 runs was taken.
+
+The code of the benchmark can be found on [Gist](https://gist.github.com/Tessil/2dacd14d46b35287acb81dd149276dec).
 
 | Library | Data structure | Space (MiB) | Insert (ns/key) | Read (ns/key) |
 |---------|----------------|-------:|--------:|-----:|
