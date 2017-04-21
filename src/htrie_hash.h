@@ -1310,7 +1310,8 @@ private:
     
     
     iterator mutable_iterator(const_iterator it) noexcept {
-        if(it.m_current_hash_node == nullptr) {
+        // end iterator or reading from a trie node value
+        if(it.m_current_hash_node == nullptr || it.m_read_trie_node_value) {
             typename array_hash::iterator default_it;
             
             return iterator(const_cast<trie_node*>(it.m_current_trie_node), nullptr,
