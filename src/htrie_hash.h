@@ -1172,7 +1172,9 @@ private:
     template<class U = T, typename std::enable_if<has_value<U>::value && 
                                                   std::is_copy_constructible<U>::value && 
                                                   (!std::is_nothrow_move_constructible<U>::value ||
-                                                   !std::is_nothrow_move_assignable<U>::value)>::type* = nullptr>
+                                                   !std::is_nothrow_move_assignable<U>::value || 
+                                                   std::is_arithmetic<U>::value || 
+                                                   std::is_pointer<U>::value)>::type* = nullptr>
     std::unique_ptr<trie_node> burst(hash_node& node) {
         const std::array<size_type, ALPHABET_SIZE> first_char_count = get_first_char_count(node.m_array_hash.cbegin(), 
                                                                                            node.m_array_hash.cend());
@@ -1195,7 +1197,9 @@ private:
     
     template<class U = T, typename std::enable_if<has_value<U>::value && 
                                                   std::is_nothrow_move_constructible<U>::value &&
-                                                  std::is_nothrow_move_assignable<U>::value>::type* = nullptr>
+                                                  std::is_nothrow_move_assignable<U>::value && 
+                                                  !std::is_arithmetic<U>::value && 
+                                                  !std::is_pointer<U>::value>::type* = nullptr>
     std::unique_ptr<trie_node> burst(hash_node& node) {
         /**
          * We burst the node->m_array_hash into multiple arrays hash. While doing so, we move each value in 
