@@ -2,6 +2,8 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
+#include <tuple>
+#include <utility>
 
 #include "utils.h"
 #include "htrie_set.h"
