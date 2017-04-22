@@ -72,7 +72,7 @@ class htrie_hash {
     static const std::size_t ALPHABET_SIZE = std::numeric_limits<unsigned char>::max() + 1;
     
 public:
-    template<bool is_const>
+    template<bool is_const, bool is_prefix>
     class htrie_hash_iterator;
     
     
@@ -80,8 +80,10 @@ public:
     using key_size_type = KeySizeT;
     using size_type = std::size_t;
     using hasher = Hash;
-    using iterator = htrie_hash_iterator<false>;
-    using const_iterator = htrie_hash_iterator<true>;
+    using iterator = htrie_hash_iterator<false, false>;
+    using const_iterator = htrie_hash_iterator<true, false>;
+    using prefix_iterator = htrie_hash_iterator<false, true>;
+    using const_prefix_iterator = htrie_hash_iterator<true, true>;
     
     
 private:
@@ -323,7 +325,7 @@ private:
     
     
 public:
-    template<bool is_const>
+    template<bool is_const, bool is_prefix>
     class htrie_hash_iterator {
         friend class htrie_hash;
         
@@ -382,6 +384,7 @@ public:
         {
         }
         
+        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
         htrie_hash_iterator(trie_node_type* start_trie_node, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
                             bool read_trie_node_value, std::string prefix_filter) noexcept:
@@ -395,7 +398,17 @@ public:
         htrie_hash_iterator() noexcept {
         }
         
-        htrie_hash_iterator(const htrie_hash_iterator<false>& other) noexcept: 
+        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
+        htrie_hash_iterator(const htrie_hash_iterator<false, false>& other) noexcept: 
+            m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
+            m_array_hash_iterator(other.m_array_hash_iterator), 
+            m_array_hash_end_iterator(other.m_array_hash_end_iterator), 
+            m_read_trie_node_value(other.m_read_trie_node_value)
+        {
+        }
+        
+        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
+        htrie_hash_iterator(const htrie_hash_iterator<false, true>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
             m_array_hash_end_iterator(other.m_array_hash_end_iterator), 
@@ -528,6 +541,11 @@ public:
         }
         
     private:        
+        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
+        void filter_prefix() {
+        } 
+        
+        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
         void filter_prefix() {
             tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             if(!m_prefix_filter.empty()) {
@@ -569,7 +587,8 @@ public:
         array_hash_iterator_type m_array_hash_end_iterator;
         
         bool m_read_trie_node_value;
-        std::string m_prefix_filter;
+        // TODO can't have void if !is_prefix, use inheritance
+        typename std::conditional<is_prefix, std::string, bool>::type m_prefix_filter;
     }; 
     
 
@@ -651,7 +670,7 @@ public:
             return cend();
         }
         
-        return cbegin(*m_root, nullptr);
+        return cbegin<const_iterator>(*m_root, nullptr);
     }
     
     iterator end() noexcept {
@@ -813,14 +832,14 @@ public:
         return std::make_pair(it, it);
     }
     
-    std::pair<iterator, iterator> equal_prefix_range(const CharT* prefix, size_type prefix_size) {
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const CharT* prefix, size_type prefix_size) {
         auto range = static_cast<const htrie_hash*>(this)->equal_prefix_range(prefix, prefix_size);
         return std::make_pair(mutable_iterator(range.first), mutable_iterator(range.second));
     }
 
-    std::pair<const_iterator, const_iterator> equal_prefix_range(const CharT* prefix, size_type prefix_size) const {
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const CharT* prefix, size_type prefix_size) const {
         if(m_root == nullptr) {
-            return std::make_pair(cend(), cend());
+            return std::make_pair(prefix_cend(), prefix_cend());
         }
         
         const trie_node* current_node_parent = nullptr;
@@ -832,7 +851,7 @@ public:
                 
                 const std::size_t pos = as_position(prefix[iprefix]);
                 if(tnode->m_children[pos] == nullptr) {
-                    return std::make_pair(cend(), cend());
+                    return std::make_pair(prefix_cend(), prefix_cend());
                 }
                 else {
                     current_node_parent = tnode;
@@ -841,13 +860,13 @@ public:
             }
             else {
                 const hash_node& hnode = current_node->as_hash_node();
-                const_iterator begin(current_node_parent, &hnode, hnode.m_array_hash.begin(), 
-                                     hnode.m_array_hash.end(), false, 
-                                     std::string(prefix + iprefix, prefix_size - iprefix));
+                const_prefix_iterator begin(current_node_parent, &hnode, hnode.m_array_hash.begin(), 
+                                            hnode.m_array_hash.end(), false, 
+                                            std::string(prefix + iprefix, prefix_size - iprefix));
                 begin.filter_prefix();
                 
-                const_iterator end = (current_node_parent == nullptr)?
-                                        cend(): 
+                const_prefix_iterator end = (current_node_parent == nullptr)?
+                                        prefix_cend(): 
                                         prefix_end_iterator(*current_node_parent, current_node->m_child_of_char);
                                             
                 return std::make_pair(begin, end);
@@ -855,10 +874,10 @@ public:
         }
         
     
-        const_iterator begin = cbegin(*current_node, current_node_parent);
-        const_iterator end = (current_node_parent == nullptr)?
-                                cend(): 
-                                prefix_end_iterator(*current_node_parent, current_node->m_child_of_char);
+        const_prefix_iterator begin = cbegin<const_prefix_iterator>(*current_node, current_node_parent);
+        const_prefix_iterator end = (current_node_parent == nullptr)?
+                                    prefix_cend(): 
+                                    prefix_end_iterator(*current_node_parent, current_node->m_child_of_char);
                                     
         return std::make_pair(begin, end);
     }
@@ -894,20 +913,25 @@ public:
     }
     
 private:
-    const_iterator cbegin(const anode& start_search, const trie_node* parent) const noexcept {
+    template<typename Iterator>
+    Iterator cbegin(const anode& start_search, const trie_node* parent) const noexcept {
         if(start_search.is_hash_node()) {
             const hash_node& hnode = start_search.as_hash_node();
-            return const_iterator(parent, &hnode, hnode.m_array_hash.begin(), hnode.m_array_hash.end(), false);
+            return Iterator(parent, &hnode, hnode.m_array_hash.begin(), hnode.m_array_hash.end(), false);
         }
         
         const trie_node& tnode = most_left_trie_node(start_search.as_trie_node());
         if(tnode.m_value_node != nullptr) {
-            return const_iterator(&tnode);
+            return Iterator(&tnode);
         }
         else {
             const hash_node& hnode = tnode.first_child().as_hash_node();
-            return const_iterator(&tnode, &hnode);
+            return Iterator(&tnode, &hnode);
         }
+    }
+    
+    const_prefix_iterator prefix_cend() const noexcept {
+        return const_prefix_iterator(nullptr, nullptr);
     }
     
     template<class... ValueArgs>
@@ -1117,7 +1141,7 @@ private:
     
     
     
-    const_iterator prefix_end_iterator(const trie_node& tnode, char child_of_char) const {
+    const_prefix_iterator prefix_end_iterator(const trie_node& tnode, char child_of_char) const {
         const trie_node* current_trie_node = &tnode;
         const anode* next_node = current_trie_node->next_child(as_position(child_of_char) + 1);
         
@@ -1128,10 +1152,10 @@ private:
         }
         
         if(next_node == nullptr) {
-            return cend();
+            return prefix_cend();
         }
         else {
-            return cbegin(*next_node, current_trie_node);
+            return cbegin<const_prefix_iterator>(*next_node, current_trie_node);
         }
     }
     
@@ -1302,9 +1326,27 @@ private:
             return iterator(const_cast<trie_node*>(it.m_current_trie_node), hnode,
                             hnode->m_array_hash.mutable_iterator(it.m_array_hash_iterator),
                             hnode->m_array_hash.mutable_iterator(it.m_array_hash_end_iterator),
-                            it.m_read_trie_node_value, it.m_prefix_filter);
+                            it.m_read_trie_node_value);
         }
     }
+    
+    prefix_iterator mutable_iterator(const_prefix_iterator it) noexcept {
+        // end iterator or reading from a trie node value
+        if(it.m_current_hash_node == nullptr || it.m_read_trie_node_value) {
+            typename array_hash::iterator default_it;
+            
+            return prefix_iterator(const_cast<trie_node*>(it.m_current_trie_node), nullptr,
+                                   default_it, default_it, it.m_read_trie_node_value);
+        }
+        else {
+            hash_node* hnode = const_cast<hash_node*>(it.m_current_hash_node);
+            return prefix_iterator(const_cast<trie_node*>(it.m_current_trie_node), hnode,
+                                   hnode->m_array_hash.mutable_iterator(it.m_array_hash_iterator),
+                                   hnode->m_array_hash.mutable_iterator(it.m_array_hash_end_iterator),
+                                   it.m_read_trie_node_value, it.m_prefix_filter);
+        }
+    }
+    
 public:    
     static constexpr float HASH_NODE_DEFAULT_MAX_LOAD_FACTOR = 5.0f;
     static const size_type DEFAULT_BURST_THRESHOLD = 2560;
