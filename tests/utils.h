@@ -2,6 +2,9 @@
 #define TSL_UTILS_H
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <memory>
+#include <ostream>
+#include <string>
 
 
 class move_only_test {

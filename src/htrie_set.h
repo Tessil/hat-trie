@@ -59,6 +59,8 @@ public:
     using hasher = typename ht::hasher;
     using iterator = typename ht::iterator;
     using const_iterator = typename ht::const_iterator;
+    using prefix_iterator = typename ht::prefix_iterator;
+    using const_prefix_iterator = typename ht::const_prefix_iterator;
     
 public:
     explicit htrie_set(const Hash& hash = Hash()): m_ht(hash, 
@@ -283,6 +285,41 @@ public:
     
     std::pair<const_iterator, const_iterator> equal_range_ks(const CharT* key, size_type key_size) const {
         return m_ht.equal_range(key, key_size);
+    }
+    
+
+    
+#ifdef TSL_HAS_STRING_VIEW 
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const std::basic_string_view<CharT>& key) {
+        return m_ht.equal_prefix_range(key.data(), key.size());
+    }
+    
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const std::basic_string_view<CharT>& key) const {
+        return m_ht.equal_prefix_range(key.data(), key.size());
+    }
+#else
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const CharT* key) {
+        return m_ht.equal_prefix_range(key, std::strlen(key));
+    }
+    
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const CharT* key) const {
+        return m_ht.equal_prefix_range(key, std::strlen(key));
+    }
+    
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const std::basic_string<CharT>& key) {
+        return m_ht.equal_prefix_range(key.data(), key.size());
+    }
+    
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const std::basic_string<CharT>& key) const {
+        return m_ht.equal_prefix_range(key.data(), key.size());
+    }
+#endif    
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range_ks(const CharT* key, size_type key_size) {
+        return m_ht.equal_prefix_range(key, key_size);
+    }
+    
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range_ks(const CharT* key, size_type key_size) const {
+        return m_ht.equal_prefix_range(key, key_size);
     }
     
     

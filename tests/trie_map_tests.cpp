@@ -2,11 +2,16 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
+#include <cstddef>
+#include <iterator>
 #include <set>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <utility>
 
 #include "htrie_map.h"
 #include "utils.h"
-
 
 using test_types = boost::mpl::list<
                         tsl::htrie_map<char, int64_t>,
@@ -195,6 +200,61 @@ BOOST_AUTO_TEST_CASE(test_emplace) {
     BOOST_CHECK(map.at("test") == move_only_test(3));
 }
 
+/**
+ * equal_prefix_range
+ */
+BOOST_AUTO_TEST_CASE(test_equal_prefix_range) {
+    // Generate the sequence: Key 2, Key 20, 21, 22, ... , 29, 200, 201, 202, ... , 299, 2000, 2001, ... , Key 2999
+    std::set<std::string> sequence_set;
+    for(std::size_t i = 1; i <= 1000; i = i*10) {
+        for(std::size_t j = 2*i; j < 3*i; j++) {
+            sequence_set.insert("Key " + std::to_string(j));
+        }
+    }
+    
+    
+    tsl::htrie_map<char, int> map;
+    map.max_load_factor(7);
+    
+    for(int i = 0; i < 4000; i++) {
+        map.insert("Key " + std::to_string(i), i);
+    }
+    
+    
+    // Return sequence: Key 2, Key 20, 21, 22, ... , 29, 200, 201, 202, ... , 299, 2000, 2001, ... , Key 2999
+    auto range = map.equal_prefix_range("Key 2");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 1111);
+
+    
+    std::set<std::string> set;
+    for(auto it = range.first; it != range.second; ++it) {
+        set.insert(it.key());
+    }
+    BOOST_CHECK_EQUAL(set.size(), 1111);
+    BOOST_CHECK(set == sequence_set);
+    
+    
+    
+    
+    range = map.equal_prefix_range("");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 4000);
+    
+    range = map.equal_prefix_range("Key 1000");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 1);
+    BOOST_CHECK_EQUAL(range.first.key(), "Key 1000");
+    
+    range = map.equal_prefix_range("aKey 1000");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
+    
+    range = map.equal_prefix_range("Key 30000");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
+    
+    range = map.equal_prefix_range("Unknown");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
+    
+    range = map.equal_prefix_range("KE");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
+}
 
 /**
  * iterator
