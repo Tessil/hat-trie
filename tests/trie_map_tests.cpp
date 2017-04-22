@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(test_equal_prefix_range) {
     
     
     tsl::htrie_map<char, int> map;
-    map.max_load_factor(7);
+    map.burst_threshold(7);
     
     for(int i = 0; i < 4000; i++) {
         map.insert("Key " + std::to_string(i), i);
@@ -254,16 +254,6 @@ BOOST_AUTO_TEST_CASE(test_equal_prefix_range) {
     
     range = map.equal_prefix_range("KE");
     BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
-}
-
-/**
- * iterator
- */
-BOOST_AUTO_TEST_CASE(test_iterator_empty_map) {
-    tsl::htrie_map<char, int64_t> map;
-    BOOST_CHECK(map.begin() == map.end());
-    BOOST_CHECK(map.begin() == map.cend());
-    BOOST_CHECK(map.cbegin() == map.cend());
 }
 
 /**
@@ -406,3 +396,36 @@ BOOST_AUTO_TEST_CASE(test_swap) {
     BOOST_CHECK(map2 == (tsl::htrie_map<char, int64_t>{{"test1", 10}, {"test2", 20}}));
 }
 
+/**
+ * Various operations on empty map
+ */
+BOOST_AUTO_TEST_CASE(test_empty_map) {
+    tsl::htrie_map<char, int> map;
+    
+    BOOST_CHECK_EQUAL(map.size(), 0);
+    BOOST_CHECK(map.empty());
+    
+    BOOST_CHECK(map.begin() == map.end());
+    BOOST_CHECK(map.begin() == map.cend());
+    BOOST_CHECK(map.cbegin() == map.cend());
+    
+    BOOST_CHECK(map.find("") == map.end());
+    BOOST_CHECK(map.find("test") == map.end());
+    
+    BOOST_CHECK_EQUAL(map.count(""), 0);
+    BOOST_CHECK_EQUAL(map.count("test"), 0);
+    
+    BOOST_CHECK_THROW(map.at(""), std::out_of_range);
+    BOOST_CHECK_THROW(map.at("test"), std::out_of_range);
+    
+    auto range = map.equal_range("test");
+    BOOST_CHECK(range.first == range.second);
+    
+    auto range_prefix = map.equal_prefix_range("test");
+    BOOST_CHECK(range_prefix.first == range_prefix.second);
+    
+    BOOST_CHECK_EQUAL(map.erase("test"), 0);
+    BOOST_CHECK(map.erase(map.begin(), map.end()) == map.end());
+    
+    BOOST_CHECK_EQUAL(map["new value"], int{});
+}
