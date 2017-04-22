@@ -8,9 +8,6 @@ configuration:
   - Debug
   - Release
   
-install:  
-  - git submodule update --init --recursive
-  
 build_script:
   - set BOOST_ROOT=C:\Libraries\boost_1_62_0
   - if %PLATFORM% == Win32 set BOOST_LIBRARYDIR=C:\Libraries\boost_1_62_0\lib32-msvc-14.0
