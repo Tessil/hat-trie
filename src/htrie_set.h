@@ -181,6 +181,25 @@ public:
     
     
     
+#ifdef TSL_HAS_STRING_VIEW
+    std::pair<iterator, bool> emplace(const std::basic_string_view<CharT>& key) {
+        return m_ht.insert(key.data(), key.size());
+    }
+#else
+    std::pair<iterator, bool> emplace(const CharT* key) {
+        return m_ht.insert(key, std::strlen(key));
+    }
+    
+    std::pair<iterator, bool> emplace(const std::basic_string<CharT>& key) {
+        return m_ht.insert(key.data(), key.size());
+    }
+#endif
+    std::pair<iterator, bool> emplace_ks(const CharT* key, size_type key_size) {
+        return m_ht.insert(key, key_size);
+    } 
+    
+    
+    
     iterator erase(const_iterator pos) { return m_ht.erase(pos); }
     iterator erase(const_iterator first, const_iterator last) { return m_ht.erase(first, last); }
 
