@@ -415,7 +415,7 @@ public:
         htrie_hash_iterator() noexcept {
         }
         
-        template<bool P = is_prefix, typename std::enable_if<is_const && !P>::type* = nullptr> 
+        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, false>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
@@ -424,7 +424,7 @@ public:
         {
         }
         
-        template<bool P = is_prefix, typename std::enable_if<is_const && P>::type* = nullptr> 
+        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, true>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
