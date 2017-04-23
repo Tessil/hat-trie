@@ -88,17 +88,16 @@ public:
     
 private:
     using array_hash = typename std::conditional<
-                                has_value<T>::value, 
-                                tsl::array_map<CharT, T, Hash, std::char_traits<CharT>, false, 
-                                            KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy<4>>,
-                                tsl::array_set<CharT, Hash, std::char_traits<CharT>, false, 
-                                            KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy<4>>>::type;
+                                    has_value<T>::value, 
+                                    tsl::array_map<CharT, T, Hash, std::char_traits<CharT>, false, 
+                                                KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy<4>>,
+                                    tsl::array_set<CharT, Hash, std::char_traits<CharT>, false, 
+                                                KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy<4>>>::type;
     
 private:
     /**
-     * The tree is mainly composed of two nodes: trie_node and hash_node which both have anode a base class.
-     * A trie_node should have at least one child, but it can have more than that. Each child is either an
-     * hash_node or a trie_node.
+     * The tree is mainly composed of two nodes: trie_node and hash_node which both have anode as base class.
+     * Each child is either a hash_node or a trie_node.
      * 
      * A hash_node is always a leaf node, it doesn't have any child.
      * 
@@ -111,6 +110,8 @@ private:
      * 
      * 
      * Each trie_node may also have a value node if the trie_node marks the end of a string value.
+     * 
+     * A trie node should at least have one child, except if it has a value node then no child is a possibility.
      */
     
     using value_node = tsl::detail_htrie_hash::value_node<T>;
@@ -216,18 +217,22 @@ private:
         trie_node& operator=(const trie_node& other) = delete;
         trie_node& operator=(trie_node&& other) = delete;
         
-        const anode& first_child() const {
+        /**
+         * Return nullptr if none.
+         */
+        const anode* first_child() const {
             for(const auto& node: m_children) {
                 if(node != nullptr) {
-                    return *node;
+                    return node.get();
                 }
             }
             
-            throw std::runtime_error("No child in the trie node.");
+            tsl_assert(m_value_node != nullptr);
+            return nullptr;
         }
         
-        anode& first_child() {
-            return const_cast<anode&>(static_cast<const trie_node*>(this)->first_child()); 
+        anode* first_child() {
+            return const_cast<anode*>(static_cast<const trie_node*>(this)->first_child()); 
         }
         
         /**
@@ -248,6 +253,43 @@ private:
             return nullptr;
         }
         
+    
+        /**
+         * Return the first descendant trie node with an m_value_node. If none return the most left trie node.
+         */
+        const trie_node& most_left_descendant_value() const {
+            const trie_node* current_node = this;
+            while(true) {
+                if(current_node->m_value_node != nullptr) {
+                    return *current_node;
+                }
+                
+                const anode* first_child = current_node->first_child();
+                tsl_assert(first_child != nullptr);
+                if(first_child->is_hash_node()) {
+                    return *current_node;
+                }
+                
+                current_node = &first_child->as_trie_node();
+            }
+        }
+        
+        trie_node& most_left_descendant_value() {
+            return const_cast<trie_node&>(static_cast<const trie_node*>(this)->most_left_descendant_value());
+        }
+        
+        
+        
+        std::size_t nb_children() const noexcept {
+            std::size_t nb_children = 0;
+            for(const auto& node: m_children) {
+                if(node != nullptr) {
+                    nb_children++;
+                }
+            }
+            
+            return nb_children;
+        }
         
         bool empty() const noexcept {
             for(const auto& node: m_children) {
@@ -260,10 +302,12 @@ private:
         }
         
         
+        
         trie_node* m_parent_node;
         std::unique_ptr<value_node> m_value_node;
         std::array<std::unique_ptr<anode>, ALPHABET_SIZE> m_children;
     };
+    
 
     struct hash_node : public anode {
         hash_node(const Hash& hash, float max_load_factor): 
@@ -290,34 +334,8 @@ private:
         array_hash m_array_hash;
     };
     
-    
-    
    
 private: 
-    /**
-     * From 'from_node' go down through the first child node of each trie node
-     * and return the first trie node with an m_value_node. If none return the most left trie node.
-     */
-    static const trie_node& most_left_trie_node(const trie_node& from_node) {
-        const trie_node* current_node = &from_node;
-        while(true) {
-            if(current_node->m_value_node != nullptr) {
-                return *current_node;
-            }
-            
-            const anode& first_child = current_node->first_child();
-            if(first_child.is_hash_node()) {
-                return *current_node;
-            }
-            
-            current_node = &first_child.as_trie_node();
-        }
-    }
-    
-    static trie_node& most_left_trie_node(trie_node& from) {
-        return const_cast<trie_node&>(most_left_trie_node(static_cast<const trie_node&>(from)));
-    }
-    
     static std::size_t as_position(char c) noexcept {
         return static_cast<std::size_t>(static_cast<unsigned char>(c));
     }
@@ -350,45 +368,44 @@ public:
                             void>::type;
         
     private:
-        htrie_hash_iterator(trie_node_type* start_trie_node, hash_node_type* first_hash_node) noexcept: 
-            m_current_trie_node(start_trie_node), m_current_hash_node(first_hash_node),
+        /**
+         * Start reading from first_hash_node->m_array_hash.begin().
+         */
+        htrie_hash_iterator(hash_node_type& first_hash_node, trie_node_type* parent) noexcept: 
+            m_current_trie_node(parent), m_current_hash_node(&first_hash_node),
             m_read_trie_node_value(false)
         {
-            if(m_current_trie_node != nullptr) {
-                m_read_trie_node_value = (m_current_trie_node->m_value_node != nullptr);
-            }
+            tsl_assert(!m_current_hash_node->m_array_hash.empty());
             
-            if(m_current_hash_node != nullptr) {
-                m_array_hash_iterator = m_current_hash_node->m_array_hash.begin();
-                m_array_hash_end_iterator = m_current_hash_node->m_array_hash.end();
-            }
+            m_array_hash_iterator = m_current_hash_node->m_array_hash.begin();
+            m_array_hash_end_iterator = m_current_hash_node->m_array_hash.end();
         }
         
         /*
          * Start reading from the value in start_trie_node. start_trie_node->m_value_node should be non-null.
          */
-        htrie_hash_iterator(trie_node_type* start_trie_node) noexcept:
-            m_current_trie_node(start_trie_node), m_current_hash_node(nullptr),
+        htrie_hash_iterator(trie_node_type& start_trie_node) noexcept:
+            m_current_trie_node(&start_trie_node), m_current_hash_node(nullptr),
             m_read_trie_node_value(true)
         {
-            tsl_assert(m_current_trie_node != nullptr);
             tsl_assert(m_current_trie_node->m_value_node != nullptr);
         }
         
-        htrie_hash_iterator(trie_node_type* start_trie_node, hash_node_type* hnode, 
+        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
+        htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
-                            bool read_trie_node_value = false) noexcept:
-            m_current_trie_node(start_trie_node), m_current_hash_node(hnode), 
+                            bool read_trie_node_value) noexcept:
+            m_current_trie_node(tnode), m_current_hash_node(hnode), 
             m_array_hash_iterator(begin), m_array_hash_end_iterator(end),
             m_read_trie_node_value(read_trie_node_value)
         {
         }
         
         template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
-        htrie_hash_iterator(trie_node_type* start_trie_node, hash_node_type* hnode, 
+        htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
                             bool read_trie_node_value, std::string prefix_filter) noexcept:
-            m_current_trie_node(start_trie_node), m_current_hash_node(hnode), 
+            m_current_trie_node(tnode), m_current_hash_node(hnode), 
             m_array_hash_iterator(begin), m_array_hash_end_iterator(end),
             m_read_trie_node_value(read_trie_node_value), m_prefix_filter(std::move(prefix_filter))
         {
@@ -398,7 +415,7 @@ public:
         htrie_hash_iterator() noexcept {
         }
         
-        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
+        template<bool P = is_prefix, typename std::enable_if<is_const && !P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, false>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
@@ -407,7 +424,7 @@ public:
         {
         }
         
-        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
+        template<bool P = is_prefix, typename std::enable_if<is_const && P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, true>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
@@ -468,37 +485,30 @@ public:
         htrie_hash_iterator& operator++() {
             if(m_read_trie_node_value) {
                 m_read_trie_node_value = false;
-                set_next_node(m_current_trie_node->first_child());
                 
-                return *this;
-            }
-            
-            
-            ++m_array_hash_iterator;
-            if(m_array_hash_iterator != m_array_hash_end_iterator) {
-                filter_prefix();
-            }
-            // End of the road, set the iterator as an end node.
-            else if(m_current_trie_node == nullptr) {
-                m_current_hash_node = nullptr;
-            }
-            else {
-                tsl_assert(m_current_hash_node != nullptr);
-                
-                anode_type* next_node = m_current_trie_node->next_child(as_position(m_current_hash_node->m_child_of_char) + 1);
-                while(next_node == nullptr && m_current_trie_node->m_parent_node != nullptr) {
-                    anode_type* current_child = m_current_trie_node;
-                    m_current_trie_node = m_current_trie_node->m_parent_node;
-                    next_node = m_current_trie_node->next_child(as_position(current_child->m_child_of_char) + 1);
-                }
-                
-                // End of the road, set the iterator as an end node.
-                if(next_node == nullptr) {
-                    m_current_trie_node = nullptr;
-                    m_current_hash_node = nullptr;
+                anode_type* child = m_current_trie_node->first_child();
+                if(child != nullptr) {
+                    set_as_next_node(*child);
                 }
                 else {
-                    set_next_node(*next_node);
+                    trie_node_type* current_node_child = m_current_trie_node;
+                    m_current_trie_node = m_current_trie_node->m_parent_node;
+                    
+                    set_next_node(*current_node_child);
+                }
+            }
+            else {
+                ++m_array_hash_iterator;
+                if(m_array_hash_iterator != m_array_hash_end_iterator) {
+                    filter_prefix();
+                }
+                // End of the road, set the iterator as an end node.
+                else if(m_current_trie_node == nullptr) {
+                    set_as_end_iterator();
+                }
+                else {
+                    tsl_assert(m_current_hash_node != nullptr);
+                    set_next_node(*m_current_hash_node);
                 }
             }
             
@@ -558,25 +568,54 @@ public:
             }
         }
         
-        void set_next_node(anode_type& next_node) {
+        void set_next_node(anode_type& current_trie_node_child) {
+            anode_type* next_node = m_current_trie_node->next_child(
+                                            as_position(current_trie_node_child.m_child_of_char) + 1);
+            while(next_node == nullptr && m_current_trie_node->m_parent_node != nullptr) {
+                anode_type* current_child = m_current_trie_node;
+                m_current_trie_node = m_current_trie_node->m_parent_node;
+                next_node = m_current_trie_node->next_child(as_position(current_child->m_child_of_char) + 1);
+            }
+            
+            // End of the road, set the iterator as an end node.
+            if(next_node == nullptr) {
+                set_as_end_iterator();
+            }
+            else {
+                set_as_next_node(*next_node);
+            }
+        }
+        
+        void set_as_next_node(anode_type& next_node) {
             if(next_node.is_hash_node()) {
                 set_current_hash_node(next_node.as_hash_node());
             }
             else {
-                m_current_trie_node = &most_left_trie_node(next_node.as_trie_node());
+                m_current_trie_node = &next_node.as_trie_node().most_left_descendant_value();
                 if(m_current_trie_node->m_value_node != nullptr) {
                     m_read_trie_node_value = true;
                 }
                 else {
-                    set_current_hash_node(m_current_trie_node->first_child().as_hash_node());
+                    anode_type* first_child = m_current_trie_node->first_child();
+                    tsl_assert(first_child != nullptr);
+                    
+                    set_current_hash_node(first_child->as_hash_node());
                 }
             }
         }
         
         void set_current_hash_node(hash_node_type& hnode) {
+            tsl_assert(!hnode.m_array_hash.empty());
+                
             m_current_hash_node = &hnode;
             m_array_hash_iterator = m_current_hash_node->m_array_hash.begin();
             m_array_hash_end_iterator = m_current_hash_node->m_array_hash.end();
+        }
+        
+        void set_as_end_iterator() {
+            m_current_trie_node = nullptr;
+            m_current_hash_node = nullptr;
+            m_read_trie_node_value = false;
         }
         
     private:
@@ -674,7 +713,10 @@ public:
     }
     
     iterator end() noexcept {
-        return iterator(nullptr, nullptr);
+        iterator it;
+        it.set_as_end_iterator();
+        
+        return it;
     }
     
     const_iterator end() const noexcept {
@@ -682,7 +724,10 @@ public:
     }
     
     const_iterator cend() const noexcept {
-        return const_iterator(nullptr, nullptr);
+        const_iterator it;
+        it.set_as_end_iterator();
+        
+        return it;
     }
     
     
@@ -746,12 +791,12 @@ public:
     
     size_type erase(const CharT* key, size_type key_size) {
         auto it = find(key, key_size);
-        if(it == end()) {
-            return 0;
-        }
-        else {
+        if(it != end()) {
             erase(it);
             return 1;
+        }
+        else {
+            return 0;
         }
         
     }
@@ -777,7 +822,7 @@ public:
     template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
     const U& at(const CharT* key, size_type key_size) const {
         auto it_find = find(key, key_size);
-        if(it_find != end()) {
+        if(it_find != cend()) {
             return it_find.value();
         }
         else {
@@ -789,11 +834,11 @@ public:
     template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
     U& access_operator(const CharT* key, size_type key_size) {
         auto it_find = find(key, key_size);
-        if(it_find != end()) {
+        if(it_find != cend()) {
             return it_find.value();
         }
         else {
-            return insert(key, key_size, U()).first.value();
+            return insert(key, key_size, U{}).first.value();
         }
     }
     
@@ -833,53 +878,21 @@ public:
     }
     
     std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const CharT* prefix, size_type prefix_size) {
-        auto range = static_cast<const htrie_hash*>(this)->equal_prefix_range(prefix, prefix_size);
-        return std::make_pair(mutable_iterator(range.first), mutable_iterator(range.second));
+        if(m_root == nullptr) {
+            return std::make_pair(prefix_end(), prefix_end());
+        }
+        
+        return equal_prefix_range_impl(*m_root, prefix, prefix_size);
     }
 
-    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const CharT* prefix, size_type prefix_size) const {
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const CharT* prefix, 
+                                                                               size_type prefix_size) const 
+    {
         if(m_root == nullptr) {
             return std::make_pair(prefix_cend(), prefix_cend());
         }
         
-        const trie_node* current_node_parent = nullptr;
-        const anode* current_node = m_root.get();
-        
-        for(size_type iprefix = 0; iprefix < prefix_size; iprefix++) {
-            if(current_node->is_trie_node()) {
-                const trie_node* tnode = &current_node->as_trie_node();
-                
-                const std::size_t pos = as_position(prefix[iprefix]);
-                if(tnode->m_children[pos] == nullptr) {
-                    return std::make_pair(prefix_cend(), prefix_cend());
-                }
-                else {
-                    current_node_parent = tnode;
-                    current_node = tnode->m_children[pos].get();
-                }
-            }
-            else {
-                const hash_node& hnode = current_node->as_hash_node();
-                const_prefix_iterator begin(current_node_parent, &hnode, hnode.m_array_hash.begin(), 
-                                            hnode.m_array_hash.end(), false, 
-                                            std::string(prefix + iprefix, prefix_size - iprefix));
-                begin.filter_prefix();
-                
-                const_prefix_iterator end = (current_node_parent == nullptr)?
-                                        prefix_cend(): 
-                                        prefix_end_iterator(*current_node_parent, current_node->m_child_of_char);
-                                            
-                return std::make_pair(begin, end);
-            }
-        }
-        
-    
-        const_prefix_iterator begin = cbegin<const_prefix_iterator>(*current_node, current_node_parent);
-        const_prefix_iterator end = (current_node_parent == nullptr)?
-                                    prefix_cend(): 
-                                    prefix_end_iterator(*current_node_parent, current_node->m_child_of_char);
-                                    
-        return std::make_pair(begin, end);
+        return equal_prefix_range_impl(*m_root, prefix, prefix_size);
     }
     
     
@@ -902,7 +915,7 @@ public:
     }
     
     void burst_threshold(size_type threshold) {
-        m_burst_threshold = threshold;
+        m_burst_threshold = std::max(size_type(4), threshold);
     }
     
     /*
@@ -914,24 +927,36 @@ public:
     
 private:
     template<typename Iterator>
-    Iterator cbegin(const anode& start_search, const trie_node* parent) const noexcept {
-        if(start_search.is_hash_node()) {
-            const hash_node& hnode = start_search.as_hash_node();
-            return Iterator(parent, &hnode, hnode.m_array_hash.begin(), hnode.m_array_hash.end(), false);
+    Iterator cbegin(const anode& search_start_node, const trie_node* parent) const noexcept {
+        if(search_start_node.is_hash_node()) {
+            return Iterator(search_start_node.as_hash_node(), parent);
         }
         
-        const trie_node& tnode = most_left_trie_node(start_search.as_trie_node());
+        const trie_node& tnode = search_start_node.as_trie_node().most_left_descendant_value();
         if(tnode.m_value_node != nullptr) {
-            return Iterator(&tnode);
+            return Iterator(tnode);
         }
         else {
-            const hash_node& hnode = tnode.first_child().as_hash_node();
-            return Iterator(&tnode, &hnode);
+            const anode* first_child = tnode.first_child();
+            tsl_assert(first_child != nullptr);
+            
+            const hash_node& hnode = first_child->as_hash_node();
+            return Iterator(hnode, &tnode);
         }
     }
     
+    prefix_iterator prefix_end() noexcept {
+        prefix_iterator it;
+        it.set_as_end_iterator();
+        
+        return it;
+    }
+    
     const_prefix_iterator prefix_cend() const noexcept {
-        return const_prefix_iterator(nullptr, nullptr);
+        const_prefix_iterator it;
+        it.set_as_end_iterator();
+        
+        return it;
     }
     
     template<class... ValueArgs>
@@ -943,28 +968,29 @@ private:
         
         for(size_type ikey = 0; ikey < key_size; ikey++) {
             if(current_node->is_trie_node()) {
-                trie_node* tnode = &current_node->as_trie_node();
+                trie_node& tnode = current_node->as_trie_node();
                 
                 const std::size_t pos = as_position(key[ikey]);
-                if(tnode->m_children[pos] == nullptr) {
+                if(tnode.m_children[pos] == nullptr) {
                     std::unique_ptr<hash_node> hnode(new hash_node(m_hash, m_max_load_factor));
                     auto insert_it = hnode->m_array_hash.emplace_ks(key + ikey + 1, key_size - ikey - 1, 
                                                                     std::forward<ValueArgs>(value_args)...);
-                    
                     hnode->m_child_of_char = key[ikey];
-                    tnode->m_children[pos] = std::move(hnode);
+                    
+                    tnode.m_children[pos] = std::move(hnode);
                     m_nb_elements++;
                     
-                    hash_node* hnode_ptr = &tnode->m_children[pos]->as_hash_node();
-                    return std::make_pair(iterator(tnode, hnode_ptr, insert_it.first, hnode_ptr->m_array_hash.end()), true);
+                    hash_node* hnode_ptr = &tnode.m_children[pos]->as_hash_node();
+                    return std::make_pair(iterator(&tnode, hnode_ptr, 
+                                                   insert_it.first, hnode_ptr->m_array_hash.end(), false), true);
                 }
                 else {
-                    current_node_parent = tnode;
-                    current_node = tnode->m_children[pos].get();
+                    current_node_parent = &tnode;
+                    current_node = tnode.m_children[pos].get();
                 }
             }
             else {
-                const char child_of_char = (current_node_parent != nullptr)?key[ikey-1]:0;
+                const char child_of_char = (current_node_parent != nullptr)?key[ikey - 1]:0;
                 return insert_in_hash_node(current_node->as_hash_node(), child_of_char, current_node_parent,
                                            key + ikey, key_size - ikey, std::forward<ValueArgs>(value_args)...);
             }
@@ -972,12 +998,12 @@ private:
         
         
         if(current_node->is_trie_node()) {
-            trie_node* tnode = &current_node->as_trie_node();
-            if(tnode->m_value_node != nullptr) {
+            trie_node& tnode = current_node->as_trie_node();
+            if(tnode.m_value_node != nullptr) {
                 return std::make_pair(iterator(tnode), false);
             }
             else {
-                tnode->m_value_node.reset(new value_node(std::forward<ValueArgs>(value_args)...));
+                tnode.m_value_node.reset(new value_node(std::forward<ValueArgs>(value_args)...));
                 m_nb_elements++;
                 
                 return std::make_pair(iterator(tnode), true);
@@ -1015,11 +1041,11 @@ private:
         
         auto it_insert = child.m_array_hash.emplace_ks(key, key_size, std::forward<ValueArgs>(value_args)...);
         if(!it_insert.second) {
-            return std::make_pair(iterator(parent, &child, it_insert.first, child.m_array_hash.end()), false);
+            return std::make_pair(iterator(parent, &child, it_insert.first, child.m_array_hash.end(), false), false);
         }
         else {
             m_nb_elements++;
-            return std::make_pair(iterator(parent, &child, it_insert.first, child.m_array_hash.end()), true);
+            return std::make_pair(iterator(parent, &child, it_insert.first, child.m_array_hash.end(), false), true);
         }
     }
     
@@ -1045,7 +1071,7 @@ private:
         
         if(next_array_hash_it != pos.m_current_hash_node->m_array_hash.end()) {
             return iterator(pos.m_current_trie_node, pos.m_current_hash_node, 
-                            next_array_hash_it, pos.m_current_hash_node->m_array_hash.end());
+                            next_array_hash_it, pos.m_current_hash_node->m_array_hash.end(), false);
         }
         else {
             if(pos.m_current_hash_node->m_array_hash.empty()) {
@@ -1059,19 +1085,19 @@ private:
     void clear_empty_nodes(hash_node& empty_hnode, trie_node* parent) noexcept {
         tsl_assert(empty_hnode.m_array_hash.empty());
         
-        if(parent == nullptr || parent->m_value_node != nullptr) {
-            return;
+        if(parent == nullptr) {
         }
-        
-        if(!parent->empty()) {
+        else if(parent->m_value_node != nullptr || parent->nb_children() > 1) {
             parent->m_children[as_position(empty_hnode.m_child_of_char)].reset(nullptr);
         }
         else if(parent->m_parent_node == nullptr) {
+            tsl_assert(m_nb_elements == 0);
             m_root = std::move(parent->m_children[as_position(empty_hnode.m_child_of_char)]);
         }
         else {
             /**
-             * Parent is empty. Put empty_hnode as new child of the grand parent instead of parent (move hnode up,
+             * Parent is empty if we remove its empty_hnode child. 
+             * Put empty_hnode as new child of the grand parent instead of parent (move hnode up,
              * and delete the parent).
              */
             const char hnode_new_child_of_char = parent->m_child_of_char;
@@ -1080,7 +1106,6 @@ private:
             grand_parent->m_children[as_position(parent->m_child_of_char)] = 
                                         std::move(parent->m_children[as_position(empty_hnode.m_child_of_char)]);
             empty_hnode.m_child_of_char = hnode_new_child_of_char;
-            
             
             
             clear_empty_nodes(empty_hnode, grand_parent);
@@ -1119,8 +1144,8 @@ private:
         
         
         if(current_node->is_trie_node()) {
-            const trie_node* node = &current_node->as_trie_node();
-            return (node->m_value_node != nullptr)?const_iterator(node):cend();
+            const trie_node& node = current_node->as_trie_node();
+            return (node.m_value_node != nullptr)?const_iterator(node):cend();
         }
         else {
             return find_in_hash_node(current_node->as_hash_node(), current_node_parent, "", 0);
@@ -1132,7 +1157,7 @@ private:
     {
         auto it = hnode.m_array_hash.find_ks(key, key_size);
         if(it != hnode.m_array_hash.end()) {
-            return const_iterator(parent, &hnode, it, hnode.m_array_hash.end());
+            return const_iterator(parent, &hnode, it, hnode.m_array_hash.end(), false);
         }
         else {
             return cend();
@@ -1140,6 +1165,59 @@ private:
     }
     
     
+    
+    
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range_impl(anode& search_start_node,
+                                                                         const CharT* prefix, size_type prefix_size)
+    {
+        auto range = static_cast<const htrie_hash*>(this)->equal_prefix_range_impl(search_start_node, 
+                                                                                   prefix, prefix_size);
+        return std::make_pair(mutable_iterator(range.first), mutable_iterator(range.second));
+    }
+
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range_impl(
+                                                const anode& search_start_node,
+                                                const CharT* prefix, size_type prefix_size) const 
+    {
+        const trie_node* current_node_parent = nullptr;
+        const anode* current_node = &search_start_node;
+        
+        for(size_type iprefix = 0; iprefix < prefix_size; iprefix++) {
+            if(current_node->is_trie_node()) {
+                const trie_node* tnode = &current_node->as_trie_node();
+                
+                const std::size_t pos = as_position(prefix[iprefix]);
+                if(tnode->m_children[pos] == nullptr) {
+                    return std::make_pair(prefix_cend(), prefix_cend());
+                }
+                else {
+                    current_node_parent = tnode;
+                    current_node = tnode->m_children[pos].get();
+                }
+            }
+            else {
+                const hash_node& hnode = current_node->as_hash_node();
+                const_prefix_iterator begin(current_node_parent, &hnode, 
+                                            hnode.m_array_hash.begin(), hnode.m_array_hash.end(), 
+                                            false, std::string(prefix + iprefix, prefix_size - iprefix));
+                begin.filter_prefix();
+                
+                const_prefix_iterator end = (current_node_parent == nullptr)?
+                                        prefix_cend(): 
+                                        prefix_end_iterator(*current_node_parent, current_node->m_child_of_char);
+                                            
+                return std::make_pair(begin, end);
+            }
+        }
+        
+    
+        const_prefix_iterator begin = cbegin<const_prefix_iterator>(*current_node, current_node_parent);
+        const_prefix_iterator end = (current_node_parent == nullptr)?
+                                    prefix_cend(): 
+                                    prefix_end_iterator(*current_node_parent, current_node->m_child_of_char);
+                                    
+        return std::make_pair(begin, end);
+    }
     
     const_prefix_iterator prefix_end_iterator(const trie_node& tnode, char child_of_char) const {
         const trie_node* current_trie_node = &tnode;
@@ -1186,12 +1264,13 @@ private:
             }
             else {
                 hash_node& hnode = get_hash_node_for_char(first_char_count, *new_node, it.key()[0]);
-                hnode.m_array_hash.insert_ks(it.key()+1, it.key_size()-1, it.value());
+                hnode.m_array_hash.insert_ks(it.key() + 1, it.key_size() - 1, it.value());
             }
         }
         
         burst_children(*new_node);
         
+        tsl_assert(new_node->m_value_node != nullptr || !new_node->empty());
         return new_node;
     } 
     
@@ -1221,13 +1300,15 @@ private:
                 }
                 else {
                     hash_node& hnode = get_hash_node_for_char(first_char_count, *new_node, it.key()[0]);
-                    auto it_insert = hnode.m_array_hash.insert_ks(it.key()+1, it.key_size()-1, std::move(it.value()));
+                    auto it_insert = hnode.m_array_hash.insert_ks(it.key() + 1, it.key_size() - 1, 
+                                                                  std::move(it.value()));
                     moved_values_rollback.push_back(&it_insert.first.value());
                 }
             }
             
             burst_children(*new_node);
             
+            tsl_assert(new_node->m_value_node != nullptr || !new_node->empty());
             return new_node;
         }
         catch(...) {
@@ -1255,12 +1336,13 @@ private:
             }
             else {
                 hash_node& hnode = get_hash_node_for_char(first_char_count, *new_node, it.key()[0]);
-                hnode.m_array_hash.insert_ks(it.key()+1, it.key_size()-1);
+                hnode.m_array_hash.insert_ks(it.key() + 1, it.key_size() - 1);
             }
         }
         
         burst_children(*new_node);
         
+        tsl_assert(new_node->m_value_node != nullptr || !new_node->empty());
         return new_node;
     }
     
@@ -1303,10 +1385,10 @@ private:
         const std::size_t pos = as_position(for_char);
         if(tnode.m_children[pos] == nullptr) {
             const size_type nb_buckets = 
-                                size_type(std::ceil(
-                                    float(first_char_count[pos] + HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT/2)/
-                                    m_max_load_factor
-                                ));
+                            size_type(
+                                std::ceil(float(first_char_count[pos] + HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT/2) /
+                                m_max_load_factor
+                            ));
             tnode.m_children[pos].reset(new hash_node(nb_buckets, m_hash, m_max_load_factor));
             tnode.m_children[pos]->m_child_of_char = for_char;
         }
@@ -1340,7 +1422,7 @@ private:
             typename array_hash::iterator default_it;
             
             return prefix_iterator(const_cast<trie_node*>(it.m_current_trie_node), nullptr,
-                                   default_it, default_it, it.m_read_trie_node_value);
+                                   default_it, default_it, it.m_read_trie_node_value, "");
         }
         else {
             hash_node* hnode = const_cast<hash_node*>(it.m_current_hash_node);
