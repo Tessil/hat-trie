@@ -1434,8 +1434,8 @@ private:
     }
     
 public:    
-    static constexpr float HASH_NODE_DEFAULT_MAX_LOAD_FACTOR = 5.0f;
-    static const size_type DEFAULT_BURST_THRESHOLD = 2560;
+    static constexpr float HASH_NODE_DEFAULT_MAX_LOAD_FACTOR = 8.0f;
+    static const size_type DEFAULT_BURST_THRESHOLD = 16384;
     
 private:
     static const size_type HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT = 32;
