@@ -20,7 +20,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 - Allow prefix searches through `equal_prefix_range`.
 - Keys are not ordered as they are partially stored in a hash map.
 - The balance between speed and memory usage can be modified through `max_load_factor`. A lower `max_load_factor` will increase the speed, a higher one will reduce the memory usage. Its default value is set to `8.0`.
-- The default burst threshold is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8192 or 4096 for faster iteration on the results.
+- The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8192 or 4096 for faster iteration on the results through `burst_threshold`.
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
 
@@ -135,6 +135,8 @@ The API can be found [here](https://tessil.github.io/hat-trie/doc_without_string
 
 
 int main() {
+    // Map of strings to int having char as character type. 
+    // There is no support for wchar_t, char16_t, char32_t, ...
     tsl::htrie_map<char, int> map = {{"one", 1}, {"two", 2}};
     map["three"] = 3;
     map["four"] = 4;
