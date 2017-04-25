@@ -19,6 +19,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 - Low memory usage while keeping reasonable performances (see [benchmark](https://github.com/Tessil/hat-trie#benchmark)).
 - Allow prefix searches through `equal_prefix_range`.
 - Keys are not ordered as they are partially stored in a hash map.
+- All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
 - The balance between speed and memory usage can be modified through `max_load_factor`. A lower `max_load_factor` will increase the speed, a higher one will reduce the memory usage. Its default value is set to `8.0`.
 - The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8192 or 4096 for faster iteration on the results through `burst_threshold`.
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
@@ -77,9 +78,10 @@ The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For
 | [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 496.54 | 1096.90 | 628.01 |
 | [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie  | 496.60 | 1048.40 | 628.94 |
 | [hat-trie](https://github.com/dcjones/hat-trie) (C) | HAT-trie | 501.50 | 917.49 | 261.00 |
-| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 884.29 | 628.37 | 803.58 |
+| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 628.37 | 884.29 | 803.58 |
 | [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 678.73 | 603.94 |  138.24 |
 | [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1077.99 | **368.26** |  **119.49** |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 1677.11 | 466.60 | 138.87 |
 | [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 917.10 | 769.00 | 175.59 |
 | [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 1246.60 | 590.88 | 173.58  |
 
@@ -102,6 +104,7 @@ The key are inserted and read in alphabetical order.
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 614.27 | 279.07 | 113.47 |
 | [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 682.99 | 612.31 | 139.16  |
 | [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1078.02 | 375.19 | 118.08 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 1683.07 | 483.95 | 137.09 |
 | [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 918.70 | 772.03 | 176.64 |
 | [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 1246.65 | 594.85 | 173.54 |
 
