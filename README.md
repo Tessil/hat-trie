@@ -17,10 +17,10 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
 - Header-only library, just include [src/](src/) to your include path and you're ready to go.
 - Low memory usage while keeping reasonable performances (see [benchmark](https://github.com/Tessil/hat-trie#benchmark)).
-- Allow prefix searches through `equal_prefix_range`.
+- Allow prefix searches through `equal_prefix_range` (usefull for autocompletion for example).
 - Keys are not ordered as they are partially stored in a hash map.
 - All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
-- The balance between speed and memory usage can be modified through `max_load_factor`. A lower `max_load_factor` will increase the speed, a higher one will reduce the memory usage. Its default value is set to `8.0`.
+- The balance between speed and memory usage can be modified through `max_load_factor`. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to `8.0`.
 - The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8192 or 4096 for faster iteration on the results through `burst_threshold`.
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
@@ -56,7 +56,7 @@ The benchmark consists in inserting all the titles in the main namespace of the 
 
 Each title is associated with an int (32 bits). All the hash based structures use [CityHash64](https://github.com/google/cityhash) as hash function and `reserve` is not called.
 
-Note that `tsl::hopscotch_map`, `std::unordered_map` and `spp::sparse_hash_map` use `std::string` as key which imposes a minimum size of 24 bytes (on x64) even if the key is only one character long. Other structures may be able to store one-character key with 1 byte + 8 bytes for a pointer (on x64).
+Note that `tsl::hopscotch_map`, `std::unordered_map`, `google::dense_hash_map` and `spp::sparse_hash_map` use `std::string` as key which imposes a minimum size of 24 bytes (on x64) even if the key is only one character long. Other structures may be able to store one-character keys with 1 byte + 8 bytes for a pointer (on x64).
 
 The benchmark was compiled with GCC 6.3 and ran on Debian Stretch x64 with an Intel i5-5200u and 8Go of RAM. Best of 20 runs was taken.
 
