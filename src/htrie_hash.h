@@ -44,9 +44,20 @@ namespace tsl {
     
 namespace detail_htrie_hash {
     
+template <typename T, typename... U>
+struct is_related : std::false_type {};
+
+template <typename T, typename U>
+struct is_related<T, U> : std::is_same<typename std::remove_cv<typename std::remove_reference<T>::type>::type, 
+                                       typename std::remove_cv<typename std::remove_reference<U>::type>::type> {};
+
 template<class T>
 struct value_node {
-    template<class... Args>
+    /*
+     * Avoid confict with copy constructor 'value_node(const value_node&)'. If we call the copy constructor
+     * with a mutable reference 'value_node(value_node&)', we don't want the forward constructor to be called.
+     */
+    template<class... Args, typename std::enable_if<!is_related<value_node, Args...>::value>::type* = nullptr>
     value_node(Args&&... args): m_value(std::forward<Args>(args)...) {
     }
     
@@ -196,8 +207,7 @@ private:
                                            m_value_node(nullptr), m_children()
         {
             if(other.m_value_node != nullptr) {
-                // Cast to call the copy constructor instead of the variadic constructor.
-                m_value_node.reset(new value_node(static_cast<const value_node&>(*other.m_value_node)));
+                m_value_node.reset(new value_node(*other.m_value_node));
             }
             
             // TODO avoid recursion
