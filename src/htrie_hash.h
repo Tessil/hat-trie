@@ -479,7 +479,7 @@ public:
         
         template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>        
         pointer operator->() const {
-            return &value();
+            return std::addressof(value());
         }
         
         htrie_hash_iterator& operator++() {
@@ -1296,13 +1296,13 @@ private:
             for(auto it = node.m_array_hash.begin(); it != node.m_array_hash.end(); ++it) {
                 if(it.key_size() == 0) {
                     new_node->m_value_node.reset(new value_node(std::move(it.value())));
-                    moved_values_rollback.push_back(&new_node->m_value_node->m_value);
+                    moved_values_rollback.push_back(std::addressof(new_node->m_value_node->m_value));
                 }
                 else {
                     hash_node& hnode = get_hash_node_for_char(first_char_count, *new_node, it.key()[0]);
                     auto it_insert = hnode.m_array_hash.insert_ks(it.key() + 1, it.key_size() - 1, 
                                                                   std::move(it.value()));
-                    moved_values_rollback.push_back(&it_insert.first.value());
+                    moved_values_rollback.push_back(std::addressof(it_insert.first.value()));
                 }
             }
             
