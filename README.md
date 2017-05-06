@@ -11,6 +11,8 @@ It's a well adapted structure to store a large number of strings.
   <img src="https://tessil.github.io/images/hat-trie.png" width="600px" />
 </p>
 
+For the àrray hash part, my [array-hash](https://github.com/Tessil/array-hash) project is used and included as git subtree.
+
 The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
 ### Overview
@@ -20,9 +22,9 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 - Allow prefix searches through `equal_prefix_range` (usefull for autocompletion for example).
 - Keys are not ordered as they are partially stored in a hash map.
 - All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
-- The balance between speed and memory usage can be modified through `max_load_factor`. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to `8.0`.
-- The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8192 or 4096 for faster iteration on the results through `burst_threshold`.
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
+- The balance between speed and memory usage can be modified through `max_load_factor`. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to `8.0`.
+- The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8 192 or 4 096 for faster iteration on the results through `burst_threshold`.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
 
 Thread-safety and exception guarantees are similar to the STL containers.
@@ -43,6 +45,22 @@ struct str_hash {
 
 tsl::htrie_map<char, int, str_hash> map;
 ```
+
+If you have access to `std::string_view` and you want to use the compiler provided hash implementation for strings.
+
+```c++
+#include <string_view>
+
+struct str_hash {
+    std::size_t operator()(const char* key, std::size_t key_size) const {
+        return std::hash<std::string_view>()(std::string_view(key, key_size));
+    }
+};
+
+tsl::htrie_map<char, int, str_hash> map;
+```
+
+The `std::hash<std::string>` can't be used efficiently as the structure doesn't store any `std::string` object. Any time a hash would be needed a temporary `std::string` would have to be created.
 
 ### Benchmark
 
@@ -79,6 +97,7 @@ The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For
 | [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie  | 496.60 | 1048.40 | 628.94 |
 | [hat-trie](https://github.com/dcjones/hat-trie) (C) | HAT-trie | 501.50 | 917.49 | 261.00 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 628.37 | 884.29 | 803.58 |
+| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 719.47 | 476.79 | 417.15 |
 | [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 678.73 | 603.94 |  138.24 |
 | [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1077.99 | **368.26** |  **119.49** |
 | [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 1677.11 | 466.60 | 138.87 |
@@ -102,6 +121,7 @@ The key are inserted and read in alphabetical order.
 | [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 619.38 | **187.98** | 58.56 |
 | [hat-trie](https://github.com/dcjones/hat-trie) (C) | HAT-trie | 518.52 | 503.01 | 86.40 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 614.27 | 279.07 | 113.47 |
+| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 719.47 | 439.66 | 372.25 |
 | [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 682.99 | 612.31 | 139.16  |
 | [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1078.02 | 375.19 | 118.08 |
 | [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 1683.07 | 483.95 | 137.09 |
@@ -138,8 +158,11 @@ The API can be found [here](https://tessil.github.io/hat-trie/doc_without_string
 
 
 int main() {
-    // Map of strings to int having char as character type. 
-    // There is no support for wchar_t, char16_t, char32_t, ...
+    /*
+     * Map of strings to int having char as character type. 
+     * There is no support for wchar_t, char16_t or char32_t yet, 
+     * but UTF-8 strings will work fine.
+     */
     tsl::htrie_map<char, int> map = {{"one", 1}, {"two", 2}};
     map["three"] = 3;
     map["four"] = 4;
