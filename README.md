@@ -1,13 +1,45 @@
 [![Build Status](https://travis-ci.org/Tessil/array-hash.svg?branch=master)](https://travis-ci.org/Tessil/array-hash) [![Build status](https://ci.appveyor.com/api/projects/status/t50rr5bm6ejf350x/branch/master?svg=true)](https://ci.appveyor.com/project/Tessil/array-hash/branch/master)
 ## A C++ implementation of a fast and memory efficient hash map/set for strings 
 
-Cache consious hash map for string based on the "Cache-conscious collision resolution in string hash tables." (Askitis Nikolas and Justin Zobel, 2005) paper.
+Cache conscious hash map for strings based on the "Cache-conscious collision resolution in string hash tables." (Askitis Nikolas and Justin Zobel, 2005) paper.
+
+Due to its cache friendliness, the structure is well-adapted to store strings long enough to hinder the Small String Optimization (SSO). But even with shorter strings, it provides a good balance between speed and memory usage.
 
 <p align="center">
   <img src="https://tessil.github.io/images/array_hash.png" width="500px" />
 </p>
 
 The library provides two classes: `tsl::array_map` and `tsl::array_set`.
+
+### Overview
+- Header-only library, just include [src/](src/) to your include path and you're ready to go.
+- Low memory usage with good performances.
+- By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
+- By default the maximum size of the map is limited to 4 294 967 296 elements. This can be raised through the `IndexSizeT` template parameter.
+
+
+Thread-safety and exception guarantees are similar to the STL containers.
+
+### Benchmark
+
+You can find a benchmark of the map on the [`tsl::htrie_map`](https://github.com/Tessil/hat-trie#benchmark) page. But note that the benchmark is not complete as the average size of the key in the dataset can be stored with SSO. A benchmark with longer keys may arrive later.
+
+### Hash function
+
+To avoid dependencies, the default hash function is a simple [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash) hash function. If you can, I recommend to use something like [CityHash](https://github.com/google/cityhash), MurmurHash, [FarmHash](https://github.com/google/farmhash), ... for better performances.
+
+
+```c++
+#include <city.h>
+
+struct str_hash {
+    std::size_t operator()(const char* key, std::size_t key_size) const {
+        return CityHash64(key, key_size);
+    }
+};
+
+tsl::array_map<char, int, str_hash> map;
+```
 
 ### Installation
 To use array-hash, just add the [src/](src/) directory to your include path. It's a **header-only** library.
@@ -27,8 +59,10 @@ make
 ```
 
 
+
 ### Usage
-The API can be found [here](https://tessil.github.io/hopscotch-map/doc/html/). 
+
+The API can be found [here](https://tessil.github.io/array-hash/doc_without_string_view/html). If `std::string_view` is available, the API changes slightly and can be found [here](https://tessil.github.io/array-hash/doc/html/).
 
 
 ### Example

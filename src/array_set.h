@@ -56,23 +56,23 @@ namespace tsl {
  */  
 template<class CharT,
          class Hash = tsl::str_hash<CharT>,
-         class Traits = std::char_traits<CharT>,
+         class KeyEqual = tsl::str_equal<CharT>,
          bool StoreNullTerminator = true,
          class KeySizeT = std::uint16_t,
          class IndexSizeT = std::uint32_t,
          class GrowthPolicy = tsl::power_of_two_growth_policy<2>>
 class array_set {
 private:
-    using ht = tsl::detail_array_hash::array_hash<CharT, void, Hash, Traits, StoreNullTerminator, 
+    using ht = tsl::detail_array_hash::array_hash<CharT, void, Hash, KeyEqual, StoreNullTerminator, 
                                                   KeySizeT, IndexSizeT, GrowthPolicy>;
     
 public:
-    using traits_type = typename ht::traits_type;
     using char_type = typename ht::char_type;
     using key_size_type = typename ht::key_size_type;
     using index_size_type = typename ht::index_size_type;
     using size_type = typename ht::size_type;
-    using hasher = Hash;
+    using hasher = typename ht::hasher;
+    using key_equal = typename ht::key_equal;
     using iterator = typename ht::iterator;
     using const_iterator = typename ht::const_iterator;
  
@@ -94,7 +94,7 @@ public:
     
     
 #ifdef TSL_HAS_STRING_VIEW
-    array_set(std::initializer_list<std::basic_string_view<CharT, Traits>> init,
+    array_set(std::initializer_list<std::basic_string_view<CharT>> init,
               size_type bucket_count = ht::DEFAULT_INIT_BUCKET_COUNT,
               const Hash& hash = Hash()): array_set(bucket_count, hash)
     {
@@ -112,7 +112,7 @@ public:
     
 
 #ifdef TSL_HAS_STRING_VIEW
-    array_set& operator=(std::initializer_list<std::basic_string_view<CharT, Traits>> ilist) {
+    array_set& operator=(std::initializer_list<std::basic_string_view<CharT>> ilist) {
         clear();
         insert(ilist);
         
@@ -157,15 +157,15 @@ public:
         
     
 #ifdef TSL_HAS_STRING_VIEW
-    std::pair<iterator, bool> insert(const std::basic_string_view<CharT, Traits>& key) {
+    std::pair<iterator, bool> insert(const std::basic_string_view<CharT>& key) {
         return m_ht.insert(key.data(), key.size()); 
     }
 #else
     std::pair<iterator, bool> insert(const CharT* key) {
-        return m_ht.insert(key, Traits::length(key));
+        return m_ht.insert(key, std::strlen(key));
     }
     
-    std::pair<iterator, bool> insert(const std::basic_string<CharT, Traits>& key) {
+    std::pair<iterator, bool> insert(const std::basic_string<CharT>& key) {
         return m_ht.insert(key.data(), key.size()); 
     }
 #endif
@@ -189,7 +189,7 @@ public:
     
 
 #ifdef TSL_HAS_STRING_VIEW
-    void insert(std::initializer_list<std::basic_string_view<CharT, Traits>> ilist) {
+    void insert(std::initializer_list<std::basic_string_view<CharT>> ilist) {
         insert(ilist.begin(), ilist.end());
     }
 #else
@@ -201,15 +201,15 @@ public:
     
     
 #ifdef TSL_HAS_STRING_VIEW
-    std::pair<iterator, bool> emplace(const std::basic_string_view<CharT, Traits>& key) {
+    std::pair<iterator, bool> emplace(const std::basic_string_view<CharT>& key) {
         return m_ht.insert(key.data(), key.size());
     }
 #else
     std::pair<iterator, bool> emplace(const CharT* key) {
-        return m_ht.insert(key, Traits::length(key));
+        return m_ht.insert(key, std::strlen(key));
     }
     
-    std::pair<iterator, bool> emplace(const std::basic_string<CharT, Traits>& key) {
+    std::pair<iterator, bool> emplace(const std::basic_string<CharT>& key) {
         return m_ht.insert(key.data(), key.size());
     }
 #endif
@@ -223,15 +223,15 @@ public:
     iterator erase(const_iterator first, const_iterator last) { return m_ht.erase(first, last); }
 
 #ifdef TSL_HAS_STRING_VIEW 
-    size_type erase(const std::basic_string_view<CharT, Traits>& key) {
+    size_type erase(const std::basic_string_view<CharT>& key) {
         return m_ht.erase(key.data(), key.size());
     }
 #else    
     size_type erase(const CharT* key) {
-        return m_ht.erase(key, Traits::length(key));
+        return m_ht.erase(key, std::strlen(key));
     }
     
-    size_type erase(const std::basic_string<CharT, Traits>& key) {
+    size_type erase(const std::basic_string<CharT>& key) {
         return m_ht.erase(key.data(), key.size());
     }
 #endif    
@@ -249,37 +249,37 @@ public:
      * Lookup
      */    
 #ifdef TSL_HAS_STRING_VIEW 
-    size_type count(const std::basic_string_view<CharT, Traits>& key) const { return m_ht.count(key.data(), key.size()); }
+    size_type count(const std::basic_string_view<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #else
-    size_type count(const CharT* key) const { return m_ht.count(key, Traits::length(key)); }
-    size_type count(const std::basic_string<CharT, Traits>& key) const { return m_ht.count(key.data(), key.size()); }
+    size_type count(const CharT* key) const { return m_ht.count(key, std::strlen(key)); }
+    size_type count(const std::basic_string<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #endif
     size_type count_ks(const CharT* key, size_type key_size) const { return m_ht.count(key, key_size); }
     
     
     
 #ifdef TSL_HAS_STRING_VIEW 
-    iterator find(const std::basic_string_view<CharT, Traits>& key) {
+    iterator find(const std::basic_string_view<CharT>& key) {
         return m_ht.find(key.data(), key.size());
     }
     
-    const_iterator find(const std::basic_string_view<CharT, Traits>& key) const {
+    const_iterator find(const std::basic_string_view<CharT>& key) const {
         return m_ht.find(key.data(), key.size());
     }
 #else
     iterator find(const CharT* key) {
-        return m_ht.find(key, Traits::length(key));
+        return m_ht.find(key, std::strlen(key));
     }
     
     const_iterator find(const CharT* key) const {
-        return m_ht.find(key, Traits::length(key));
+        return m_ht.find(key, std::strlen(key));
     }
     
-    iterator find(const std::basic_string<CharT, Traits>& key) {
+    iterator find(const std::basic_string<CharT>& key) {
         return m_ht.find(key.data(), key.size());
     }
     
-    const_iterator find(const std::basic_string<CharT, Traits>& key) const {
+    const_iterator find(const std::basic_string<CharT>& key) const {
         return m_ht.find(key.data(), key.size());
     }
 #endif    
@@ -294,27 +294,27 @@ public:
 
     
 #ifdef TSL_HAS_STRING_VIEW 
-    std::pair<iterator, iterator> equal_range(const std::basic_string_view<CharT, Traits>& key) {
+    std::pair<iterator, iterator> equal_range(const std::basic_string_view<CharT>& key) {
         return m_ht.equal_range(key.data(), key.size());
     }
     
-    std::pair<const_iterator, const_iterator> equal_range(const std::basic_string_view<CharT, Traits>& key) const {
+    std::pair<const_iterator, const_iterator> equal_range(const std::basic_string_view<CharT>& key) const {
         return m_ht.equal_range(key.data(), key.size());
     }
 #else
     std::pair<iterator, iterator> equal_range(const CharT* key) {
-        return m_ht.equal_range(key, Traits::length(key));
+        return m_ht.equal_range(key, std::strlen(key));
     }
     
     std::pair<const_iterator, const_iterator> equal_range(const CharT* key) const {
-        return m_ht.equal_range(key, Traits::length(key));
+        return m_ht.equal_range(key, std::strlen(key));
     }
     
-    std::pair<iterator, iterator> equal_range(const std::basic_string<CharT, Traits>& key) {
+    std::pair<iterator, iterator> equal_range(const std::basic_string<CharT>& key) {
         return m_ht.equal_range(key.data(), key.size());
     }
     
-    std::pair<const_iterator, const_iterator> equal_range(const std::basic_string<CharT, Traits>& key) const {
+    std::pair<const_iterator, const_iterator> equal_range(const std::basic_string<CharT>& key) const {
         return m_ht.equal_range(key.data(), key.size());
     }
 #endif    
@@ -343,7 +343,14 @@ public:
     void max_load_factor(float ml) { m_ht.max_load_factor(ml); }
     
     void rehash(size_type count) { m_ht.rehash(count); }
-    void reserve(size_type count) { m_ht.reserve(count); }    
+    void reserve(size_type count) { m_ht.reserve(count); } 
+    
+    
+    /*
+     * Observers
+     */
+    hasher hash_function() const { return m_ht.hash_function(); }
+    key_equal key_eq() const { return m_ht.key_eq(); }   
         
         
     /*
