@@ -100,9 +100,9 @@ public:
 private:
     using array_hash = typename std::conditional<
                                     has_value<T>::value, 
-                                    tsl::array_map<CharT, T, Hash, std::char_traits<CharT>, false, 
+                                    tsl::array_map<CharT, T, Hash, tsl::str_equal<CharT>, false, 
                                                 KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy<4>>,
-                                    tsl::array_set<CharT, Hash, std::char_traits<CharT>, false, 
+                                    tsl::array_set<CharT, Hash, tsl::str_equal<CharT>, false, 
                                                 KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy<4>>>::type;
     
 private:
