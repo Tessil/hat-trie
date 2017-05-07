@@ -93,38 +93,21 @@ struct ci_str_hash {
 }; 
 
 template<class CharT>
-class ci_char_traits : public std::char_traits<CharT> {
-public:
-    static bool eq(CharT lhs, CharT rhs) {
-        return std::toupper(lhs) == std::toupper(rhs);
-    }
-    
-    static bool lt(CharT lhs, CharT rhs) {
-        return std::toupper(lhs) < std::toupper(rhs);
-    }
-    
-    static int compare(const CharT* s1, const CharT* s2, std::size_t count) {
-        for(std::size_t i=0; i < count; i++) {
-            if(std::toupper(s1[i]) < std::toupper(s2[i])) {
-                return -1;
-            }
-            
-            if(std::toupper(s1[i]) > std::toupper(s2[i])) {
-                return 1;
+struct ci_str_equal {
+    bool operator()(const CharT* key_lhs, std::size_t key_size_lhs,
+                    const CharT* key_rhs, std::size_t key_size_rhs) const
+    {
+        if(key_size_lhs != key_size_rhs) {
+            return false;
+        }
+        
+        for(std::size_t i = 0; i < key_size_lhs; i++) {
+            if(std::toupper(key_lhs[i]) != std::toupper(key_rhs[i])) {
+                return false;
             }
         }
         
-        return 0;
-    }
-    
-    static const CharT* find(const CharT* s, std::size_t count, const CharT& ch) {
-        for(std::size_t i=0; i < count; i++) {
-            if(std::toupper(s[i]) == std::toupper(ch)) {
-                return s + i;
-            }
-        }
-        
-        return nullptr;
+        return true;
     }
 };
 
@@ -135,8 +118,8 @@ public:
 
 class utils {
 public:
-    template<typename CharT, typename Traits = std::char_traits<CharT>>
-    static std::basic_string<CharT, Traits> get_key(size_t counter);
+    template<typename CharT>
+    static std::basic_string<CharT> get_key(size_t counter);
     
     template<typename T>
     static T get_value(size_t counter);
@@ -148,17 +131,17 @@ public:
 
 
 template<>
-inline std::basic_string<char, std::char_traits<char>> utils::get_key<char, std::char_traits<char>>(size_t counter) {
+inline std::basic_string<char> utils::get_key<char>(size_t counter) {
     return "Key " + std::to_string(counter);
 }
 
 template<>
-inline std::basic_string<wchar_t, std::char_traits<wchar_t>> utils::get_key<wchar_t, std::char_traits<wchar_t>>(size_t counter) {
+inline std::basic_string<wchar_t> utils::get_key<wchar_t>(size_t counter) {
     return L"Key " + std::to_wstring(counter);
 }
 
 template<>
-inline std::basic_string<char16_t, std::char_traits<char16_t>> utils::get_key<char16_t, std::char_traits<char16_t>>(size_t counter) {
+inline std::basic_string<char16_t> utils::get_key<char16_t>(size_t counter) {
     std::string num = std::to_string(counter);
     std::u16string key = u"Key ";
     
@@ -171,7 +154,7 @@ inline std::basic_string<char16_t, std::char_traits<char16_t>> utils::get_key<ch
 }
 
 template<>
-inline std::basic_string<char32_t, std::char_traits<char32_t>> utils::get_key<char32_t, std::char_traits<char32_t>>(size_t counter) {
+inline std::basic_string<char32_t> utils::get_key<char32_t>(size_t counter) {
     std::string num = std::to_string(counter);
     std::u32string key = U"Key ";
     
@@ -204,12 +187,11 @@ inline move_only_test utils::get_value<move_only_test>(size_t counter) {
 template<typename AMap>
 inline AMap utils::get_filled_map(size_t nb_elements) {
     using char_tt = typename AMap::char_type; 
-    using traits_tt = typename AMap::traits_type; 
     using value_tt = typename AMap::mapped_type;
     
     AMap map(nb_elements);
     for(size_t i = 0; i < nb_elements; i++) {
-        map.insert(utils::get_key<char_tt, traits_tt>(i), utils::get_value<value_tt>(i));
+        map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
     }
     
     return map;

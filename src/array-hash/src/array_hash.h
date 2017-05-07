@@ -74,13 +74,30 @@ namespace tsl {
 template<class CharT>
 struct str_hash {
     std::size_t operator()(const CharT* key, std::size_t key_size) const {
-        std::size_t hash = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0xcbf29ce484222325:0x811c9dc5);
-        for (unsigned int i = 0; i < key_size; ++i) {
-            const std::size_t multiplier = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0x100000001b3:0x1000193);
-            hash = (hash ^ key[i]) + (hash * multiplier);
+        static const std::size_t init = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0xcbf29ce484222325:0x811c9dc5);
+        static const std::size_t multiplier = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0x100000001b3:0x1000193);
+        
+        std::size_t hash = init;
+        for (std::size_t i = 0; i < key_size; ++i) {
+            hash ^= key[i];
+            hash *= multiplier;
         }
         
         return hash;
+    }
+};  
+
+template<class CharT>
+struct str_equal {
+    bool operator()(const CharT* key_lhs, std::size_t key_size_lhs,
+                    const CharT* key_rhs, std::size_t key_size_rhs) const
+    {
+        if(key_size_lhs != key_size_rhs) {
+            return false;
+        }
+        else {
+            return std::memcmp(key_lhs, key_rhs, key_size_lhs * sizeof(CharT)) == 0;
+        }
     }
 }; 
 
@@ -97,11 +114,11 @@ public:
     }
     
     std::size_t bucket_for_hash(std::size_t hash, std::size_t bucket_count) const {
-        return hash & (bucket_count-1);
+        return hash & (bucket_count - 1);
     }
     
-    std::size_t next_bucket_count(std::size_t bucket_count) const {
-        return bucket_count * GrowthFactor;
+    std::size_t next_bucket_count(std::size_t current_bucket_count) const {
+        return current_bucket_count * GrowthFactor;
     }
     
 private:    
@@ -156,7 +173,7 @@ static constexpr bool is_power_of_two(std::size_t value) {
  */
 template<class CharT,
          class T,
-         class Traits,
+         class KeyEqual,
          class KeySizeT,
          bool StoreNullTerminator>
 class array_bucket {
@@ -170,11 +187,11 @@ public:
     template<bool is_const>
     class array_bucket_iterator;
     
-    using traits_type = Traits;
     using char_type = CharT;
     using key_size_type = KeySizeT;
     using value_type = T;
     using size_type = std::size_t;
+    using key_equal = KeyEqual;
     using iterator = array_bucket_iterator<false>;
     using const_iterator = array_bucket_iterator<true>;
     
@@ -274,7 +291,7 @@ public:
         
         
         template<class U = T, typename std::enable_if<has_value<U>::value && !is_const>::type* = nullptr>
-        void set_value(typename array_bucket<CharT, U, Traits, KeySizeT, StoreNullTerminator>::value_type value) {
+        void set_value(typename array_bucket<CharT, U, KeyEqual, KeySizeT, StoreNullTerminator>::value_type value) {
             std::memcpy(m_position + size_as_char_t<key_size_type>() + key_size() + KEY_EXTRA_SIZE, 
                         &value, sizeof(value));
         }
@@ -547,11 +564,9 @@ private:
     {
         while(!is_end_of_bucket(buffer_ptr_in_out)) {
             const key_size_type buffer_key_size = read_key_size(buffer_ptr_in_out); 
-            if(buffer_key_size == key_size) {
-                const CharT* buffer_str = buffer_ptr_in_out + size_as_char_t<key_size_type>();
-                if(Traits::compare(buffer_str, key, key_size) == 0) {
-                    return true;
-                }
+            const CharT* buffer_str = buffer_ptr_in_out + size_as_char_t<key_size_type>();
+            if(KeyEqual()(buffer_str, buffer_key_size, key, key_size)) {
+                return true;
             }
             
             buffer_ptr_in_out += entry_size(buffer_ptr_in_out)/sizeof(CharT);
@@ -575,11 +590,11 @@ private:
         std::memcpy(buffer_append_pos, &key_size, sizeof(key_size));
         buffer_append_pos += size_as_char_t<key_size_type>();
         
-        Traits::copy(buffer_append_pos, key, key_size);
+        std::memcpy(buffer_append_pos, key, key_size * sizeof(CharT));
         buffer_append_pos += key_size;
         
-        char zero = 0;
-        std::memcpy(buffer_append_pos, &zero, KEY_EXTRA_SIZE);
+        const CharT zero = 0;
+        std::memcpy(buffer_append_pos, &zero, KEY_EXTRA_SIZE * sizeof(CharT));
         buffer_append_pos += KEY_EXTRA_SIZE;
         
         const auto end_of_bucket = END_OF_BUCKET;
@@ -588,16 +603,16 @@ private:
     
     template<typename U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
     void append_impl(const CharT* key, key_size_type key_size, CharT* buffer_append_pos, 
-                typename array_bucket<CharT, U, Traits, KeySizeT, StoreNullTerminator>::value_type value) noexcept 
+                typename array_bucket<CharT, U, KeyEqual, KeySizeT, StoreNullTerminator>::value_type value) noexcept 
     {        
         std::memcpy(buffer_append_pos, &key_size, sizeof(key_size));
         buffer_append_pos += size_as_char_t<key_size_type>();
         
-        Traits::copy(buffer_append_pos, key, key_size);
+        std::memcpy(buffer_append_pos, key, key_size * sizeof(CharT));
         buffer_append_pos += key_size;
         
-        char zero = 0;
-        std::memcpy(buffer_append_pos, &zero, KEY_EXTRA_SIZE);
+        const CharT zero = 0;
+        std::memcpy(buffer_append_pos, &zero, KEY_EXTRA_SIZE * sizeof(CharT));
         buffer_append_pos += KEY_EXTRA_SIZE;
         
         std::memcpy(buffer_append_pos, &value, sizeof(value));
@@ -653,8 +668,10 @@ protected:
 template<>
 class value_container<void> {
 public:
-    void clear() noexcept {}
+    void clear() noexcept {
+    }
 };
+
 
 
 /**
@@ -663,7 +680,7 @@ public:
 template<class CharT,
          class T, 
          class Hash,
-         class Traits,
+         class KeyEqual,
          bool StoreNullTerminator,
          class KeySizeT,
          class IndexSizeT,
@@ -681,7 +698,7 @@ private:
                                                               typename std::conditional<has_value<T>::value,
                                                                                         IndexSizeT,
                                                                                         void>::type,
-                                                              Traits, KeySizeT, StoreNullTerminator>;
+                                                              KeyEqual, KeySizeT, StoreNullTerminator>;
                                                     
     using array_bucket_value_type = typename array_bucket::value_type;
     
@@ -689,12 +706,12 @@ public:
     template<bool is_const>
     class array_hash_iterator;
     
-    using traits_type = Traits;
     using char_type = CharT;
     using key_size_type = KeySizeT;
     using index_size_type = IndexSizeT;
     using size_type = std::size_t;
     using hasher = Hash;
+    using key_equal = KeyEqual;
     using iterator = array_hash_iterator<false>;
     using const_iterator = array_hash_iterator<true>;
    
@@ -760,8 +777,8 @@ public:
         }
         
 #ifdef TSL_HAS_STRING_VIEW
-        std::basic_string_view<CharT, Traits> key_sv() const {
-            return std::basic_string_view<CharT, Traits>(key(), key_size());
+        std::basic_string_view<CharT> key_sv() const {
+            return std::basic_string_view<CharT>(key(), key_size());
         }
 #endif
         
@@ -1134,6 +1151,11 @@ public:
      */
     hasher hash_function() const { 
         return static_cast<hasher>(*this); 
+    }
+    
+    // TODO add support for statefull KeyEqual
+    key_equal key_eq() const { 
+        return KeyEqual(); 
     }
     
     /*
