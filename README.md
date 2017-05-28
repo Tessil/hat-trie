@@ -66,7 +66,7 @@ The `std::hash<std::string>` can't be used efficiently as the structure doesn't 
 
 The benchmark consists in inserting all the titles in the main namespace of the Wikipedia archive, check the used memory space and read all the titles again.
 
-* Dataset: [enwiki-20170320-all-titles-in-ns0.gz](https://dumps.wikimedia.org/enwiki/20170401/)
+* Dataset: [enwiki-20170320-all-titles-in-ns0.gz](https://dumps.wikimedia.org/enwiki/20170320/)
 * Size: 262.7 MiB
 * Number of keys: 13 099 148
 * Average key length: 19.90
