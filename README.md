@@ -23,7 +23,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 - Keys are not ordered as they are partially stored in a hash map.
 - All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
-- The balance between speed and memory usage can be modified through `max_load_factor`. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to `8.0`.
+- The balance between speed and memory usage can be modified through `max_load_factor`. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to 8.0.
 - The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8 192 or 4 096 for faster iteration on the results through `burst_threshold`.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
 
@@ -31,7 +31,7 @@ Thread-safety and exception guarantees are similar to the STL containers.
 
 ### Hash function
 
-To avoid dependencies, the default hash function is a simple [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash) hash function. If you can, I recommend to use something like [CityHash](https://github.com/google/cityhash), MurmurHash, [FarmHash](https://github.com/google/farmhash), ... for better performances.
+To avoid dependencies, the default hash function is a simple [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash) hash function. If you can, I recommend to use something like [CityHash](https://github.com/google/cityhash), MurmurHash, [FarmHash](https://github.com/google/farmhash), ... for better performances. On the tests I did, CityHash64 offers a ~20% improvement on reads compared to FNV-1a.
 
 
 ```c++
@@ -64,7 +64,8 @@ The `std::hash<std::string>` can't be used efficiently as the structure doesn't 
 
 ### Benchmark
 
-The benchmark consists in inserting all the titles in the main namespace of the Wikipedia archive, check the used memory space and read all the titles again.
+#### Wikipedia dataset
+The benchmark consists in inserting all the titles from the main namespace of the Wikipedia archive into the data structure, check the used memory space and search for all the titles again in the data structure.
 
 * Dataset: [enwiki-20170320-all-titles-in-ns0.gz](https://dumps.wikimedia.org/enwiki/20170320/)
 * Size: 262.7 MiB
@@ -81,7 +82,7 @@ The benchmark was compiled with GCC 6.3 and ran on Debian Stretch x64 with an In
 
 The code of the benchmark can be found on [Gist](https://gist.github.com/Tessil/72e11891fc155f5b2eb53de22cbc4053).
 
-#### Unsorted
+##### Unsorted
 
 The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For this benchmark, we first shuffle the dataset through [shuf(1)](https://linux.die.net/man/1/shuf) to avoid a biased sorted dataset.
 
@@ -108,7 +109,7 @@ The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For
 
 1. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
 
-#### Sorted
+##### Sorted
 
 The key are inserted and read in alphabetical order.
 
@@ -134,6 +135,46 @@ The key are inserted and read in alphabetical order.
 | [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 1246.65 | 594.85 | 173.54 |
 
 2. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
+
+
+#### Dr. Askitis dataset
+
+The benchmark consists in inserting all the words from the "Distinct Strings" dataset of Dr. Askitis into the data structure, check the used memory space and search for all the words from the "Skew String Set 1" dataset in the data structure.
+
+* Dataset: [distinct_1](http://web.archive.org/web/20120206015921/http://www.naskitis.com/) (write) / [skew1_1](http://web.archive.org/web/20120206015921/http://www.naskitis.com/) (read)
+* Size: 290.45 MiB / 1 029.46 MiB
+* Number of keys: 28 772 169 / 177 999 203
+* Average key length: 9.59 / 5.06
+* Median key length: 8 / 4
+* Max key length: 126 / 62
+
+The benchmark protocol is the same as for the [Wikipedia dataset](https://github.com/Tessil/hat-trie#wikipedia-dataset).
+
+The test is similar to the one on the [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) homepage but it corrects some of its short-comings. The cedar's benchmark creates a `std::string` on each search for the structures using  `std::string` as key putting them in a huge disadvantage compared to the structures taking a `const char *` in parameter. It also leaves the overhead of I/O operations into the benchmark (in our case all the strings of the file are first loaded in memory before the benchmark). And it uses the default hash function of each hash based data structure (while we use CityHash64 for everyone for a fair comparison).
+
+
+| Library | Data structure | Space (MiB) | Insert (ns/key) | Read (ns/key) |
+|---------|----------------|-------:|--------:|-----:|
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) | HAT-trie | **601.79** | 485.45 | 77.80 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 764.98 | 491.78 | 75.48 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 999.34 | 496.78 | 72.53 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 1341.97 | 520.66 | 72.45 |
+| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie | 1100.05 | 682.25 | 71.98 |
+| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie | 1100.05 | 668.75 | 71.95 |
+| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie | 926.04 | 684.38 | 79.11 |
+| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie | 925.98 | 672.14 | 79.02 |
+| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 712.59 | 831.71 | 75.83 |
+| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 712.31 | 786.93 | 75.89 |
+| [hat-trie](https://github.com/dcjones/hat-trie)<sup>3</sup> (C) | HAT-trie | 784.32 | 743.34 | 93.58 |
+| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 1023.11 | 535.02 | 202.36 |
+| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 999.97 | 456.09 | 148.36 |
+| [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 1031.67 | 545.82 | 46.41 |
+| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1611.54 | **288.70** | 47.05 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 2636.31 | 317.66 | **43.62** |
+| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 1417.61 | 586.26 | 56.00 |
+| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 2110.19 | 554.02 | 105.05 |
+
+3. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
 
 ### Installation
 To use the hat-trie library, just add the [src/](src/) directory to your include path. It's a **header-only** library. 
