@@ -92,12 +92,12 @@ The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 468.50 | 638.66 | 212.90 |
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 566.52 | 630.61 | 201.10 |
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 709.81 | 645.76 | 190.87 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1254.41 | 1102.93 | 557.20 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1254.41 | 1089.78 | 570.13 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1167.79 | 1076.68 | 645.79 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1167.85 | 1065.43 | 641.98 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 496.54 | 1096.90 | 628.01 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie  | 496.60 | 1048.40 | 628.94 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1254.41 | 1102.93 | 557.20 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1254.41 | 1089.78 | 570.13 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1167.79 | 1076.68 | 645.79 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1167.85 | 1065.43 | 641.98 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 496.54 | 1096.90 | 628.01 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie  | 496.60 | 1048.40 | 628.94 |
 | [hat-trie](https://github.com/dcjones/hat-trie)<sup>1</sup> (C) | HAT-trie | 501.50 | 917.49 | 261.00 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 628.37 | 884.29 | 803.58 |
 | [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 719.47 | 476.79 | 417.15 |
@@ -119,12 +119,12 @@ The key are inserted and read in alphabetical order.
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 461.80 | 248.88 | 59.23 |
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 541.21 | 230.13 | 53.50 |
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 689.70 | 243.84 | **49.22** |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1254.41 | 278.51 | 54.72 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1254.41 | 264.43 | 56.02 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1167.78 | 254.60 | 69.18 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1167.78 | 241.45 | 69.67 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 619.38 | 246.88 | 57.83 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 619.38 | **187.98** | 58.56 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1254.41 | 278.51 | 54.72 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1254.41 | 264.43 | 56.02 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1167.78 | 254.60 | 69.18 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1167.78 | 241.45 | 69.67 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 619.38 | 246.88 | 57.83 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 619.38 | **187.98** | 58.56 |
 | [hat-trie](https://github.com/dcjones/hat-trie)<sup>2</sup> (C) | HAT-trie | 518.52 | 503.01 | 86.40 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 614.27 | 279.07 | 113.47 |
 | [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 719.47 | 439.66 | 372.25 |
@@ -159,12 +159,12 @@ The test is similar to the one on the [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 764.98 | 491.78 | 75.48 |
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 999.34 | 496.78 | 72.53 |
 | [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 1341.97 | 520.66 | 72.45 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie | 1100.05 | 682.25 | 71.98 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie | 1100.05 | 668.75 | 71.95 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie | 926.04 | 684.38 | 79.11 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie | 925.98 | 672.14 | 79.02 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 712.59 | 831.71 | 75.83 |
-| [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 712.31 | 786.93 | 75.89 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie | 1100.05 | 682.25 | 71.98 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie | 1100.05 | 668.75 | 71.95 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie | 926.04 | 684.38 | 79.11 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie | 925.98 | 672.14 | 79.02 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 712.59 | 831.71 | 75.83 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 712.31 | 786.93 | 75.89 |
 | [hat-trie](https://github.com/dcjones/hat-trie)<sup>3</sup> (C) | HAT-trie | 784.32 | 743.34 | 93.58 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 1023.11 | 535.02 | 202.36 |
 | [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 999.97 | 456.09 | 148.36 |
