@@ -747,9 +747,9 @@ public:
 public:
     htrie_hash(const Hash& hash, float max_load_factor, size_type burst_threshold): 
                                   m_root(nullptr), m_nb_elements(0), 
-                                  m_hash(hash), m_max_load_factor(max_load_factor), 
-                                  m_burst_threshold(burst_threshold) 
+                                  m_hash(hash), m_max_load_factor(max_load_factor)
     {
+        this->burst_threshold(burst_threshold);
     }
     
     htrie_hash(const htrie_hash& other): m_root(nullptr), m_nb_elements(other.m_nb_elements), 
