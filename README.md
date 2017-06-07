@@ -31,7 +31,7 @@ Thread-safety and exception guarantees are similar to the STL containers.
 
 ### Hash function
 
-To avoid dependencies, the default hash function is a simple [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash) hash function. If you can, I recommend to use something like [CityHash](https://github.com/google/cityhash), MurmurHash, [FarmHash](https://github.com/google/farmhash), ... for better performances. On the tests I did, CityHash64 offers a ~20% improvement on reads compared to FNV-1a.
+To avoid dependencies, the default hash function is a simple [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash) hash function. If you can, I recommend to use something like [CityHash](https://github.com/google/cityhash), MurmurHash, [FarmHash](https://github.com/google/farmhash), ... for better performances. On the tests I did with the [Wikipedia dataset](https://github.com/Tessil/hat-trie#wikipedia-dataset), CityHash64 offers a **~20% improvement** on reads compared to FNV-1a.
 
 
 ```c++
@@ -139,7 +139,7 @@ The key are inserted and read in alphabetical order.
 
 #### Dr. Askitis dataset
 
-The benchmark consists in inserting all the words from the "Distinct Strings" dataset of Dr. Askitis into the data structure, check the used memory space and search for all the words from the "Skew String Set 1" dataset in the data structure.
+The benchmark consists in inserting all the words from the "Distinct Strings" dataset of Dr. Askitis into the data structure, check the used memory space and search for all the words from the "Skew String Set 1" dataset in the data structure. It's similar to the one on the [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) homepage.
 
 * Dataset: [distinct_1](http://web.archive.org/web/20120206015921/http://www.naskitis.com/) (write) / [skew1_1](http://web.archive.org/web/20120206015921/http://www.naskitis.com/) (read)
 * Size: 290.45 MiB / 1 029.46 MiB
@@ -149,8 +149,6 @@ The benchmark consists in inserting all the words from the "Distinct Strings" da
 * Max key length: 126 / 62
 
 The benchmark protocol is the same as for the [Wikipedia dataset](https://github.com/Tessil/hat-trie#wikipedia-dataset).
-
-The test is similar to the one on the [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) homepage but it corrects some of its short-comings. The cedar's benchmark creates a `std::string` on each search for the structures using  `std::string` as key putting them in a huge disadvantage compared to the structures taking a `const char *` in parameter. It also leaves the overhead of I/O operations into the benchmark (in our case all the strings of the file are first loaded in memory before the benchmark). And it uses the default hash function of each hash based data structure (while we use CityHash64 for everyone for a fair comparison).
 
 
 | Library | Data structure | Space (MiB) | Insert (ns/key) | Read (ns/key) |
