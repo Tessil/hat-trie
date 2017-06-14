@@ -41,9 +41,9 @@
 
 
 #ifdef __has_include
-#if __has_include(<string_view>)
-#define TSL_HAS_STRING_VIEW
-#endif
+    #if __has_include(<string_view>)
+    #define TSL_HAS_STRING_VIEW
+    #endif
 #endif
 
 #ifdef TSL_HAS_STRING_VIEW
@@ -72,7 +72,7 @@ namespace tsl {
  * FNV-1a hash
  */    
 template<class CharT>
-struct str_hash {
+struct str_hash_ah {
     std::size_t operator()(const CharT* key, std::size_t key_size) const {
         static const std::size_t init = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0xcbf29ce484222325:0x811c9dc5);
         static const std::size_t multiplier = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0x100000001b3:0x1000193);
@@ -88,7 +88,7 @@ struct str_hash {
 };  
 
 template<class CharT>
-struct str_equal {
+struct str_equal_ah {
     bool operator()(const CharT* key_lhs, std::size_t key_size_lhs,
                     const CharT* key_rhs, std::size_t key_size_rhs) const
     {
@@ -104,9 +104,9 @@ struct str_equal {
 
 
 template<std::size_t GrowthFactor>
-class power_of_two_growth_policy {
+class power_of_two_growth_policy_ah {
 public:
-    power_of_two_growth_policy(std::size_t& min_bucket_count_in_out) {
+    power_of_two_growth_policy_ah(std::size_t& min_bucket_count_in_out) {
         const std::size_t min_bucket_count = MIN_BUCKETS_SIZE;
         
         min_bucket_count_in_out = std::max(min_bucket_count, min_bucket_count_in_out);

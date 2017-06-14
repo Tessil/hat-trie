@@ -17,16 +17,28 @@ The library provides two classes: `tsl::array_map` and `tsl::array_set`.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
 - By default the maximum size of the map is limited to 4 294 967 296 elements. This can be raised through the `IndexSizeT` template parameter.
 
+### Differences compare to `std::unordered_map`
+`tsl::array_map` tries to have an interface similar to `std::unordered_map`, but some differences exist:
+- Iterator invalidation on insert and erase doesn't behave in the same way (see [API](https://tessil.github.io/array-hash/doc_without_string_view/html/classtsl_1_1array__map.html#details) for details).
+- References and pointers to keys or values in the map are invalidated in the same way as iterators.
+- Erase operations have an amortized runtime complexity of O(1) for `tsl::array_map`. An erase operation will delete the key immediatly but for the value part of the map, the deletion may be delayed. The destructor of the value is only called when the ratio between the size of the map and the size of the map + the number of deleted values still stored is low enough. The method `shrink_to_fit` may be called to force the deletion.
+- The key and the value are stored separatly and not in a `std::pair<const Key, T>`. Methods like `insert` or `emplace` take the key and the value separatly instead of a `std::pair`. The insert method looks like `std::pair<iterator, bool> insert(const CharT* key, const T& value)` instead of `std::pair<iterator, bool> insert(const std::pair<const Key, T>& value)` (see [API](https://tessil.github.io/array-hash/doc_without_string_view/html/classtsl_1_1array__map.html) for details).
+- The size of the bucket array in the map grows by a factor of 2, the size will always be a power of 2, which may be a too steep growth rate for some purposes.
+- For iterators, `operator*()` and `operator->()` return a reference and a pointer to the value `T` instead of `std::pair<const Key, T>`. For an access to the key string, the `key()` (which returns a `const CharT*`) or `key_sv()` (which returns a `std::basic_string_view<CharT>`) method of the iterator must be called.
+- No support for some bucket related methods (like bucket_size, bucket, ...).
+
+
+These differences also apply between `std::unordered_set` and `tsl::array_set`.
 
 Thread-safety and exception guarantees are similar to the STL containers.
 
 ### Benchmark
 
-You can find a benchmark of the map on the [`tsl::htrie_map`](https://github.com/Tessil/hat-trie#benchmark) page. But note that the benchmark is not complete as the average size of the key in the dataset can be stored with SSO. A benchmark with longer keys may arrive later.
+You can find a benchmark of the map on the [`hat-trie`](https://github.com/Tessil/hat-trie#benchmark) page. But note that the benchmark is not exhaustive as the average size of the key in the dataset can be stored with SSO. A benchmark with longer keys may arrive later.
 
 ### Hash function
 
-To avoid dependencies, the default hash function is a simple [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash) hash function. If you can, I recommend to use something like [CityHash](https://github.com/google/cityhash), MurmurHash, [FarmHash](https://github.com/google/farmhash), ... for better performances.
+To avoid dependencies, the default hash function is a simple [FNV-1a](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash) hash function. If you can, I recommend to use something like [CityHash](https://github.com/google/cityhash), MurmurHash, [FarmHash](https://github.com/google/farmhash), ... for better performances. On the tests I did, CityHash64 offers a ~40% improvement on reads compared to FNV-1a.
 
 
 ```c++
@@ -40,6 +52,22 @@ struct str_hash {
 
 tsl::array_map<char, int, str_hash> map;
 ```
+
+If you have access to `std::string_view` and you want to use the compiler provided hash implementation for strings.
+
+```c++
+#include <string_view>
+
+struct str_hash {
+    std::size_t operator()(const char* key, std::size_t key_size) const {
+        return std::hash<std::string_view>()(std::string_view(key, key_size));
+    }
+};
+
+tsl::array_map<char, int, str_hash> map;
+```
+
+The `std::hash<std::string>` can't be used efficiently as the structure doesn't store any `std::string` object. Any time a hash would be needed a temporary `std::string` would have to be created.
 
 ### Installation
 To use array-hash, just add the [src/](src/) directory to your include path. It's a **header-only** library.

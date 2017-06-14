@@ -20,10 +20,10 @@ using test_types = boost::mpl::list<
                 tsl::array_map<wchar_t, move_only_test>,
                 tsl::array_map<char16_t, move_only_test>,
                 tsl::array_map<char32_t, move_only_test>,
-                tsl::array_map<char, move_only_test, tsl::str_hash<char>, tsl::str_equal<char>, false>,
-                tsl::array_map<wchar_t, move_only_test, tsl::str_hash<wchar_t>, tsl::str_equal<wchar_t>, false>,
-                tsl::array_map<char16_t, move_only_test, tsl::str_hash<char16_t>, tsl::str_equal<char16_t>, false>,
-                tsl::array_map<char32_t, move_only_test, tsl::str_hash<char32_t>, tsl::str_equal<char32_t>, false>
+                tsl::array_map<char, move_only_test, tsl::str_hash_ah<char>, tsl::str_equal_ah<char>, false>,
+                tsl::array_map<wchar_t, move_only_test, tsl::str_hash_ah<wchar_t>, tsl::str_equal_ah<wchar_t>, false>,
+                tsl::array_map<char16_t, move_only_test, tsl::str_hash_ah<char16_t>, tsl::str_equal_ah<char16_t>, false>,
+                tsl::array_map<char32_t, move_only_test, tsl::str_hash_ah<char32_t>, tsl::str_equal_ah<char32_t>, false>
                 >;
 
 
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert, AMap, test_types) {
 }
 
 BOOST_AUTO_TEST_CASE(test_insert_more_than_max_size) {
-    tsl::array_map<char, int64_t, tsl::str_hash<char>, tsl::str_equal<char>, true, 
+    tsl::array_map<char, int64_t, tsl::str_hash_ah<char>, tsl::str_equal_ah<char>, true, 
                    std::uint16_t, std::uint8_t> map;
     for(std::size_t i=0; i < map.max_size(); i++) {
         map.insert(utils::get_key<char>(i), utils::get_value<int64_t>(i));
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(test_insert_more_than_max_size) {
 }
 
 BOOST_AUTO_TEST_CASE(test_insert_more_than_max_size_with_erase) {
-    tsl::array_map<char, int64_t, tsl::str_hash<char>, tsl::str_equal<char>, true, 
+    tsl::array_map<char, int64_t, tsl::str_hash_ah<char>, tsl::str_equal_ah<char>, true, 
                    std::uint16_t, std::uint8_t> map;
     for(std::size_t i=0; i < map.max_size(); i++) {
         map.insert(utils::get_key<char>(i), utils::get_value<int64_t>(i));
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test_insert_more_than_max_size_with_erase) {
 }
 
 BOOST_AUTO_TEST_CASE(test_insert_with_too_long_string) {
-    tsl::array_map<char, int64_t, tsl::str_hash<char>, tsl::str_equal<char>, true,
+    tsl::array_map<char, int64_t, tsl::str_hash_ah<char>, tsl::str_equal_ah<char>, true,
                    std::uint8_t, std::uint16_t> map;
     for(std::size_t i=0; i < 10; i++) {
         map.insert(utils::get_key<char>(i), utils::get_value<int64_t>(i));
