@@ -46,7 +46,7 @@ namespace tsl {
  *  - erase: always invalidate the iterators.
  */ 
 template<class CharT,
-         class Hash = tsl::str_hash<CharT>,
+         class Hash = tsl::str_hash_ah<CharT>,
          class KeySizeT = std::uint16_t>
 class htrie_set {
 private:
