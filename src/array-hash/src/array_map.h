@@ -52,19 +52,19 @@ namespace tsl {
  * See max_size() for an easy access to this limit.
  * 
  * Iterators invalidation:
- *  - clear, operator=, reserve, rehash: always invalidate the iterators.
- *  - insert, emplace, operator[]: only invalidate the iterators if there is a rehash.
+ *  - clear, operator=: always invalidate the iterators.
+ *  - insert, emplace, operator[]: always invalidate the iterators.
  *  - erase: always invalidate the iterators.
  *  - shrink_to_fit: always invalidate the iterators.
  */    
 template<class CharT,
          class T, 
-         class Hash = tsl::str_hash<CharT>,
-         class KeyEqual = tsl::str_equal<CharT>,
+         class Hash = tsl::str_hash_ah<CharT>,
+         class KeyEqual = tsl::str_equal_ah<CharT>,
          bool StoreNullTerminator = true,
          class KeySizeT = std::uint16_t,
          class IndexSizeT = std::uint32_t,
-         class GrowthPolicy = tsl::power_of_two_growth_policy<2>>
+         class GrowthPolicy = tsl::power_of_two_growth_policy_ah<2>>
 class array_map {
 private:
     using ht = tsl::detail_array_hash::array_hash<CharT, T, Hash, KeyEqual, StoreNullTerminator, 
@@ -252,8 +252,8 @@ public:
      * Erase has an amortized O(1) runtime complexity, but even if it removes the key immediatly,
      * it doesn't do the same for the associated value T.
      * 
-     * T will only be removed when the ratio between the number of non-deleted and deleted values still in 
-     * the map, and the number of value in the map is low enough.
+     * T will only be removed when the ratio between the size of the map and 
+     * the size of the map + the number of deleted values still stored is low enough.
      * 
      * To force the deletion you can call shrink_to_fit.
      */
