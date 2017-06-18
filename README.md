@@ -65,7 +65,7 @@ The `std::hash<std::string>` can't be used efficiently as the structure doesn't 
 ### Benchmark
 
 #### Wikipedia dataset
-The benchmark consists in inserting all the titles from the main namespace of the Wikipedia archive into the data structure, check the used memory space and search for all the titles again in the data structure.
+The benchmark consists in inserting all the titles from the main namespace of the Wikipedia archive into the data structure, check the used memory space after the insert and search for all the titles again in the data structure. The peak memory usage during the insert process is also measured with [time(1)](https://linux.die.net/man/1/time).
 
 * Dataset: [enwiki-20170320-all-titles-in-ns0.gz](https://dumps.wikimedia.org/enwiki/20170320/)
 * Size: 262.7 MiB
@@ -74,7 +74,7 @@ The benchmark consists in inserting all the titles from the main namespace of th
 * Median key length: 17
 * Max key length: 251
 
-Each title is associated with an int (32 bits). All the hash based structures use [CityHash64](https://github.com/google/cityhash) as hash function and `reserve` is not called. 
+Each title is associated with an int (32 bits). All the hash based structures use [CityHash64](https://github.com/google/cityhash) as hash function. For the tests marked *with reserve*, the `reserve` function is called beforehand to avoid any rehash.
 
 Note that `tsl::hopscotch_map`, `std::unordered_map`, `google::dense_hash_map` and `spp::sparse_hash_map` use `std::string` as key which imposes a minimum size of 32 bytes (on x64) even if the key is only one character long. Other structures may be able to store one-character keys with 1 byte + 8 bytes for a pointer (on x64).
 
@@ -86,26 +86,31 @@ The code of the benchmark can be found on [Gist](https://gist.github.com/Tessil/
 
 The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For this benchmark, we first shuffle the dataset through [shuf(1)](https://linux.die.net/man/1/shuf) to avoid a biased sorted dataset.
 
-| Library | Data structure | Space (MiB) | Insert (ns/key) | Read (ns/key) |
-|---------|----------------|-------:|--------:|-----:|
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) | HAT-trie | **402.25** | 643.10 | 250.87 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 468.50 | 638.66 | 212.90 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 566.52 | 630.61 | 201.10 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 709.81 | 645.76 | 190.87 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1254.41 | 1102.93 | 557.20 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1254.41 | 1089.78 | 570.13 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1167.79 | 1076.68 | 645.79 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1167.85 | 1065.43 | 641.98 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 496.54 | 1096.90 | 628.01 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie  | 496.60 | 1048.40 | 628.94 |
-| [hat-trie](https://github.com/dcjones/hat-trie)<sup>1</sup> (C) | HAT-trie | 501.50 | 917.49 | 261.00 |
-| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 628.37 | 884.29 | 803.58 |
-| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 719.47 | 476.79 | 417.15 |
-| [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 678.73 | 603.94 |  138.24 |
-| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1077.99 | **368.26** |  **119.49** |
-| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 1677.11 | 466.60 | 138.87 |
-| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 917.10 | 769.00 | 175.59 |
-| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 1246.60 | 590.88 | 173.58  |
+| Library | Data structure | Peak memory (MiB) | Memory (MiB) | Insert (ns/key) | Read (ns/key) |
+|---------|----------------|------------------:|-------------:|----------------:|--------------:|
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) | HAT-trie | **405.22** | **402.25** | 643.10 | 250.87 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie |  471.85 | 468.50 | 638.66 | 212.90 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 569.76 | 566.52 | 630.61 | 201.10 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 713.44 | 709.81 | 645.76 | 190.87 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1269.68 | 1254.41 | 1102.93 | 557.20 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1269.80 | 1254.41 | 1089.78 | 570.13 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1183.07 | 1167.79 | 1076.68 | 645.79 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1183.14 | 1167.85 | 1065.43 | 641.98 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 498.69 | 496.54 | 1096.90 | 628.01 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie  | 498.65 | 496.60 | 1048.40 | 628.94 |
+| [hat-trie](https://github.com/dcjones/hat-trie)<sup>1</sup> (C) | HAT-trie | 504.07 | 501.50 | 917.49 | 261.00 |
+| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 631.09 | 628.37 | 884.29 | 803.58 |
+| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 723.44 | 719.47 | 476.79 | 417.15 |
+| [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 823.54 | 678.73 | 603.94 |  138.24 |
+| [tsl::array_map](https://github.com/Tessil/array-hash) <br>with reserve | Array hash table | 564.26 | 555.91 | 249.52 | 128.28  |
+| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1325.83 | 1077.99 | 368.26 |  **119.49** |
+| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) <br>with reserve | Hash table | 1080.51 | 1077.98 | **240.58** | 119.91 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 2319.40 | 1677.11 | 466.60 | 138.87 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) <br>with reserve | Hash table | 1592.51 | 1589.99 | 259.56 | 120.40 |
+| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 918.67 | 917.10 | 769.00 | 175.59 |
+| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) <br>with reserve | Sparse hash table | 913.35 | 910.65  | 427.22 | 159.08 |
+| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 1249.05 | 1246.60 | 590.88 | 173.58 |
+| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) <br>with reserve | Hash table | 1212.23 | 1209.71 | 350.33 | 178.70 |
 
 1. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
 
@@ -113,26 +118,31 @@ The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For
 
 The key are inserted and read in alphabetical order.
 
-| Library | Data structure | Space (MiB) | Insert (ns/key) | Read (ns/key) |
-|---------|----------------|-------:|--------:|-----:|
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) | HAT-trie | **393.22** | 255.76 | 68.08 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 461.80 | 248.88 | 59.23 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 541.21 | 230.13 | 53.50 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 689.70 | 243.84 | **49.22** |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1254.41 | 278.51 | 54.72 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1254.41 | 264.43 | 56.02 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1167.78 | 254.60 | 69.18 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1167.78 | 241.45 | 69.67 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 619.38 | 246.88 | 57.83 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 619.38 | **187.98** | 58.56 |
-| [hat-trie](https://github.com/dcjones/hat-trie)<sup>2</sup> (C) | HAT-trie | 518.52 | 503.01 | 86.40 |
-| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 614.27 | 279.07 | 113.47 |
-| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 719.47 | 439.66 | 372.25 |
-| [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 682.99 | 612.31 | 139.16  |
-| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1078.02 | 375.19 | 118.08 |
-| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 1683.07 | 483.95 | 137.09 |
-| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 918.70 | 772.03 | 176.64 |
-| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 1246.65 | 594.85 | 173.54 |
+| Library | Data structure | Peak memory (MiB) | Memory (MiB) | Insert (ns/key) | Read (ns/key) |
+|---------|----------------|------------------:|-------------:|----------------:|--------------:|
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) | HAT-trie | **396.10** | **393.22** | 255.76 | 68.08 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 465.02 | 461.80 | 248.88 | 59.23 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 543.99 | 541.21 | 230.13 | 53.50 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 692.29 | 689.70 | 243.84 | **49.22** |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie  | 1269.58 | 1254.41 | 278.51 | 54.72 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie  | 1269.66 | 1254.41 | 264.43 | 56.02 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie  | 1183.01 | 1167.78 | 254.60 | 69.18 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie  | 1183.03 | 1167.78 | 241.45 | 69.67 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 621.59 | 619.38 | 246.88 | 57.83 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 621.59 | 619.38 | **187.98** | 58.56 |
+| [hat-trie](https://github.com/dcjones/hat-trie)<sup>2</sup> (C) | HAT-trie | 521.25 | 518.52 | 503.01 | 86.40 |
+| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 616.95 | 614.27 | 279.07 | 114.47 |
+| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 722.29 | 719.47 | 439.66 | 372.25 |
+| [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 826.98 | 682.99 | 612.31 | 139.16  |
+| [tsl::array_map](https://github.com/Tessil/array-hash) <br>with reserve | Array hash table | 565.37 | 555.35 | 246.55 | 126.32 |
+| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table |  1331.87 | 1078.02 | 375.19 | 118.08 |
+| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) <br>with reserve | Hash table | 1080.51 | 1077.97 | 238.93 | 117.20 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table |  2325.27 | 1683.07 | 483.95 | 137.09 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) <br>with reserve | Hash table | 1592.54 | 1589.99 | 257.22 | 113.71 |
+| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 920.96 | 918.70 | 772.03 | 176.64 |
+| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) <br>with reserve | Sparse hash table | 914.84 | 912.47 | 422.85 | 158.73 |
+| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 1249.09 | 1246.65 | 594.85 | 173.54 |
+| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) <br>with reserve | Hash table |  1212.21 | 1209.71 | 347.40 | 176.49 |
 
 2. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
 
@@ -151,26 +161,31 @@ The benchmark consists in inserting all the words from the "Distinct Strings" da
 The benchmark protocol is the same as for the [Wikipedia dataset](https://github.com/Tessil/hat-trie#wikipedia-dataset).
 
 
-| Library | Data structure | Space (MiB) | Insert (ns/key) | Read (ns/key) |
-|---------|----------------|-------:|--------:|-----:|
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) | HAT-trie | **601.79** | 485.45 | 77.80 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 764.98 | 491.78 | 75.48 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 999.34 | 496.78 | 72.53 |
-| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 1341.97 | 520.66 | 72.45 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie | 1100.05 | 682.25 | 71.98 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie | 1100.05 | 668.75 | 71.95 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie | 926.04 | 684.38 | 79.11 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie | 925.98 | 672.14 | 79.02 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 712.59 | 831.71 | 75.83 |
-| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 712.31 | 786.93 | 75.89 |
-| [hat-trie](https://github.com/dcjones/hat-trie)<sup>3</sup> (C) | HAT-trie | 784.32 | 743.34 | 93.58 |
-| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 1023.11 | 535.02 | 202.36 |
-| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 999.97 | 456.09 | 148.36 |
-| [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 1031.67 | 545.82 | 46.41 |
-| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 1611.54 | **288.70** | 47.05 |
-| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 2636.31 | 317.66 | **43.62** |
-| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 1417.61 | 586.26 | 56.00 |
-| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 2110.19 | 554.02 | 105.05 |
+| Library | Data structure | Peak memory (MiB) | Memory (MiB) | Insert (ns/key) | Read (ns/key) |
+|---------|----------------|------------------:|-------------:|----------------:|--------------:|
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) | HAT-trie |  **604.76** | **601.79** | 485.45 | 77.80 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=4 | HAT-trie | 768.10 | 764.98 | 491.78 | 75.48 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=2 | HAT-trie | 1002.42 | 999.34 | 496.78 | 72.53 |
+| [tsl::htrie_map](https://github.com/Tessil/hat-trie) <br/> max_load_factor=1 | HAT-trie | 1344.98 | 1341.97 | 520.66 | 72.45 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array trie | 1105.45 | 1100.05 | 682.25 | 71.98 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array trie | 1105.47 | 1100.05 | 668.75 | 71.95 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array reduced trie | 941.16 | 926.04 | 684.38 | 79.11 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array reduced trie | 941.16 | 925.98 | 672.14 | 79.02 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 714.58 | 712.59 | 831.71 | 75.83 |
+| [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 714.66 | 712.31 | 786.93 | 75.89 |
+| [hat-trie](https://github.com/dcjones/hat-trie)<sup>3</sup> (C) | HAT-trie | 786.93 | 784.32 | 743.34 | 93.58 |
+| [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 1025.59 | 1023.11 | 535.02 | 202.36 |
+| [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 1002.50 | 999.97 | 456.09 | 148.36 |
+| [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 1308.08 | 1031.67 | 545.82 | 46.41 |
+| [tsl::array_map](https://github.com/Tessil/array-hash) <br>with reserve | Array hash table | 979.44 | 921.363 | 244.19 | 45.74  |
+| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) | Hash table | 2336.39 | 1611.54 | 288.70 | 47.05 |
+| [tsl::hopscotch_map](https://github.com/Tessil/hopscotch-map) <br>with reserve | Hash table | 1614.22 | 1611.64 | **220.67** | 46.39 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) | Hash table | 3913.64 | 2636.31 | 317.66 | 43.62 |
+| [google::dense_hash_map](https://github.com/sparsehash/sparsehash) <br>with reserve | Hash table | 2638.19 | 2635.68 | 227.58 | **43.09** |
+| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) | Sparse hash table | 1419.69 | 1417.61 | 586.26 | 56.00 |
+| [spp::sparse_hash_map](https://github.com/greg7mdp/sparsepp) <br>with reserve | Sparse hash table | 1424.21 | 1421.69 | 392.76 | 55.73 |
+| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) | Hash table | 2112.66 | 2110.19 | 554.02 | 105.05 |
+| [std::unordered_map](http://en.cppreference.com/w/cpp/container/unordered_map) <br>with reserve | Hash table | 2053.95 | 2051.67 | 309.06 | 109.89 |
 
 3. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
 
