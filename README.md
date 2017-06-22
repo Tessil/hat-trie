@@ -65,7 +65,7 @@ The `std::hash<std::string>` can't be used efficiently as the structure doesn't 
 ### Benchmark
 
 #### Wikipedia dataset
-The benchmark consists in inserting all the titles from the main namespace of the Wikipedia archive into the data structure, check the used memory space after the insert and search for all the titles again in the data structure. The peak memory usage during the insert process is also measured with [time(1)](https://linux.die.net/man/1/time).
+The benchmark consists in inserting all the titles from the main namespace of the Wikipedia archive into the data structure, check the used memory space after the insert (including potential memory fragmentation) and search for all the titles again in the data structure. The peak memory usage during the insert process is also measured with [time(1)](https://linux.die.net/man/1/time).
 
 * Dataset: [enwiki-20170320-all-titles-in-ns0.gz](https://dumps.wikimedia.org/enwiki/20170320/)
 * Size: 262.7 MiB
@@ -99,6 +99,8 @@ The *enwiki-20170320-all-titles-in-ns0.gz* dataset is alphabetically sorted. For
 | [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 498.69 | 496.54 | 1096.90 | 628.01 |
 | [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie  | 498.65 | 496.60 | 1048.40 | 628.94 |
 | [hat-trie](https://github.com/dcjones/hat-trie)<sup>1</sup> (C) | HAT-trie | 504.07 | 501.50 | 917.49 | 261.00 |
+| [qp trie](https://github.com/fanf2/qp) (C) | QP trie | 941.23 | 938.17 | 1349.25 | 1281.46 |
+| [crit-bit trie](https://github.com/fanf2/qp) (C) | Crit-bit trie | 1074.96 | 1071.98 | 2930.42 | 2869.74 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 631.09 | 628.37 | 884.29 | 803.58 |
 | [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 723.44 | 719.47 | 476.79 | 417.15 |
 | [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 823.54 | 678.73 | 603.94 |  138.24 |
@@ -131,6 +133,8 @@ The key are inserted and read in alphabetical order.
 | [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 621.59 | 619.38 | 246.88 | 57.83 |
 | [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 621.59 | 619.38 | **187.98** | 58.56 |
 | [hat-trie](https://github.com/dcjones/hat-trie)<sup>2</sup> (C) | HAT-trie | 521.25 | 518.52 | 503.01 | 86.40 |
+| [qp trie](https://github.com/fanf2/qp) (C) | QP trie | 940.65 | 937.66 | 392.86 | 190.19 |
+| [crit-bit trie](https://github.com/fanf2/qp) (C) | Crit-bit trie | 1074.87 | 1071.98 | 430.04 | 347.60 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 616.95 | 614.27 | 279.07 | 114.47 |
 | [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 722.29 | 719.47 | 439.66 | 372.25 |
 | [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 826.98 | 682.99 | 612.31 | 139.16  |
@@ -174,6 +178,8 @@ The benchmark protocol is the same as for the [Wikipedia dataset](https://github
 | [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) | Double-array prefix trie | 714.58 | 712.59 | 831.71 | 75.83 |
 | [cedar::da](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) ORDERED=false | Double-array prefix trie | 714.66 | 712.31 | 786.93 | 75.89 |
 | [hat-trie](https://github.com/dcjones/hat-trie)<sup>3</sup> (C) | HAT-trie | 786.93 | 784.32 | 743.34 | 93.58 |
+| [qp trie](https://github.com/fanf2/qp) (C) | QP trie | 1800.02 | 1797.21 | 987.95 | 428.51 |
+| [crit-bit trie](https://github.com/fanf2/qp) (C) | Crit-bit trie | 2210.52 | 2207.64 | 1986.19 | 1109.88 |
 | [JudySL](http://judy.sourceforge.net/) (C) | Judy array | 1025.59 | 1023.11 | 535.02 | 202.36 |
 | [JudyHS](http://judy.sourceforge.net/) (C) | Judy array | 1002.50 | 999.97 | 456.09 | 148.36 |
 | [tsl::array_map](https://github.com/Tessil/array-hash) | Array hash table | 1308.08 | 1031.67 | 545.82 | 46.41 |
