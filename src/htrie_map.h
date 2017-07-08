@@ -249,6 +249,25 @@ public:
     
     
     
+#ifdef TSL_HAS_STRING_VIEW
+    size_type erase_prefix(const std::basic_string_view<CharT>& prefix) {
+        return m_ht.erase_prefix(prefix.data(), prefix.size());
+    }
+#else
+    size_type erase_prefix(const CharT* prefix) {
+        return m_ht.erase_prefix(prefix, std::strlen(prefix));
+    }
+    
+    size_type erase_prefix(const std::basic_string<CharT>& prefix) {
+        return m_ht.erase_prefix(prefix.data(), prefix.size());
+    }
+#endif
+    size_type erase_prefix_ks(const CharT* prefix, size_type prefix_size) {
+        return m_ht.erase_prefix(prefix, prefix_size);
+    }
+    
+    
+    
     void swap(htrie_map& other) { other.m_ht.swap(m_ht); }
     
     /*

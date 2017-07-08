@@ -390,6 +390,33 @@ private:
             return m_value_node;
         }
         
+        /**
+         * Return the number of values in the tree.
+         */
+        size_type size() const {
+            // TODO avoid recursion
+            size_type nb_elements = 0;
+            
+            if(m_value_node != nullptr) {
+                nb_elements++;
+            }
+            
+            for(const auto& node: m_children) {
+                if(node == nullptr) {
+                    continue;
+                }
+                
+                if(node->is_trie_node()) {
+                    nb_elements += node->as_trie_node().size();
+                }
+                else {
+                    nb_elements += node->as_hash_node().array_hash().size();
+                }
+            }
+            
+            return nb_elements;
+        }
+        
     private:
         std::unique_ptr<value_node> m_value_node;
         std::array<std::unique_ptr<anode>, ALPHABET_SIZE> m_children;
@@ -916,6 +943,65 @@ public:
         
     }
     
+    size_type erase_prefix(const CharT* prefix, size_type prefix_size) {
+       if(m_root == nullptr) {
+            return 0;
+        }        
+        
+        anode* current_node = m_root.get();
+        for(size_type iprefix = 0; iprefix < prefix_size; iprefix++) {
+            if(current_node->is_trie_node()) {
+                trie_node* tnode = &current_node->as_trie_node();
+                
+                if(tnode->child(prefix[iprefix]) == nullptr) {
+                    return 0;
+                }
+                else {
+                    current_node = tnode->child(prefix[iprefix]).get();
+                }
+            }
+            else {
+                hash_node& hnode = current_node->as_hash_node();
+                return erase_prefix_hash_node(hnode, prefix + iprefix, prefix_size - iprefix);
+            }
+        }
+        
+        
+        if(current_node->is_trie_node()) {
+            trie_node* parent = current_node->parent();
+            
+            if(parent != nullptr) {
+                const size_type nb_erased = current_node->as_trie_node().size();
+                
+                const CharT child_of_char = current_node->child_of_char();
+                parent->set_child(child_of_char, 
+                                  std::unique_ptr<anode>(new hash_node(m_hash, m_max_load_factor)));
+                
+                m_nb_elements -= nb_erased;
+                clear_empty_nodes(parent->child(child_of_char)->as_hash_node());
+
+                return nb_erased;
+            }
+            else {
+                const size_type nb_erased = size();
+                m_root.reset(new hash_node(m_hash, m_max_load_factor));
+                m_nb_elements -= nb_erased;
+                
+                return nb_erased;
+            }
+        }
+        else {
+            const size_type nb_erased = current_node->as_hash_node().array_hash().size();
+            
+            current_node->as_hash_node().array_hash().clear();
+            m_nb_elements -= nb_erased;
+            
+            clear_empty_nodes(current_node->as_hash_node());
+            
+            return nb_erased;
+        }
+    }
+    
     void swap(htrie_hash& other) {
         using std::swap;
         
@@ -1348,6 +1434,25 @@ private:
         }
     }
     
+    size_type erase_prefix_hash_node(hash_node& hnode, const CharT* prefix, size_type prefix_size) {
+        size_type nb_erased = 0;
+        
+        auto it = hnode.array_hash().begin();
+        while(it != hnode.array_hash().end()) {
+            if(it.key_size() >= prefix_size && 
+               std::equal(prefix, prefix + prefix_size, it.key()))
+            {
+                it = hnode.array_hash().erase(it);
+                ++nb_erased;
+                --m_nb_elements;
+            }
+            else {
+                ++it;
+            }
+        }
+        
+        return nb_erased;
+    }
     
     
     /*
