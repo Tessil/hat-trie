@@ -29,6 +29,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -1440,7 +1441,7 @@ private:
         auto it = hnode.array_hash().begin();
         while(it != hnode.array_hash().end()) {
             if(it.key_size() >= prefix_size && 
-               std::equal(prefix, prefix + prefix_size, it.key()))
+               std::memcmp(prefix, it.key(), prefix_size * sizeof(CharT)) == 0)
             {
                 it = hnode.array_hash().erase(it);
                 ++nb_erased;
