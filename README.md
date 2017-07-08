@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/Tessil/hat-trie.svg?branch=master)](https://travis-ci.org/Tessil/hat-trie) [![Build status](https://ci.appveyor.com/api/projects/status/ieafyj08ewb7dfa7/branch/master?svg=true)](https://ci.appveyor.com/project/Tessil/hat-trie/branch/master)
 ## A C++ implementation of a fast and memory efficient HAT-trie
 
-Trie implementation based on the "HAT-trie: A Cache-conscious Trie-based Data Structure for Strings." (Askitis Nikolas and  Sinha Ranjan, 2007) paper. For now, only the pure HAT-trie has been implemented, the hybrid version may arrive later.
+Trie implementation based on the "HAT-trie: A Cache-conscious Trie-based Data Structure for Strings." (Askitis Nikolas and  Sinha Ranjan, 2007) paper. For now, only the pure HAT-trie has been implemented, the hybrid version may arrive later. Details regarding the HAT-trie data structure can be found [here](https://tessil.github.io/2017/06/22/hat-trie.html).
 
 The library provides an efficient and compact way to store a set or a map of strings by compressing the common prefixes. It also allows to search for keys that match a prefix.
 
@@ -22,6 +22,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 - Allow prefix searches through `equal_prefix_range` (usefull for autocompletion for example).
 - Keys are not ordered as they are partially stored in a hash map.
 - All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
+- Support null characters in the key (you can thus store binary data in the trie).
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
 - The balance between speed and memory usage can be modified through `max_load_factor`. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to 8.0.
 - The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8 192 or 4 096 for faster iteration on the results through `burst_threshold`.
