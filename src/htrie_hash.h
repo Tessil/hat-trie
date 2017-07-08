@@ -72,7 +72,9 @@ struct value_node<void> {
 
 
     
-
+/**
+ * T should be void if there is not value associated to a key (in a set for example).
+ */
 template<class CharT,
          class T, 
          class Hash,
@@ -89,7 +91,7 @@ private:
     
                             
 public:
-    template<bool is_const, bool is_prefix>
+    template<bool is_const, bool is_prefix_iterator>
     class htrie_hash_iterator;
     
     
@@ -177,11 +179,11 @@ private:
             return static_cast<const hash_node&>(*this);
         }
         
-        char child_of_char() const noexcept {
+        CharT child_of_char() const noexcept {
             return m_child_of_char;
         }
         
-        void child_of_char(char c) noexcept {
+        void child_of_char(CharT c) noexcept {
             m_child_of_char = c;
         }
         
@@ -204,7 +206,7 @@ private:
         {
         }
     
-        anode(node_type node_type_, char child_of_char): m_node_type(node_type_), 
+        anode(node_type node_type_, CharT child_of_char): m_node_type(node_type_), 
                                                          m_child_of_char(child_of_char), 
                                                          m_parent_node(nullptr) 
         {
@@ -229,7 +231,7 @@ private:
          * 
          * trie_node_1 has no parent, its m_child_of_char is undeterminated.
          */
-        char m_child_of_char;
+        CharT m_child_of_char;
         trie_node* m_parent_node;
     };
     
@@ -355,11 +357,11 @@ private:
             return true;
         }
         
-        std::unique_ptr<anode>& child(char for_char) {
+        std::unique_ptr<anode>& child(CharT for_char) {
             return m_children[as_position(for_char)];
         }
         
-        const std::unique_ptr<anode>& child(char for_char) const {
+        const std::unique_ptr<anode>& child(CharT for_char) const {
             return m_children[as_position(for_char)];
         }
         
@@ -371,7 +373,7 @@ private:
             return m_children.end();
         }
         
-        void set_child(char for_char, std::unique_ptr<anode> child) {
+        void set_child(CharT for_char, std::unique_ptr<anode> child) {
             if(child != nullptr) {
                 child->m_child_of_char = for_char;
                 child->m_parent_node = this;
@@ -429,7 +431,7 @@ private:
     
     
 public:
-    template<bool is_const, bool is_prefix>
+    template<bool is_const, bool is_prefix_iterator>
     class htrie_hash_iterator {
         friend class htrie_hash;
         
@@ -489,7 +491,7 @@ public:
             tsl_assert(m_current_trie_node->val_node() != nullptr);
         }
         
-        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
+        template<bool P = is_prefix_iterator, typename std::enable_if<!P>::type* = nullptr> 
         htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
                             bool read_trie_node_value) noexcept:
@@ -499,7 +501,7 @@ public:
         {
         }
         
-        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
+        template<bool P = is_prefix_iterator, typename std::enable_if<P>::type* = nullptr> 
         htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
                             bool read_trie_node_value, std::string prefix_filter) noexcept:
@@ -513,7 +515,7 @@ public:
         htrie_hash_iterator() noexcept {
         }
         
-        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
+        template<bool P = is_prefix_iterator, typename std::enable_if<!P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, false>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
@@ -522,7 +524,7 @@ public:
         {
         }
         
-        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
+        template<bool P = is_prefix_iterator, typename std::enable_if<P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, true>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
@@ -656,11 +658,11 @@ public:
         }
         
     private:        
-        template<bool P = is_prefix, typename std::enable_if<!P>::type* = nullptr> 
+        template<bool P = is_prefix_iterator, typename std::enable_if<!P>::type* = nullptr> 
         void filter_prefix() {
         } 
         
-        template<bool P = is_prefix, typename std::enable_if<P>::type* = nullptr> 
+        template<bool P = is_prefix_iterator, typename std::enable_if<P>::type* = nullptr> 
         void filter_prefix() {
             tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             
@@ -739,7 +741,7 @@ public:
         
         bool m_read_trie_node_value;
         // TODO can't have void if !is_prefix, use inheritance
-        typename std::conditional<is_prefix, std::string, bool>::type m_prefix_filter;
+        typename std::conditional<is_prefix_iterator, std::string, bool>::type m_prefix_filter;
     }; 
     
 
