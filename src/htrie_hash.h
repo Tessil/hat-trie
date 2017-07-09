@@ -273,11 +273,11 @@ private:
         /**
          * Return nullptr if none.
          */
-        anode* first_child() {
+        anode* first_child() noexcept {
             return const_cast<anode*>(static_cast<const trie_node*>(this)->first_child());
         }
         
-        const anode* first_child() const {
+        const anode* first_child() const noexcept {
             for(std::size_t ichild = 0; ichild < m_children.size(); ichild++) {
                 if(m_children[ichild] != nullptr) {
                     return m_children[ichild].get();
@@ -291,11 +291,11 @@ private:
         /**
          * Return nullptr if no next child.
          */
-        anode* next_child(const anode& current_child) {
+        anode* next_child(const anode& current_child) noexcept {
             return const_cast<anode*>(static_cast<const trie_node*>(this)->next_child(current_child)); 
         }
         
-        const anode* next_child(const anode& current_child) const {
+        const anode* next_child(const anode& current_child) const noexcept {
             tsl_assert(current_child.parent() == this);
             
             for(std::size_t ichild = as_position(current_child.child_of_char()) + 1; 
@@ -314,7 +314,11 @@ private:
         /**
          * Return the first left-descendant trie node with an m_value_node. If none return the most left trie node.
          */
-        const trie_node& most_left_descendant_value() const {
+        trie_node& most_left_descendant_value() noexcept {
+            return const_cast<trie_node&>(static_cast<const trie_node*>(this)->most_left_descendant_value());
+        }
+        
+        const trie_node& most_left_descendant_value() const noexcept {
             const trie_node* current_node = this;
             while(true) {
                 if(current_node->m_value_node != nullptr) {
@@ -329,10 +333,6 @@ private:
                 
                 current_node = &first_child->as_trie_node();
             }
-        }
-        
-        trie_node& most_left_descendant_value() {
-            return const_cast<trie_node&>(static_cast<const trie_node*>(this)->most_left_descendant_value());
         }
         
         
@@ -358,11 +358,11 @@ private:
             return true;
         }
         
-        std::unique_ptr<anode>& child(CharT for_char) {
+        std::unique_ptr<anode>& child(CharT for_char) noexcept {
             return m_children[as_position(for_char)];
         }
         
-        const std::unique_ptr<anode>& child(CharT for_char) const {
+        const std::unique_ptr<anode>& child(CharT for_char) const noexcept {
             return m_children[as_position(for_char)];
         }
         
@@ -374,7 +374,7 @@ private:
             return m_children.end();
         }
         
-        void set_child(CharT for_char, std::unique_ptr<anode> child) {
+        void set_child(CharT for_char, std::unique_ptr<anode> child) noexcept {
             if(child != nullptr) {
                 child->m_child_of_char = for_char;
                 child->m_parent_node = this;
@@ -383,18 +383,18 @@ private:
             m_children[as_position(for_char)] = std::move(child);
         }
         
-        std::unique_ptr<value_node>& val_node() {
+        std::unique_ptr<value_node>& val_node() noexcept {
             return m_value_node;
         }
         
-        const std::unique_ptr<value_node>& val_node() const {
+        const std::unique_ptr<value_node>& val_node() const noexcept {
             return m_value_node;
         }
         
         /**
          * Return the number of values in the tree.
          */
-        size_type size() const {
+        size_type size() const noexcept {
             // TODO avoid recursion
             size_type nb_elements = 0;
             
@@ -973,10 +973,10 @@ public:
             
             if(parent != nullptr) {
                 const size_type nb_erased = current_node->as_trie_node().size();
-                
                 const CharT child_of_char = current_node->child_of_char();
-                parent->set_child(child_of_char, 
-                                  std::unique_ptr<anode>(new hash_node(m_hash, m_max_load_factor)));
+                
+                std::unique_ptr<anode> empty_hnode(new hash_node(m_hash, m_max_load_factor));
+                parent->set_child(child_of_char, std::move(empty_hnode));
                 
                 m_nb_elements -= nb_erased;
                 clear_empty_nodes(parent->child(child_of_char)->as_hash_node());
@@ -984,9 +984,9 @@ public:
                 return nb_erased;
             }
             else {
-                const size_type nb_erased = size();
+                const size_type nb_erased = m_nb_elements;
                 m_root.reset(new hash_node(m_hash, m_max_load_factor));
-                m_nb_elements -= nb_erased;
+                m_nb_elements = 0;
                 
                 return nb_erased;
             }
@@ -1288,6 +1288,7 @@ private:
         
         trie_node* parent = empty_hnode.parent();
         if(parent == nullptr) {
+            tsl_assert(m_root.get() == &empty_hnode);
         }
         else if(parent->val_node() != nullptr || parent->nb_children() > 1) {
             parent->child(empty_hnode.child_of_char()).reset(nullptr);
