@@ -257,6 +257,65 @@ BOOST_AUTO_TEST_CASE(test_equal_prefix_range) {
 }
 
 /**
+ * erase_prefix
+ */
+BOOST_AUTO_TEST_CASE(test_erase_prefix) {
+    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(10000, 200);
+    
+    BOOST_CHECK_EQUAL(map.erase_prefix("Key 1"), 1111);
+    BOOST_CHECK_EQUAL(map.size(), 8889);
+    
+    BOOST_CHECK_EQUAL(map.erase_prefix("Key 22"), 111);
+    BOOST_CHECK_EQUAL(map.size(), 8778);
+    
+    BOOST_CHECK_EQUAL(map.erase_prefix("Key 333"), 11);
+    BOOST_CHECK_EQUAL(map.size(), 8767);
+    
+    BOOST_CHECK_EQUAL(map.erase_prefix("Key 4444"), 1);
+    BOOST_CHECK_EQUAL(map.size(), 8766);
+    
+    BOOST_CHECK_EQUAL(map.erase_prefix("Key 55555"), 0);
+    BOOST_CHECK_EQUAL(map.size(), 8766);
+    
+    for(auto it = map.begin(); it != map.end(); ++it) {
+        BOOST_CHECK(it.key().find("Key 1") == std::string::npos);
+        BOOST_CHECK(it.key().find("Key 22") == std::string::npos);
+        BOOST_CHECK(it.key().find("Key 333") == std::string::npos);
+        BOOST_CHECK(it.key().find("Key 4444") == std::string::npos);
+    }
+    
+    BOOST_CHECK_EQUAL(std::distance(map.begin(), map.end()), map.size());
+}
+
+BOOST_AUTO_TEST_CASE(test_erase_prefix_all_1) {
+    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1000, 8);
+    BOOST_CHECK_EQUAL(map.size(), 1000);
+    BOOST_CHECK_EQUAL(map.erase_prefix(""), 1000);
+    BOOST_CHECK_EQUAL(map.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_erase_prefix_all_2) {
+    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1000, 8);
+    BOOST_CHECK_EQUAL(map.size(), 1000);
+    BOOST_CHECK_EQUAL(map.erase_prefix("Ke"), 1000);
+    BOOST_CHECK_EQUAL(map.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_erase_prefix_none) {
+    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1000, 8);
+    BOOST_CHECK_EQUAL(map.erase_prefix("Kea"), 0);
+    BOOST_CHECK_EQUAL(map.size(), 1000);
+}
+
+BOOST_AUTO_TEST_CASE(test_erase_prefix_empty_map) {
+    tsl::htrie_map<char, int64_t> map;
+    BOOST_CHECK_EQUAL(map.erase_prefix("Kea"), 0);
+    BOOST_CHECK_EQUAL(map.erase_prefix(""), 0);
+}
+
+
+
+/**
  * operator== and operator!=
  */
 BOOST_AUTO_TEST_CASE(test_compare) {
