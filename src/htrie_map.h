@@ -144,7 +144,10 @@ public:
     void clear() noexcept { m_ht.clear(); }
     
     
-    
+
+    std::pair<iterator, bool> insert_ks(const CharT* key, size_type key_size, const T& value) {
+        return m_ht.insert(key, key_size, value);
+    }    
 #ifdef TSL_HAS_STRING_VIEW
     std::pair<iterator, bool> insert(const std::basic_string_view<CharT>& key, const T& value) {
         return m_ht.insert(key.data(), key.size(), value); 
@@ -158,12 +161,12 @@ public:
         return m_ht.insert(key.data(), key.size(), value);
     }
 #endif
-    std::pair<iterator, bool> insert_ks(const CharT* key, size_type key_size, const T& value) {
-        return m_ht.insert(key, key_size, value);
+    
+    
+    
+    std::pair<iterator, bool> insert_ks(const CharT* key, size_type key_size, T&& value) {
+        return m_ht.insert(key, key_size, std::move(value));
     }
-    
-    
-   
 #ifdef TSL_HAS_STRING_VIEW
     std::pair<iterator, bool> insert(const std::basic_string_view<CharT>& key, T&& value) {
         return m_ht.insert(key.data(), key.size(), std::move(value));
@@ -176,10 +179,7 @@ public:
     std::pair<iterator, bool> insert(const std::basic_string<CharT>& key, T&& value) {
         return m_ht.insert(key.data(), key.size(), std::move(value));
     }
-#endif    
-    std::pair<iterator, bool> insert_ks(const CharT* key, size_type key_size, T&& value) {
-        return m_ht.insert(key, key_size, std::move(value));
-    }
+#endif
        
        
        
@@ -203,7 +203,11 @@ public:
 #endif
     
     
-    
+  
+    template<class... Args>
+    std::pair<iterator, bool> emplace_ks(const CharT* key, size_type key_size, Args&&... args) {
+        return m_ht.insert(key, key_size, std::forward<Args>(args)...);
+    }    
 #ifdef TSL_HAS_STRING_VIEW
     template<class... Args>
     std::pair<iterator, bool> emplace(const std::basic_string_view<CharT>& key, Args&&... args) {
@@ -219,17 +223,18 @@ public:
     std::pair<iterator, bool> emplace(const std::basic_string<CharT>& key, Args&&... args) {
         return m_ht.insert(key.data(), key.size(), std::forward<Args>(args)...);
     }
-#endif    
-    template<class... Args>
-    std::pair<iterator, bool> emplace_ks(const CharT* key, size_type key_size, Args&&... args) {
-        return m_ht.insert(key, key_size, std::forward<Args>(args)...);
-    }
+#endif  
     
     
     
     iterator erase(const_iterator pos) { return m_ht.erase(pos); }
     iterator erase(const_iterator first, const_iterator last) { return m_ht.erase(first, last); }
 
+    
+    
+    size_type erase_ks(const CharT* key, size_type key_size) {
+        return m_ht.erase(key, key_size);
+    }
 #ifdef TSL_HAS_STRING_VIEW
     size_type erase(const std::basic_string_view<CharT>& key) {
         return m_ht.erase(key.data(), key.size());
@@ -243,28 +248,37 @@ public:
         return m_ht.erase(key.data(), key.size());
     }
 #endif
-    size_type erase_ks(const CharT* key, size_type key_size) {
-        return m_ht.erase(key, key_size);
-    }
     
     
     
+    /**
+     * Erase all the elements which have 'prefix' as prefix. Return the number of erase elements.
+     */
+    size_type erase_prefix_ks(const CharT* prefix, size_type prefix_size) {
+        return m_ht.erase_prefix(prefix, prefix_size);
+    }    
 #ifdef TSL_HAS_STRING_VIEW
+    /**
+     * @copydoc erase_prefix_ks(const CharT* prefix, size_type prefix_size)
+     */
     size_type erase_prefix(const std::basic_string_view<CharT>& prefix) {
         return m_ht.erase_prefix(prefix.data(), prefix.size());
     }
 #else
+    /**
+     * @copydoc erase_prefix_ks(const CharT* prefix, size_type prefix_size)
+     */
     size_type erase_prefix(const CharT* prefix) {
         return m_ht.erase_prefix(prefix, std::strlen(prefix));
     }
     
+    /**
+     * @copydoc erase_prefix_ks(const CharT* prefix, size_type prefix_size)
+     */
     size_type erase_prefix(const std::basic_string<CharT>& prefix) {
         return m_ht.erase_prefix(prefix.data(), prefix.size());
     }
 #endif
-    size_type erase_prefix_ks(const CharT* prefix, size_type prefix_size) {
-        return m_ht.erase_prefix(prefix, prefix_size);
-    }
     
     
     
@@ -273,6 +287,9 @@ public:
     /*
      * Lookup
      */
+    T& at_ks(const CharT* key, size_type key_size) { return m_ht.at(key, key_size); }
+    const T& at_ks(const CharT* key, size_type key_size) const { return m_ht.at(key, key_size); }
+    
 #ifdef TSL_HAS_STRING_VIEW    
     T& at(const std::basic_string_view<CharT>& key) { return m_ht.at(key.data(), key.size()); }
     const T& at(const std::basic_string_view<CharT>& key) const { return m_ht.at(key.data(), key.size()); }
@@ -283,8 +300,6 @@ public:
     T& at(const std::basic_string<CharT>& key) { return m_ht.at(key.data(), key.size()); }
     const T& at(const std::basic_string<CharT>& key) const { return m_ht.at(key.data(), key.size()); }
 #endif    
-    T& at_ks(const CharT* key, size_type key_size) { return m_ht.at(key, key_size); }
-    const T& at_ks(const CharT* key, size_type key_size) const { return m_ht.at(key, key_size); }
     
     
 
@@ -296,17 +311,24 @@ public:
 #endif
     
     
-    
+
+    size_type count_ks(const CharT* key, size_type key_size) const { return m_ht.count(key, key_size); }    
 #ifdef TSL_HAS_STRING_VIEW 
     size_type count(const std::basic_string_view<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #else
     size_type count(const CharT* key) const { return m_ht.count(key, std::strlen(key)); }
     size_type count(const std::basic_string<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #endif
-    size_type count_ks(const CharT* key, size_type key_size) const { return m_ht.count(key, key_size); }
     
     
 
+    iterator find_ks(const CharT* key, size_type key_size) {
+        return m_ht.find(key, key_size);
+    }
+    
+    const_iterator find_ks(const CharT* key, size_type key_size) const {
+        return m_ht.find(key, key_size);
+    }
 #ifdef TSL_HAS_STRING_VIEW 
     iterator find(const std::basic_string_view<CharT>& key) {
         return m_ht.find(key.data(), key.size());
@@ -331,17 +353,17 @@ public:
     const_iterator find(const std::basic_string<CharT>& key) const {
         return m_ht.find(key.data(), key.size());
     }
-#endif    
-    iterator find_ks(const CharT* key, size_type key_size) {
-        return m_ht.find(key, key_size);
-    }
-    
-    const_iterator find_ks(const CharT* key, size_type key_size) const {
-        return m_ht.find(key, key_size);
-    }
+#endif
     
 
     
+    std::pair<iterator, iterator> equal_range_ks(const CharT* key, size_type key_size) {
+        return m_ht.equal_range(key, key_size);
+    }
+    
+    std::pair<const_iterator, const_iterator> equal_range_ks(const CharT* key, size_type key_size) const {
+        return m_ht.equal_range(key, key_size);
+    }
 #ifdef TSL_HAS_STRING_VIEW 
     std::pair<iterator, iterator> equal_range(const std::basic_string_view<CharT>& key) {
         return m_ht.equal_range(key.data(), key.size());
@@ -366,50 +388,68 @@ public:
     std::pair<const_iterator, const_iterator> equal_range(const std::basic_string<CharT>& key) const {
         return m_ht.equal_range(key.data(), key.size());
     }
-#endif    
-    std::pair<iterator, iterator> equal_range_ks(const CharT* key, size_type key_size) {
-        return m_ht.equal_range(key, key_size);
-    }
-    
-    std::pair<const_iterator, const_iterator> equal_range_ks(const CharT* key, size_type key_size) const {
-        return m_ht.equal_range(key, key_size);
-    }
+#endif
     
 
+    /**
+     * Return a range containing all the elements which have 'prefix' as prefix. The range is defined by a pair
+     * of iterator, the first being the begin iterator and the second being the end iterator.
+     */
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range_ks(const CharT* prefix, size_type prefix_size) {
+        return m_ht.equal_prefix_range(prefix, prefix_size);
+    }
     
+    /**
+     * @copydoc equal_prefix_range_ks(const CharT* prefix, size_type prefix_size)
+     */
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range_ks(const CharT* prefix, size_type prefix_size) const {
+        return m_ht.equal_prefix_range(prefix, prefix_size);
+    }    
 #ifdef TSL_HAS_STRING_VIEW 
-    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const std::basic_string_view<CharT>& key) {
-        return m_ht.equal_prefix_range(key.data(), key.size());
+    /**
+     * @copydoc equal_prefix_range_ks(const CharT* prefix, size_type prefix_size)
+     */
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const std::basic_string_view<CharT>& prefix) {
+        return m_ht.equal_prefix_range(prefix.data(), prefix.size());
     }
-    
-    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const std::basic_string_view<CharT>& key) const {
-        return m_ht.equal_prefix_range(key.data(), key.size());
+     
+    /**
+     * @copydoc equal_prefix_range_ks(const CharT* prefix, size_type prefix_size)
+     */
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const std::basic_string_view<CharT>& prefix) const {
+        return m_ht.equal_prefix_range(prefix.data(), prefix.size());
     }
-#else
-    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const CharT* key) {
-        return m_ht.equal_prefix_range(key, std::strlen(key));
+#else 
+    /**
+     * @copydoc equal_prefix_range_ks(const CharT* prefix, size_type prefix_size)
+     */
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const CharT* prefix) {
+        return m_ht.equal_prefix_range(prefix, std::strlen(prefix));
     }
-    
-    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const CharT* key) const {
-        return m_ht.equal_prefix_range(key, std::strlen(key));
+     
+    /**
+     * @copydoc equal_prefix_range_ks(const CharT* prefix, size_type prefix_size)
+     */
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const CharT* prefix) const {
+        return m_ht.equal_prefix_range(prefix, std::strlen(prefix));
     }
-    
-    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const std::basic_string<CharT>& key) {
-        return m_ht.equal_prefix_range(key.data(), key.size());
+     
+    /**
+     * @copydoc equal_prefix_range_ks(const CharT* prefix, size_type prefix_size)
+     */
+    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const std::basic_string<CharT>& prefix) {
+        return m_ht.equal_prefix_range(prefix.data(), prefix.size());
     }
-    
-    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const std::basic_string<CharT>& key) const {
-        return m_ht.equal_prefix_range(key.data(), key.size());
+     
+    /**
+     * @copydoc equal_prefix_range_ks(const CharT* prefix, size_type prefix_size)
+     */
+    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range(const std::basic_string<CharT>& prefix) const {
+        return m_ht.equal_prefix_range(prefix.data(), prefix.size());
     }
-#endif    
-    std::pair<prefix_iterator, prefix_iterator> equal_prefix_range_ks(const CharT* key, size_type key_size) {
-        return m_ht.equal_prefix_range(key, key_size);
-    }
-    
-    std::pair<const_prefix_iterator, const_prefix_iterator> equal_prefix_range_ks(const CharT* key, size_type key_size) const {
-        return m_ht.equal_prefix_range(key, key_size);
-    }
+#endif
 
+    
     
     /*
      *  Hash policy 
