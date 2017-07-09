@@ -391,33 +391,6 @@ private:
             return m_value_node;
         }
         
-        /**
-         * Return the number of values in the tree.
-         */
-        size_type size() const noexcept {
-            // TODO avoid recursion
-            size_type nb_elements = 0;
-            
-            if(m_value_node != nullptr) {
-                nb_elements++;
-            }
-            
-            for(const auto& node: m_children) {
-                if(node == nullptr) {
-                    continue;
-                }
-                
-                if(node->is_trie_node()) {
-                    nb_elements += node->as_trie_node().size();
-                }
-                else {
-                    nb_elements += node->as_hash_node().array_hash().size();
-                }
-            }
-            
-            return nb_elements;
-        }
-        
     private:
         std::unique_ptr<value_node> m_value_node;
         std::array<std::unique_ptr<anode>, ALPHABET_SIZE> m_children;
@@ -461,6 +434,7 @@ private:
 public:
     template<bool is_const, bool is_prefix_iterator>
     class htrie_hash_iterator {
+        // TODO better encapsulation
         friend class htrie_hash;
         
     private:
@@ -760,6 +734,17 @@ public:
             m_read_trie_node_value = false;
         }
         
+        void skip_hash_node() {
+            tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
+            if(m_current_trie_node == nullptr) {
+                set_as_end_iterator();
+            }
+            else {
+                tsl_assert(m_current_hash_node != nullptr);
+                set_next_node_ascending(*m_current_hash_node);
+            }
+        }
+        
     private:
         trie_node_type* m_current_trie_node;
         hash_node_type* m_current_hash_node;
@@ -972,7 +957,7 @@ public:
             trie_node* parent = current_node->parent();
             
             if(parent != nullptr) {
-                const size_type nb_erased = current_node->as_trie_node().size();
+                const size_type nb_erased = size(current_node->as_trie_node());
                 const CharT child_of_char = current_node->child_of_char();
                 
                 std::unique_ptr<anode> empty_hnode(new hash_node(m_hash, m_max_load_factor));
@@ -1152,6 +1137,35 @@ private:
         }
     }
     
+    template<typename Iterator>
+    Iterator cend(const anode& search_start_node) const {
+        if(search_start_node.parent() == nullptr) {
+            Iterator it;
+            it.set_as_end_iterator();
+        
+            return it;
+        }
+        
+        const trie_node* current_trie_node = search_start_node.parent();
+        const anode* next_node = current_trie_node->next_child(search_start_node);
+        
+        while(next_node == nullptr && current_trie_node->parent() != nullptr) {
+            const anode* current_child = current_trie_node;
+            current_trie_node = current_trie_node->parent();
+            next_node = current_trie_node->next_child(*current_child);
+        }
+        
+        if(next_node == nullptr) {
+            Iterator it;
+            it.set_as_end_iterator();
+        
+            return it;
+        }
+        else {
+            return cbegin<Iterator>(*next_node);
+        }
+    }
+    
     prefix_iterator prefix_end() noexcept {
         prefix_iterator it;
         it.set_as_end_iterator();
@@ -1164,6 +1178,25 @@ private:
         it.set_as_end_iterator();
         
         return it;
+    }
+    
+    size_type size(const anode& start_node) const {
+        auto first = cbegin<const_iterator>(start_node);
+        auto last = cend<const_iterator>(start_node);
+        
+        size_type nb_elements = 0;
+        while(first != last) {
+            if(first.m_read_trie_node_value) {
+                nb_elements++;
+                ++first;
+            }
+            else {
+                nb_elements += first.m_current_hash_node->array_hash().size();
+                first.skip_hash_node();
+            }
+        }
+        
+        return nb_elements;
     }
     
     template<class... ValueArgs>
@@ -1401,7 +1434,7 @@ private:
                                             false, std::string(prefix + iprefix, prefix_size - iprefix));
                 begin.filter_prefix();
                 
-                const_prefix_iterator end = prefix_cend_iterator(*current_node);
+                const_prefix_iterator end = cend<const_prefix_iterator>(*current_node);
                                             
                 return std::make_pair(begin, end);
             }
@@ -1409,31 +1442,9 @@ private:
         
         
         const_prefix_iterator begin = cbegin<const_prefix_iterator>(*current_node);
-        const_prefix_iterator end = prefix_cend_iterator(*current_node);
+        const_prefix_iterator end = cend<const_prefix_iterator>(*current_node);
                                     
         return std::make_pair(begin, end);
-    }
-    
-    const_prefix_iterator prefix_cend_iterator(const anode& node) const {
-        if(node.parent() == nullptr) {
-            return prefix_cend();
-        }
-        
-        const trie_node* current_trie_node = node.parent();
-        const anode* next_node = current_trie_node->next_child(node);
-        
-        while(next_node == nullptr && current_trie_node->parent() != nullptr) {
-            const anode* current_child = current_trie_node;
-            current_trie_node = current_trie_node->parent();
-            next_node = current_trie_node->next_child(*current_child);
-        }
-        
-        if(next_node == nullptr) {
-            return prefix_cend();
-        }
-        else {
-            return cbegin<const_prefix_iterator>(*next_node);
-        }
     }
     
     size_type erase_prefix_hash_node(hash_node& hnode, const CharT* prefix, size_type prefix_size) {
