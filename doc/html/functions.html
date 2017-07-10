@@ -115,7 +115,7 @@ $(function() {
 : <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a45fb26c31899220da9ff628899a18c56">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
 </li>
 <li>difference_type
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a71254996d5aa80c11b9794693319a012">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a1273bded3816e0f1b9aad4762ee8ff05">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 </ul>
 
@@ -141,12 +141,12 @@ $(function() {
 </li>
 <li>equal_prefix_range()
 : <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#aa6ef60d81934a820d17e215fe96ea72c">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
-, <a class="el" href="classtsl_1_1htrie__map.html#ad3efd5f555fb9fb6f238339a27470e1c">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
-, <a class="el" href="classtsl_1_1htrie__set.html#ac81b8ed48c67fbb3e31af4731cdef9c3">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
+, <a class="el" href="classtsl_1_1htrie__map.html#a0a3d6c21610a53470b56635f9b083bb2">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
+, <a class="el" href="classtsl_1_1htrie__set.html#abcaa53f1568b9f0eb8f2cbc958d05c92">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 <li>equal_prefix_range_ks()
-: <a class="el" href="classtsl_1_1htrie__map.html#a505c67c090b0b050738d0243fbc0529a">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
-, <a class="el" href="classtsl_1_1htrie__set.html#a27ed28b9c7f07df7710bd9980b6295a1">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
+: <a class="el" href="classtsl_1_1htrie__map.html#a52f055e962a40c63ae1df9dcd129313d">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
+, <a class="el" href="classtsl_1_1htrie__set.html#aea77c88b56b8aaeddcd4d463ff09f89e">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 <li>equal_range()
 : <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ad304e28f12b085e6db1f738d34880aab">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
@@ -158,13 +158,22 @@ $(function() {
 , <a class="el" href="classtsl_1_1htrie__set.html#a1c6529b4babac200e41d1146686f4ef4">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 <li>erase()
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#aba6cc3f72d9990587d306d55365e4c28">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#aa205a96a96944f092afa418cdbcb771a">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
 , <a class="el" href="classtsl_1_1htrie__map.html#a17509192dbc453cc4ce4cf2a6ee0c016">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
-, <a class="el" href="classtsl_1_1htrie__set.html#a99f7b2a203d6dce58488f7358ae8438f">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
+, <a class="el" href="classtsl_1_1htrie__set.html#a36ad7a2a355ba5fa44b3c535da7c85be">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 <li>erase_ks()
 : <a class="el" href="classtsl_1_1htrie__map.html#a3eac8a6728a04aa7d73b868a37cfac0a">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
 , <a class="el" href="classtsl_1_1htrie__set.html#aff35d80062c9b4ca4e4a71d5a1df020b">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
+</li>
+<li>erase_prefix()
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a53343c55ad3bd69ed1520ebb25e6f91a">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
+, <a class="el" href="classtsl_1_1htrie__map.html#afbedea0acffa5b20943d2d4b7237ea83">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
+, <a class="el" href="classtsl_1_1htrie__set.html#a1d9146edd2c5a1548b8f9d9af3dcf491">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
+</li>
+<li>erase_prefix_ks()
+: <a class="el" href="classtsl_1_1htrie__map.html#ad3e6af6e817a9de1cae296c4c67b811d">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
+, <a class="el" href="classtsl_1_1htrie__set.html#a348fa393f1a366dbaedd97f65a37b1fe">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 </ul>
 
@@ -198,10 +207,10 @@ $(function() {
 </li>
 <li>htrie_hash()
 : <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a9f64658ba8c5222568484ef958b61294">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
-, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a008daac0bbc7577ad33d54bc89c77017">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a008daac0bbc7577ad33d54bc89c77017">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>htrie_hash_iterator()
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3dfc8942180fd4effe465d8ddf55877a">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#abbd3473fb634f7de8286f180fce21471">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>htrie_map()
 : <a class="el" href="classtsl_1_1htrie__map.html#a09040d4d4481c5b53dbd6bedc78ebce1">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
@@ -228,14 +237,14 @@ $(function() {
 , <a class="el" href="classtsl_1_1htrie__set.html#ae6504ad3538b537625a19521dddc6719">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 <li>iterator_category
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a9cb854016c2ec38fe43b3db53e0180fb">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ac0003dea70067a1c28bb80e6cbe72324">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 </ul>
 
 
 <h3><a id="index_k"></a>- k -</h3><ul>
 <li>key()
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a6b91dc9211ce1cda3bff62ba38ae1218">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a04385cb3e862d6f571f29854d66f5f23">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>key_size_type
 : <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a6c38def94a8add233c56d7d5c1e629ac">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
@@ -269,18 +278,18 @@ $(function() {
 
 <h3><a id="index_o"></a>- o -</h3><ul>
 <li>operator!=
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a0a3140417bbda6870fdca72e2c417f7d">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a0a3140417bbda6870fdca72e2c417f7d">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 , <a class="el" href="classtsl_1_1htrie__map.html#a30397a03ee89094e480de081203f1f36">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
 , <a class="el" href="classtsl_1_1htrie__set.html#ac4fa3bbc2b049a9f340e5428d94b456e">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 <li>operator*()
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#addeefc0fa3be3ace215cf5b7608f12de">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3fadc56503963d13720f34c3496c42ca">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>operator++()
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#af1ea410979724f829b8c093c8d4c42ff">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a7a960844d236d731ec7bfe0506226f06">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>operator-&gt;()
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a4bf9ad526f7cc081fc78bce0b0a29476">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a15d2245fab805dbf4b57b31b0557d7af">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>operator=()
 : <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#abcdad59a46af5c063b23f413ddd87f0d">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
@@ -288,7 +297,7 @@ $(function() {
 , <a class="el" href="classtsl_1_1htrie__set.html#ae3363cd1823cfdedc79fcd310f601c85">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
 <li>operator==
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a9aaaceaade9f623cb07b71aded5bab6e">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a9aaaceaade9f623cb07b71aded5bab6e">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 , <a class="el" href="classtsl_1_1htrie__map.html#a7dfe07ecb8734a9322c7ba8f7767a326">tsl::htrie_map&lt; CharT, T, Hash, KeySizeT &gt;</a>
 , <a class="el" href="classtsl_1_1htrie__set.html#a7ae1b30be774aa0e9b93c9a31a891e54">tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</a>
 </li>
@@ -300,7 +309,7 @@ $(function() {
 
 <h3><a id="index_p"></a>- p -</h3><ul>
 <li>pointer
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a2971ed5a28277b71a5a27608a8e430a3">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a8641bc95ac2f86c38d06b87bcaca474b">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>prefix_iterator
 : <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a2df3d66d1ad4244a18f86adfc1d5a285">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</a>
@@ -312,7 +321,7 @@ $(function() {
 
 <h3><a id="index_r"></a>- r -</h3><ul>
 <li>reference
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a1387e73b194b12ac79fcbce67a01268e">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab29b1e0905200db4bf076dadfdfc0ae0">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 </ul>
 
@@ -338,10 +347,10 @@ $(function() {
 
 <h3><a id="index_v"></a>- v -</h3><ul>
 <li>value()
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#aecf0c1dbf3433f551e7f5180c48163ba">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 <li>value_type
-: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a218008b5a8cb26effa7f1ff5ef580b74">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix &gt;</a>
+: <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a9a3eeee0ce4536de781afe5f171c799a">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt;</a>
 </li>
 </ul>
 </div><!-- contents -->

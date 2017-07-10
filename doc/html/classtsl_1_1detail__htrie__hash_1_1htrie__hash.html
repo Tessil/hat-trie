@@ -121,6 +121,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aa205a96a96944f092afa418cdbcb771a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad203d451d483b024b3624773977fb85d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ad203d451d483b024b3624773977fb85d">erase</a> (const CharT *key, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a> key_size)</td></tr>
 <tr class="separator:ad203d451d483b024b3624773977fb85d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53343c55ad3bd69ed1520ebb25e6f91a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a53343c55ad3bd69ed1520ebb25e6f91a">erase_prefix</a> (const CharT *prefix, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a> prefix_size)</td></tr>
+<tr class="separator:a53343c55ad3bd69ed1520ebb25e6f91a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37ccb4ac9f7ca8a7902b567c310035d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a37ccb4ac9f7ca8a7902b567c310035d9">swap</a> (<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">htrie_hash</a> &amp;other)</td></tr>
 <tr class="separator:a37ccb4ac9f7ca8a7902b567c310035d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afca655c47b13407538ff51787b759202"><td class="memTemplParams" colspan="2">template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
@@ -164,7 +166,12 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:a45fb26c31899220da9ff628899a18c56"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a45fb26c31899220da9ff628899a18c56">DEFAULT_BURST_THRESHOLD</a> = 16384</td></tr>
 <tr class="separator:a45fb26c31899220da9ff628899a18c56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Typedef Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;class CharT, class T, class Hash, class KeySizeT&gt;<br />
+class tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</h3>
+
+<p>T should be void if there is not value associated to a key (in a set for example). </p>
+</div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a8cf1b286d2d13814c147ef750f062d47"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8cf1b286d2d13814c147ef750f062d47">&#9670;&nbsp;</a></span>char_type</h2>
 
@@ -1064,6 +1071,44 @@ template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
           <td></td>
           <td class="paramtype"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a>&#160;</td>
           <td class="paramname"><em>key_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a53343c55ad3bd69ed1520ebb25e6f91a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53343c55ad3bd69ed1520ebb25e6f91a">&#9670;&nbsp;</a></span>erase_prefix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::erase_prefix </td>
+          <td>(</td>
+          <td class="paramtype">const CharT *&#160;</td>
+          <td class="paramname"><em>prefix</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a>&#160;</td>
+          <td class="paramname"><em>prefix_size</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
