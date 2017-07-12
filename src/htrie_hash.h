@@ -877,6 +877,28 @@ public:
         return array_hash_type::MAX_KEY_SIZE;
     }
     
+    void shrink_to_fit() {
+        auto first = begin();
+        auto last = end();
+        
+        while(first != last) {
+            if(first.m_read_trie_node_value) {
+                ++first;
+            }
+            else {
+                /*
+                 * skrink_to_fit on array_hash will invalidate the iterators of array_hash.
+                 * save pointer to array_hash, skip the array_hash_node and then call 
+                 * shrink_to_fit on the saved pointer.
+                 */
+                hash_node* hnode = first.m_current_hash_node;
+                first.skip_hash_node();
+                
+                tsl_assert(hnode != nullptr);
+                hnode->array_hash().shrink_to_fit();
+            }
+        }
+    }
     
     
     /*

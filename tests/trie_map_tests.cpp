@@ -442,6 +442,44 @@ BOOST_AUTO_TEST_CASE(test_access_operator) {
 }
 
 /**
+ * shrink_to_fit
+ */
+BOOST_AUTO_TEST_CASE(test_shrink_to_fit) {
+    using TMap = tsl::htrie_map<char, int64_t>;
+    using char_tt = typename TMap::char_type; 
+    using value_tt = typename TMap::mapped_type;
+    
+    const size_t nb_elements = 4000;
+    const size_t burst_threshold = 7;
+    
+    TMap map;
+    TMap map2;
+    
+    map.burst_threshold(burst_threshold);
+    map2.burst_threshold(burst_threshold);
+    
+    for(size_t i = 0; i < nb_elements/2; i++) {
+        map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
+        map2.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
+    }
+    
+    BOOST_CHECK(map == map2);
+    map2.shrink_to_fit();
+    BOOST_CHECK(map == map2);
+
+    
+    
+    for(size_t i = nb_elements/2; i < nb_elements; i++) {
+        map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
+        map2.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
+    }
+    
+    BOOST_CHECK(map == map2);
+    map2.shrink_to_fit();
+    BOOST_CHECK(map == map2);
+}
+
+/**
  * swap
  */
 BOOST_AUTO_TEST_CASE(test_swap) {

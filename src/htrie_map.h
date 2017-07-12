@@ -137,6 +137,11 @@ public:
     size_type max_size() const noexcept { return m_ht.max_size(); }
     size_type max_key_size() const noexcept { return m_ht.max_key_size(); }
     
+    /**
+     * Call shrink_to_fit() on each hash node of the hat-trie to reduce its size.
+     */
+    void shrink_to_fit() { m_ht.shrink_to_fit(); }
+    
         
     /*
      * Modifiers
