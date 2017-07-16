@@ -1078,12 +1078,12 @@ public:
     
     std::pair<iterator, iterator> equal_range(const CharT* key, size_type key_size) {
         iterator it = find(key, key_size);
-        return std::make_pair(it, it);
+        return std::make_pair(it, (it == end())?it:std::next(it));
     }
     
     std::pair<const_iterator, const_iterator> equal_range(const CharT* key, size_type key_size) const {
         const_iterator it = find(key, key_size);
-        return std::make_pair(it, it);
+        return std::make_pair(it, (it == cend())?it:std::next(it));
     }
     
     std::pair<prefix_iterator, prefix_iterator> equal_prefix_range(const CharT* prefix, size_type prefix_size) {

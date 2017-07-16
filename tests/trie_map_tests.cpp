@@ -422,6 +422,20 @@ BOOST_AUTO_TEST_CASE(test_at) {
 }
 
 
+/**
+ * equal_range
+ */
+BOOST_AUTO_TEST_CASE(test_equal_range) {
+    tsl::htrie_map<char, int64_t> map = {{"test1", 10}, {"test2", 20}};
+    
+    auto it_pair = map.equal_range("test1");
+    BOOST_REQUIRE_EQUAL(std::distance(it_pair.first, it_pair.second), 1);
+    BOOST_CHECK_EQUAL(it_pair.first.value(), 10);
+    
+    it_pair = map.equal_range("");
+    BOOST_CHECK(it_pair.first == it_pair.second);
+    BOOST_CHECK(it_pair.first == map.end());
+}
 
 
 /**
