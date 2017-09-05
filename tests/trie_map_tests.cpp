@@ -10,7 +10,7 @@
 #include <tuple>
 #include <utility>
 
-#include "tsl/htrie_map.h"
+#include "htrie_map.h"
 #include "utils.h"
 
 using test_types = boost::mpl::list<

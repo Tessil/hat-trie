@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "utils.h"
-#include "tsl/htrie_set.h"
+#include "htrie_set.h"
 
 
 using test_types = boost::mpl::list<
