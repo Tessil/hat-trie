@@ -17,7 +17,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
 ### Overview
 
-- Header-only library, just include [src/](src/) to your include path and you're ready to go.
+- Header-only library, just include the project to your include path and you are ready to go.
 - Low memory usage while keeping reasonable performances (see [benchmark](https://github.com/Tessil/hat-trie#benchmark)).
 - Allow prefix searches through `equal_prefix_range` (usefull for autocompletion for example).
 - Keys are not ordered as they are partially stored in a hash map.
@@ -197,7 +197,7 @@ The benchmark protocol is the same as for the [Wikipedia dataset](https://github
 3. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
 
 ### Installation
-To use the hat-trie library, just add the [src/](src/) directory to your include path. It's a **header-only** library. 
+To use hat-trie library, just add the project to your include path. It's a **header-only** library. 
 
 The code should work with any C++11 standard-compliant compiler and has been tested with GCC 4.8.4, Clang 3.5.0 and Visual Studio 2015.
 
@@ -221,8 +221,8 @@ The API can be found [here](https://tessil.github.io/hat-trie/doc_without_string
 ```c++
 #include <iostream>
 #include <string>
-#include "htrie_map.h"
-#include "htrie_set.h"
+#include <tsl/htrie_map.h>
+#include <tsl/htrie_set.h>
 
 
 int main() {
