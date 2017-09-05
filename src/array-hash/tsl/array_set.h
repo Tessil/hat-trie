@@ -38,15 +38,18 @@ namespace tsl {
 /**
  * Implementation of a cache-conscious string hash set.
  * 
- * The set stores the strings as `const CharT*`.
+ * The set stores the strings as `const CharT*`. If `StoreNullTerminator` is true,
+ * the strings are stored with the a null-terminator (the `key()` method of the iterators
+ * will return a pointer to this null-terminated string). Otherwise the null character
+ * is not stored (which allow an economy of 1 byte per string).
  * 
- * The size of a key string is limited to std::numeric_limits<KeySizeT>::max() - 1. 
- * That is 65 535 characters by default, but can be raised with the KeySizeT template parameter. 
- * See max_key_size() for an easy access to this limit.
+ * The size of a key string is limited to `std::numeric_limits<KeySizeT>::max() - 1`. 
+ * That is 65 535 characters by default, but can be raised with the `KeySizeT` template parameter. 
+ * See `max_key_size()` for an easy access to this limit.
  * 
- * The number of elements in the set is limited to std::numeric_limits<IndexSizeT>::max().
- * That is 4 294 967 296 elements, but can be raised with the IndexSizeT template parameter. 
- * See max_size() for an easy access to this limit.
+ * The number of elements in the set is limited to `std::numeric_limits<IndexSizeT>::max()`.
+ * That is 4 294 967 296 elements, but can be raised with the `IndexSizeT` template parameter. 
+ * See `max_size()` for an easy access to this limit.
  * 
  * Iterators invalidation:
  *  - clear, operator=: always invalidate the iterators.
@@ -86,8 +89,8 @@ public:
     
     template<class InputIt>
     array_set(InputIt first, InputIt last,
-             size_type bucket_count = ht::DEFAULT_INIT_BUCKET_COUNT,
-             const Hash& hash = Hash()): array_set(bucket_count, hash)
+              size_type bucket_count = ht::DEFAULT_INIT_BUCKET_COUNT,
+              const Hash& hash = Hash()): array_set(bucket_count, hash)
     {
         insert(first, last);
     }
@@ -114,6 +117,8 @@ public:
 #ifdef TSL_HAS_STRING_VIEW
     array_set& operator=(std::initializer_list<std::basic_string_view<CharT>> ilist) {
         clear();
+        
+        reserve(ilist.size());
         insert(ilist);
         
         return *this;
@@ -121,6 +126,8 @@ public:
 #else
     array_set& operator=(std::initializer_list<const CharT*> ilist) {
         clear();
+        
+        reserve(ilist.size());
         insert(ilist);
         
         return *this;
@@ -158,27 +165,34 @@ public:
     
 #ifdef TSL_HAS_STRING_VIEW
     std::pair<iterator, bool> insert(const std::basic_string_view<CharT>& key) {
-        return m_ht.insert(key.data(), key.size()); 
+        return m_ht.emplace(key.data(), key.size()); 
     }
 #else
     std::pair<iterator, bool> insert(const CharT* key) {
-        return m_ht.insert(key, std::strlen(key));
+        return m_ht.emplace(key, std::strlen(key));
     }
     
     std::pair<iterator, bool> insert(const std::basic_string<CharT>& key) {
-        return m_ht.insert(key.data(), key.size()); 
+        return m_ht.emplace(key.data(), key.size()); 
     }
 #endif
     std::pair<iterator, bool> insert_ks(const CharT* key, size_type key_size) {
-        return m_ht.insert(key, key_size);
+        return m_ht.emplace(key, key_size);
     }
     
     
     
     template<class InputIt>
     void insert(InputIt first, InputIt last) {
-        if(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<InputIt>::iterator_category>::value) {
-            reserve(std::distance(first, last));
+        if(std::is_base_of<std::forward_iterator_tag, 
+                           typename std::iterator_traits<InputIt>::iterator_category>::value) 
+        {
+            const auto nb_elements_insert = std::distance(first, last);
+            const std::size_t nb_free_buckets = std::size_t(float(bucket_count())*max_load_factor()) - size();
+            
+            if(nb_elements_insert > 0 && nb_free_buckets < std::size_t(nb_elements_insert)) {
+                reserve(size() + std::size_t(nb_elements_insert));
+            }
         }
         
         for(auto it = first; it != last; ++it) {
@@ -196,25 +210,37 @@ public:
     void insert(std::initializer_list<const CharT*> ilist) {
         insert(ilist.begin(), ilist.end());
     }
-#endif
+#endif    
     
     
-    
+
 #ifdef TSL_HAS_STRING_VIEW
+    /**
+     * @copydoc emplace_ks(const CharT* key, size_type key_size)
+     */
     std::pair<iterator, bool> emplace(const std::basic_string_view<CharT>& key) {
-        return m_ht.insert(key.data(), key.size());
+        return m_ht.emplace(key.data(), key.size());
     }
 #else
+    /**
+     * @copydoc emplace_ks(const CharT* key, size_type key_size)
+     */
     std::pair<iterator, bool> emplace(const CharT* key) {
-        return m_ht.insert(key, std::strlen(key));
+        return m_ht.emplace(key, std::strlen(key));
     }
     
+    /**
+     * @copydoc emplace_ks(const CharT* key, size_type key_size)
+     */
     std::pair<iterator, bool> emplace(const std::basic_string<CharT>& key) {
-        return m_ht.insert(key.data(), key.size());
+        return m_ht.emplace(key.data(), key.size());
     }
 #endif
+    /**
+     * No difference compared to the insert method. Mainly here for coherence with array_map.
+     */
     std::pair<iterator, bool> emplace_ks(const CharT* key, size_type key_size) {
-        return m_ht.insert(key, key_size);
+        return m_ht.emplace(key, key_size);
     } 
     
     
@@ -240,6 +266,38 @@ public:
     }
     
     
+
+#ifdef TSL_HAS_STRING_VIEW 
+    /**
+     * @copydoc erase_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    size_type erase(const std::basic_string_view<CharT>& key, std::size_t precalculated_hash) {
+        return m_ht.erase(key.data(), key.size(), precalculated_hash);
+    }
+#else    
+    /**
+     * @copydoc erase_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    size_type erase(const CharT* key, std::size_t precalculated_hash) {
+        return m_ht.erase(key, std::strlen(key), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc erase_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    size_type erase(const std::basic_string<CharT>& key, std::size_t precalculated_hash) {
+        return m_ht.erase(key.data(), key.size(), precalculated_hash);
+    }
+#endif    
+    /**
+     * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
+     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     */
+    size_type erase_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) {
+        return m_ht.erase(key, key_size, precalculated_hash);
+    }
+    
+    
     
     void swap(array_set& other) { other.m_ht.swap(m_ht); }
     
@@ -255,6 +313,38 @@ public:
     size_type count(const std::basic_string<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #endif
     size_type count_ks(const CharT* key, size_type key_size) const { return m_ht.count(key, key_size); }
+    
+    
+    
+#ifdef TSL_HAS_STRING_VIEW 
+    /**
+     * @copydoc count_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const
+     */
+    size_type count(const std::basic_string_view<CharT>& key, std::size_t precalculated_hash) const { 
+        return m_ht.count(key.data(), key.size(), precalculated_hash); 
+    }
+#else
+    /**
+     * @copydoc count_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const
+     */
+    size_type count(const CharT* key, std::size_t precalculated_hash) const { 
+        return m_ht.count(key, std::strlen(key), precalculated_hash); 
+    }
+    
+    /**
+     * @copydoc count_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const
+     */
+    size_type count(const std::basic_string<CharT>& key, std::size_t precalculated_hash) const { 
+        return m_ht.count(key.data(), key.size(), precalculated_hash); 
+    }
+#endif
+    /**
+     * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
+     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     */
+    size_type count_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const { 
+        return m_ht.count(key, key_size, precalculated_hash); 
+    }
     
     
     
@@ -291,6 +381,66 @@ public:
         return m_ht.find(key, key_size);
     }
     
+    
+
+#ifdef TSL_HAS_STRING_VIEW 
+    /**
+     * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    iterator find(const std::basic_string_view<CharT>& key, std::size_t precalculated_hash) {
+        return m_ht.find(key.data(), key.size(), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    const_iterator find(const std::basic_string_view<CharT>& key, std::size_t precalculated_hash) const {
+        return m_ht.find(key.data(), key.size(), precalculated_hash);
+    }
+#else
+    /**
+     * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    iterator find(const CharT* key, std::size_t precalculated_hash) {
+        return m_ht.find(key, std::strlen(key), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    const_iterator find(const CharT* key, std::size_t precalculated_hash) const {
+        return m_ht.find(key, std::strlen(key), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    iterator find(const std::basic_string<CharT>& key, std::size_t precalculated_hash) {
+        return m_ht.find(key.data(), key.size(), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    const_iterator find(const std::basic_string<CharT>& key, std::size_t precalculated_hash) const {
+        return m_ht.find(key.data(), key.size(), precalculated_hash);
+    }
+#endif    
+    /**
+     * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
+     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     */
+    iterator find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) {
+        return m_ht.find(key, key_size, precalculated_hash);
+    }
+    
+    /**
+     * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    const_iterator find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const {
+        return m_ht.find(key, key_size, precalculated_hash);
+    }
+    
 
     
 #ifdef TSL_HAS_STRING_VIEW 
@@ -324,6 +474,66 @@ public:
     
     std::pair<const_iterator, const_iterator> equal_range_ks(const CharT* key, size_type key_size) const {
         return m_ht.equal_range(key, key_size);
+    }
+    
+
+    
+#ifdef TSL_HAS_STRING_VIEW 
+    /**
+     * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    std::pair<iterator, iterator> equal_range(const std::basic_string_view<CharT>& key, std::size_t precalculated_hash) {
+        return m_ht.equal_range(key.data(), key.size(), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    std::pair<const_iterator, const_iterator> equal_range(const std::basic_string_view<CharT>& key, std::size_t precalculated_hash) const {
+        return m_ht.equal_range(key.data(), key.size(), precalculated_hash);
+    }
+#else
+    /**
+     * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    std::pair<iterator, iterator> equal_range(const CharT* key, std::size_t precalculated_hash) {
+        return m_ht.equal_range(key, std::strlen(key), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    std::pair<const_iterator, const_iterator> equal_range(const CharT* key, std::size_t precalculated_hash) const {
+        return m_ht.equal_range(key, std::strlen(key), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    std::pair<iterator, iterator> equal_range(const std::basic_string<CharT>& key, std::size_t precalculated_hash) {
+        return m_ht.equal_range(key.data(), key.size(), precalculated_hash);
+    }
+    
+    /**
+     * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    std::pair<const_iterator, const_iterator> equal_range(const std::basic_string<CharT>& key, std::size_t precalculated_hash) const {
+        return m_ht.equal_range(key.data(), key.size(), precalculated_hash);
+    }
+#endif    
+    /**
+     * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
+     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     */
+    std::pair<iterator, iterator> equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) {
+        return m_ht.equal_range(key, key_size, precalculated_hash);
+    }
+    
+    /**
+     * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
+     */
+    std::pair<const_iterator, const_iterator> equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const {
+        return m_ht.equal_range(key, key_size, precalculated_hash);
     }
     
     
@@ -387,6 +597,20 @@ public:
 private:
     ht m_ht;
 };
+
+
+/**
+ * Same as 
+ * `tsl::array_set<CharT, Hash, KeyEqual, StoreNullTerminator, KeySizeT, IndexSizeT, tsl::prime_growth_policy_ah>`.
+ */
+template<class CharT,
+         class Hash = tsl::str_hash_ah<CharT>,
+         class KeyEqual = tsl::str_equal_ah<CharT>,
+         bool StoreNullTerminator = true,
+         class KeySizeT = std::uint16_t,
+         class IndexSizeT = std::uint32_t>         
+using array_pg_set = array_set<CharT, Hash, KeyEqual, StoreNullTerminator, 
+                               KeySizeT, IndexSizeT, tsl::prime_growth_policy_ah>;
 
 } //end namespace tsl
 
