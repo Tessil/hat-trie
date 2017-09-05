@@ -38,8 +38,8 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include "array-hash/src/array_map.h"
-#include "array-hash/src/array_set.h"
+#include "array-hash/tsl/array_map.h"
+#include "array-hash/tsl/array_set.h"
 
 namespace tsl {       
     
