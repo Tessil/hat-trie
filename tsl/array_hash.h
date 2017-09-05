@@ -38,18 +38,23 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include "array_growth_policy.h"
 
 
 #ifdef __has_include
-    #if __has_include(<string_view>)
+    /*
+     * __has_include is a bit useless (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79433),
+     * check also __cplusplus version.
+     */
+    #if __has_include(<string_view>) && __cplusplus >= 201703L
     #define TSL_HAS_STRING_VIEW
     #endif
 #endif
 
+
 #ifdef TSL_HAS_STRING_VIEW
 #include <string_view>
 #endif
-
 
 
 #ifndef tsl_assert
@@ -74,8 +79,8 @@ namespace tsl {
 template<class CharT>
 struct str_hash_ah {
     std::size_t operator()(const CharT* key, std::size_t key_size) const {
-        static const std::size_t init = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0xcbf29ce484222325:0x811c9dc5);
-        static const std::size_t multiplier = static_cast<std::size_t>((sizeof(std::size_t) == 8)?0x100000001b3:0x1000193);
+        static const std::size_t init = std::size_t((sizeof(std::size_t) == 8)?0xcbf29ce484222325:0x811c9dc5);
+        static const std::size_t multiplier = std::size_t((sizeof(std::size_t) == 8)?0x100000001b3:0x1000193);
         
         std::size_t hash = init;
         for (std::size_t i = 0; i < key_size; ++i) {
@@ -102,53 +107,6 @@ struct str_equal_ah {
 }; 
 
 
-
-template<std::size_t GrowthFactor>
-class power_of_two_growth_policy_ah {
-public:
-    power_of_two_growth_policy_ah(std::size_t& min_bucket_count_in_out) {
-        const std::size_t min_bucket_count = MIN_BUCKETS_SIZE;
-        
-        min_bucket_count_in_out = std::max(min_bucket_count, min_bucket_count_in_out);
-        min_bucket_count_in_out = round_up_to_power_of_two(min_bucket_count_in_out);
-    }
-    
-    std::size_t bucket_for_hash(std::size_t hash, std::size_t bucket_count) const {
-        return hash & (bucket_count - 1);
-    }
-    
-    std::size_t next_bucket_count(std::size_t current_bucket_count) const {
-        return current_bucket_count * GrowthFactor;
-    }
-    
-private:    
-    // TODO could be faster
-    static std::size_t round_up_to_power_of_two(std::size_t value) {
-        if(is_power_of_two(value)) {
-            return value;
-        }
-        
-        std::size_t power = 1;
-        while(power < value) {
-            power <<= 1;
-        }
-        
-        return power;
-    }
-    
-    static constexpr bool is_power_of_two(std::size_t value) {
-        return value != 0 && (value & (value - 1)) == 0;
-    }    
-    
-private:
-    static_assert(GrowthFactor >= 2 && is_power_of_two(GrowthFactor), "GrowthFactor must be a power of two >= 2.");
-
-    static const std::size_t MIN_BUCKETS_SIZE = 2;
-};
-
-
-
-
 namespace detail_array_hash {
     
 static constexpr bool is_power_of_two(std::size_t value) {
@@ -156,7 +114,7 @@ static constexpr bool is_power_of_two(std::size_t value) {
 }
 
 /**
- * For each string in the bucket, store the size of the string, the chars of the string (without a null-termination)
+ * For each string in the bucket, store the size of the string, the chars of the string 
  * and T, if it's not void. T should be either void or an unsigned type.
  * 
  * End the buffer with END_OF_BUCKET flag. END_OF_BUCKET has the same type as the string size variable.
@@ -169,7 +127,7 @@ static constexpr bool is_power_of_two(std::size_t value) {
  * 
  * KeySizeT and T are extended to be a multiple of CharT when stored in the buffer.
  * 
- * Use std::malloc and std::free instead of new and delete so we have access to std::realloc.
+ * Use std::malloc and std::free instead of new and delete so we can have access to std::realloc.
  */
 template<class CharT,
          class T,
@@ -178,9 +136,11 @@ template<class CharT,
          bool StoreNullTerminator>
 class array_bucket {
     template<typename U>
-    using has_value = typename std::integral_constant<bool, !std::is_same<U, void>::value>;
+    using has_mapped_type = typename std::integral_constant<bool, !std::is_same<U, void>::value>;
     
-    static_assert(!has_value<T>::value || std::is_unsigned<T>::value, "T should be either void or an unsigned type.");
+    static_assert(!has_mapped_type<T>::value || std::is_unsigned<T>::value, 
+                  "T should be either void or an unsigned type.");
+    
     static_assert(std::is_unsigned<KeySizeT>::value, "KeySizeT should be an unsigned type.");
     
 public:
@@ -189,13 +149,13 @@ public:
     
     using char_type = CharT;
     using key_size_type = KeySizeT;
-    using value_type = T;
+    using mapped_type = T;
     using size_type = std::size_t;
     using key_equal = KeyEqual;
     using iterator = array_bucket_iterator<false>;
     using const_iterator = array_bucket_iterator<true>;
     
-    static_assert(sizeof(KeySizeT) <= sizeof(size_type), "");
+    static_assert(sizeof(KeySizeT) <= sizeof(size_type), "sizeof(KeySizeT) should be <= sizeof(std::size_t;)");
     static_assert(std::is_unsigned<size_type>::value, "");
     
 private:
@@ -206,9 +166,9 @@ private:
      * Example: sizeof(CharT) = 4, sizeof(U) = 2 => U will take 4 bytes in the buffer instead of 2.
      */
     template<typename U>
-    static constexpr std::size_t sizeof_in_buff() noexcept {
-        static_assert(is_power_of_two(sizeof(U)), "sizeof should be a power of two.");
-        static_assert(is_power_of_two(sizeof(CharT)), "sizeof should be a power of two.");
+    static constexpr size_type sizeof_in_buff() noexcept {
+        static_assert(is_power_of_two(sizeof(U)), "sizeof(U) should be a power of two.");
+        static_assert(is_power_of_two(sizeof(CharT)), "sizeof(CharT) should be a power of two.");
         
         return std::max(sizeof(U), sizeof(CharT));
     }
@@ -217,7 +177,7 @@ private:
      * Same as sizeof_in_buff<U>, but instead of returning the size in bytes return it in term of sizeof(CharT).
      */
     template<typename U>
-    static constexpr std::size_t size_as_char_t() noexcept {
+    static constexpr size_type size_as_char_t() noexcept {
         return sizeof_in_buff<U>() / sizeof(CharT);
     }
 
@@ -228,8 +188,8 @@ private:
         return key_size;
     }
     
-    static value_type read_value(const CharT* buffer) noexcept {
-        value_type value;
+    static mapped_type read_value(const CharT* buffer) noexcept {
+        mapped_type value;
         std::memcpy(&value, buffer, sizeof(value));
         
         return value;
@@ -243,23 +203,23 @@ public:
     /**
      * Return the size required for an entry with a key of size 'key_size'.
      */
-    template<class U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
-    static size_type entry_required_size(size_type key_size) noexcept {
-        return sizeof_in_buff<key_size_type>() + (key_size + KEY_EXTRA_SIZE)*sizeof(CharT);
+    template<class U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
+    static size_type entry_required_bytes(size_type key_size) noexcept {
+        return sizeof_in_buff<key_size_type>() + (key_size + KEY_EXTRA_SIZE) * sizeof(CharT);
     }
     
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
-    static size_type entry_required_size(size_type key_size) noexcept {
-        return sizeof_in_buff<key_size_type>() + (key_size + KEY_EXTRA_SIZE)*sizeof(CharT) + 
-               sizeof_in_buff<value_type>();
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
+    static size_type entry_required_bytes(size_type key_size) noexcept {
+        return sizeof_in_buff<key_size_type>() + (key_size + KEY_EXTRA_SIZE) * sizeof(CharT) + 
+               sizeof_in_buff<mapped_type>();
     }
     
 private:
     /**
      * Return the size of the current entry in buffer.
      */
-    static size_type entry_size(const CharT* buffer) noexcept {
-        return entry_required_size(read_key_size(buffer));
+    static size_type entry_size_bytes(const CharT* buffer) noexcept {
+        return entry_required_bytes(read_key_size(buffer));
     }
     
 public:    
@@ -271,6 +231,13 @@ public:
         
         explicit array_bucket_iterator(buffer_type* position) noexcept: m_position(position) {
         }
+        
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = void;
+        using difference_type = std::ptrdiff_t;
+        using reference = void;
+        using pointer = void;
         
     public:        
         array_bucket_iterator() noexcept: m_position(nullptr) {
@@ -284,20 +251,20 @@ public:
             return read_key_size(m_position);
         }
         
-        template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
-        value_type value() const {
+        template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
+        U value() const {
             return read_value(m_position + size_as_char_t<key_size_type>() + key_size() + KEY_EXTRA_SIZE);
         }
         
         
-        template<class U = T, typename std::enable_if<has_value<U>::value && !is_const>::type* = nullptr>
-        void set_value(typename array_bucket<CharT, U, KeyEqual, KeySizeT, StoreNullTerminator>::value_type value) {
+        template<class U = T, typename std::enable_if<has_mapped_type<U>::value && !is_const>::type* = nullptr>
+        void set_value(U value) noexcept {
             std::memcpy(m_position + size_as_char_t<key_size_type>() + key_size() + KEY_EXTRA_SIZE, 
                         &value, sizeof(value));
         }
         
         array_bucket_iterator& operator++() {
-            m_position += entry_size(m_position)/sizeof(CharT);
+            m_position += entry_size_bytes(m_position)/sizeof(CharT);
             if(is_end_of_bucket(m_position)) {
                 m_position = nullptr;
             }
@@ -348,7 +315,7 @@ public:
             return;
         }
         
-        const std::size_t other_buffer_size = other.size();
+        const size_type other_buffer_size = other.size_bytes();
         m_buffer = static_cast<CharT*>(std::malloc(other_buffer_size));
         if(m_buffer == nullptr) {
             throw std::bad_alloc();
@@ -361,29 +328,14 @@ public:
         other.m_buffer = nullptr;
     }
     
-    array_bucket& operator=(const array_bucket& other) {
-        if(&other != this) {
-            const std::size_t other_buffer_size = other.size();
-            CharT* new_buffer = static_cast<CharT*>(std::malloc(other_buffer_size));
-            if(new_buffer == nullptr) {
-                throw std::bad_alloc();
-            }
-            
-            std::memcpy(new_buffer, other.m_buffer, other_buffer_size);
-            
-            std::free(m_buffer);
-            m_buffer = new_buffer;
-        }
+    array_bucket& operator=(array_bucket other) noexcept {
+        other.swap(*this);
         
         return *this;
     }
     
-    array_bucket& operator=(array_bucket&& other) noexcept {
-        std::free(m_buffer);
-        m_buffer = other.m_buffer;
-        other.m_buffer = nullptr;
-        
-        return *this;
+    void swap(array_bucket& other) noexcept {
+        std::swap(m_buffer, other.m_buffer);
     }
     
     iterator begin() noexcept { return iterator(m_buffer); }
@@ -395,33 +347,38 @@ public:
     
     /**
      * Return an iterator pointing to the key entry if presents or, if not there, to the position 
-     * where key should be inserted. Return end() if the bucket has not be initialized yet.
+     * past the last element of the bucket. Return end() if the bucket has not be initialized yet.
      * 
      * The boolean of the pair is set to true if the key is there, false otherwise.
      */
-    std::pair<const_iterator, bool> find_or_insert_position(const CharT* key, size_type key_size) const noexcept {
+    std::pair<const_iterator, bool> find_or_end_of_bucket(const CharT* key, size_type key_size) const noexcept {
         if(m_buffer == nullptr) {
             return std::make_pair(cend(), false);
         }
         
         const CharT* buffer_ptr_in_out = m_buffer;
-        const bool found = find_or_insert_position_impl(key, key_size, buffer_ptr_in_out);
+        const bool found = find_or_end_of_bucket_impl(key, key_size, buffer_ptr_in_out);
         
         return std::make_pair(const_iterator(buffer_ptr_in_out), found);
     }
     
     /**
-     * Insert the element 'key' with its potential value at 'position'. 'position' can be end() if the bucket
-     * was not intiailized yet.
+     * Append the element 'key' with its potential value at the end of the bucket. 
+     * 'end_of_bucket' should point past the end of the last element in the bucket, end() if the bucket
+     * was not intiailized yet. You usually get this value from find_or_end_of_bucket.
      * 
      * Return the position where the element was actually inserted.
      */
     template<class... ValueArgs>
-    const_iterator insert_at_position(const_iterator position, const CharT* key, size_type key_size, ValueArgs&&... value) {        
+    const_iterator append(const_iterator end_of_bucket, const CharT* key, size_type key_size, 
+                          ValueArgs&&... value) 
+    {
         const key_size_type key_sz = as_key_size_type(key_size);
         
-        if(position == cend()) {
-            const std::size_t buffer_size = entry_required_size(key_sz) + sizeof_in_buff<decltype(END_OF_BUCKET)>();
+        if(end_of_bucket == cend()) {
+            tsl_assert(m_buffer == nullptr);
+            
+            const size_type buffer_size = entry_required_bytes(key_sz) + sizeof_in_buff<decltype(END_OF_BUCKET)>();
                                             
             m_buffer = static_cast<CharT*>(std::malloc(buffer_size));
             if(m_buffer == nullptr) {
@@ -433,11 +390,11 @@ public:
             return const_iterator(m_buffer);
         }
         else {
-            tsl_assert(is_end_of_bucket(position.m_position));
+            tsl_assert(is_end_of_bucket(end_of_bucket.m_position));
             
-            const std::size_t current_size = ((position.m_position + size_as_char_t<decltype(END_OF_BUCKET)>()) - 
+            const size_type current_size = ((end_of_bucket.m_position + size_as_char_t<decltype(END_OF_BUCKET)>()) - 
                                               m_buffer) * sizeof(CharT);
-            const std::size_t new_size = current_size + entry_required_size(key_sz);
+            const size_type new_size = current_size + entry_required_bytes(key_sz);
             
             
             CharT* new_buffer = static_cast<CharT*>(std::realloc(m_buffer, new_size));
@@ -459,18 +416,19 @@ public:
     const_iterator erase(const_iterator position) noexcept {
         tsl_assert(position.m_position != nullptr && !is_end_of_bucket(position.m_position));
         
-        CharT* start_entry = m_buffer + (position.m_position - m_buffer);
-        CharT* start_next_entry = start_entry + entry_size(start_entry) / sizeof(CharT);
+        // get mutable pointers
+        CharT* start_entry = m_buffer + (position.m_position - m_buffer); 
+        CharT* start_next_entry = start_entry + entry_size_bytes(start_entry) / sizeof(CharT);
         
         
         CharT* end_buffer_ptr = start_next_entry;
         while(!is_end_of_bucket(end_buffer_ptr)) {
-            end_buffer_ptr += entry_size(end_buffer_ptr) / sizeof(CharT);
+            end_buffer_ptr += entry_size_bytes(end_buffer_ptr) / sizeof(CharT);
         }
         end_buffer_ptr += size_as_char_t<decltype(END_OF_BUCKET)>();
         
         
-        const std::size_t size_to_move = (end_buffer_ptr - start_next_entry) * sizeof(CharT);
+        const size_type size_to_move = (end_buffer_ptr - start_next_entry) * sizeof(CharT);
         std::memmove(start_entry, start_next_entry, size_to_move);
         
         
@@ -494,8 +452,8 @@ public:
             return false;
         }
         
-        CharT* entry_buffer_ptr_in_out = m_buffer;
-        bool found = find_or_insert_position_impl(key, key_size, entry_buffer_ptr_in_out);
+        const CharT* entry_buffer_ptr_in_out = m_buffer;
+        bool found = find_or_end_of_bucket_impl(key, key_size, entry_buffer_ptr_in_out);
         if(found) {
             erase(const_iterator(entry_buffer_ptr_in_out));
             
@@ -506,7 +464,7 @@ public:
         }
     }
     
-    void reserve(std::size_t size) {
+    void reserve(size_type size) {
         if(m_buffer != nullptr || size == 0) {
             throw std::invalid_argument("Should reserve a size > 0 on empty bucket.");
         }
@@ -528,10 +486,10 @@ public:
     void append_in_reserved_bucket_no_check(const CharT* key, size_type key_size, ValueArgs&&... value) noexcept {
         CharT* buffer_ptr = m_buffer;
         while(!is_end_of_bucket(buffer_ptr)) {
-            buffer_ptr += entry_size(buffer_ptr)/sizeof(CharT);
+            buffer_ptr += entry_size_bytes(buffer_ptr)/sizeof(CharT);
         }
         
-        append_impl(key, static_cast<key_size_type>(key_size), buffer_ptr, std::forward<ValueArgs>(value)...);
+        append_impl(key, key_size_type(key_size), buffer_ptr, std::forward<ValueArgs>(value)...);
     }
     
     bool empty() const noexcept {
@@ -543,13 +501,17 @@ public:
         m_buffer = nullptr;
     }
     
+    iterator mutable_iterator(const_iterator pos) noexcept {
+        return iterator(m_buffer + (pos.m_position - m_buffer)); 
+    }
+    
 private:
     key_size_type as_key_size_type(size_type key_size) const {
         if(key_size > MAX_KEY_SIZE) {
             throw std::length_error("Key is too long.");
         }
         
-        return static_cast<key_size_type>(key_size);
+        return key_size_type(key_size);
     }
     
     /*
@@ -559,8 +521,8 @@ private:
      * 
      * Start search from buffer_ptr_in_out.
      */
-    bool find_or_insert_position_impl(const CharT* key, size_type key_size, 
-                                      const CharT* & buffer_ptr_in_out) const noexcept
+    bool find_or_end_of_bucket_impl(const CharT* key, size_type key_size, 
+                                    const CharT* & buffer_ptr_in_out) const noexcept
     {
         while(!is_end_of_bucket(buffer_ptr_in_out)) {
             const key_size_type buffer_key_size = read_key_size(buffer_ptr_in_out); 
@@ -569,23 +531,13 @@ private:
                 return true;
             }
             
-            buffer_ptr_in_out += entry_size(buffer_ptr_in_out)/sizeof(CharT);
+            buffer_ptr_in_out += entry_size_bytes(buffer_ptr_in_out)/sizeof(CharT);
         }
         
         return false;
     }
-    
-    bool find_or_insert_position_impl(const CharT* key, size_type key_size, 
-                                      CharT* & buffer_ptr_in_out) noexcept 
-    {
-        const CharT* buffer_tmp = buffer_ptr_in_out;
-        const bool ret = static_cast<const array_bucket*>(this)->find_or_insert_position_impl(key, key_size, buffer_tmp);
-        buffer_ptr_in_out = m_buffer + (buffer_tmp - m_buffer);
-        
-        return ret;
-    }
 
-    template<typename U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    template<typename U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
     void append_impl(const CharT* key, key_size_type key_size, CharT* buffer_append_pos) noexcept {
         std::memcpy(buffer_append_pos, &key_size, sizeof(key_size));
         buffer_append_pos += size_as_char_t<key_size_type>();
@@ -601,9 +553,9 @@ private:
         std::memcpy(buffer_append_pos, &end_of_bucket, sizeof(end_of_bucket));
     }
     
-    template<typename U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    template<typename U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     void append_impl(const CharT* key, key_size_type key_size, CharT* buffer_append_pos, 
-                typename array_bucket<CharT, U, KeyEqual, KeySizeT, StoreNullTerminator>::value_type value) noexcept 
+                typename array_bucket<CharT, U, KeyEqual, KeySizeT, StoreNullTerminator>::mapped_type value) noexcept 
     {        
         std::memcpy(buffer_append_pos, &key_size, sizeof(key_size));
         buffer_append_pos += size_as_char_t<key_size_type>();
@@ -616,20 +568,20 @@ private:
         buffer_append_pos += KEY_EXTRA_SIZE;
         
         std::memcpy(buffer_append_pos, &value, sizeof(value));
-        buffer_append_pos += size_as_char_t<value_type>();
+        buffer_append_pos += size_as_char_t<mapped_type>();
         
         const auto end_of_bucket = END_OF_BUCKET;
         std::memcpy(buffer_append_pos, &end_of_bucket, sizeof(end_of_bucket));
     }
     
-    std::size_t size() const noexcept {
+    size_type size_bytes() const noexcept {
         if(m_buffer == nullptr) {
             return 0;
         }
         
         CharT* buffer_ptr = m_buffer;
         while(!is_end_of_bucket(buffer_ptr)) {
-            buffer_ptr += entry_size(buffer_ptr)/sizeof(CharT);
+            buffer_ptr += entry_size_bytes(buffer_ptr)/sizeof(CharT);
         }
         buffer_ptr += size_as_char_t<decltype(END_OF_BUCKET)>();
         
@@ -643,7 +595,9 @@ private:
     CharT* m_buffer;
     
 public:
-    static const key_size_type MAX_KEY_SIZE = key_size_type(std::numeric_limits<key_size_type>::max() - KEY_EXTRA_SIZE - 1);
+    static const key_size_type MAX_KEY_SIZE = 
+                    // -1 for END_OF_BUCKET
+                    key_size_type(std::numeric_limits<key_size_type>::max() - KEY_EXTRA_SIZE - 1);
 };
 
 
@@ -661,7 +615,7 @@ public:
 protected:
     static constexpr float VECTOR_GROWTH_RATE = 1.5f;
     
-    // TODO use a sparse array?
+    // TODO use a sparse array? or a std::dequeu
     std::vector<T> m_values;
 };
 
@@ -676,6 +630,10 @@ public:
 
 /**
  * If there is no value in the array_hash (in the case of a set for example), T should be void.
+ * 
+ * The size of a key string is limited to std::numeric_limits<KeySizeT>::max() - 1.
+ * 
+ * The number of elements in the map is limited to std::numeric_limits<IndexSizeT>::max().
  */
 template<class CharT,
          class T, 
@@ -685,22 +643,20 @@ template<class CharT,
          class KeySizeT,
          class IndexSizeT,
          class GrowthPolicy>
-class array_hash : private value_container<T>, private Hash, private GrowthPolicy {
+class array_hash: private value_container<T>, private Hash, private GrowthPolicy {
 private:
     template<typename U>
-    using has_value = typename std::integral_constant<bool, !std::is_same<U, void>::value>;
+    using has_mapped_type = typename std::integral_constant<bool, !std::is_same<U, void>::value>;
     
     /**
-     * If there is a value in array_hash, we store the values in m_values of value_container class 
+     * If there is a mapped type in array_hash, we store the values in m_values of value_container class 
      * and we store an index to m_values in the bucket. The index is of type IndexSizeT.
      */
     using array_bucket = tsl::detail_array_hash::array_bucket<CharT,
-                                                              typename std::conditional<has_value<T>::value,
+                                                              typename std::conditional<has_mapped_type<T>::value,
                                                                                         IndexSizeT,
                                                                                         void>::type,
                                                               KeyEqual, KeySizeT, StoreNullTerminator>;
-                                                    
-    using array_bucket_value_type = typename array_bucket::value_type;
     
 public:
     template<bool is_const>
@@ -728,24 +684,26 @@ public:
         using iterator_array_bucket = typename array_bucket::const_iterator;
                                                             
         using iterator_buckets = typename std::conditional<is_const, 
-                                                            typename std::vector<array_bucket>::const_iterator, 
-                                                            typename std::vector<array_bucket>::iterator>::type;
+                                                           typename std::vector<array_bucket>::const_iterator, 
+                                                           typename std::vector<array_bucket>::iterator>::type;
                                                             
         using array_hash_ptr = typename std::conditional<is_const, 
-                                                            const array_hash*, 
-                                                            array_hash*>::type;
+                                                         const array_hash*, 
+                                                         array_hash*>::type;
 
     public:
         using iterator_category = std::forward_iterator_tag;
-        using value_type = typename std::conditional<has_value<T>::value, T, void>::type;
+        using value_type = typename std::conditional<has_mapped_type<T>::value, T, void>::type;
         using difference_type = std::ptrdiff_t;
-        using reference = typename std::conditional<has_value<T>::value, 
-                                                typename std::conditional<is_const, typename std::add_lvalue_reference<const T>::type,
-                                                                                    typename std::add_lvalue_reference<T>::type>::type, 
-                                                void>::type;
-        using pointer = typename std::conditional<has_value<T>::value, 
-                                                typename std::conditional<is_const, const T*, T*>::type, 
-                                                void>::type;
+        using reference = typename std::conditional<has_mapped_type<T>::value, 
+                                                    typename std::conditional<
+                                                                is_const, 
+                                                                typename std::add_lvalue_reference<const T>::type,
+                                                                typename std::add_lvalue_reference<T>::type>::type, 
+                                                    void>::type;
+        using pointer = typename std::conditional<has_mapped_type<T>::value, 
+                                                  typename std::conditional<is_const, const T*, T*>::type, 
+                                                  void>::type;
         
                                                         
     private:                                                            
@@ -763,8 +721,9 @@ public:
         }
         
         array_hash_iterator(const array_hash_iterator<false>& other) noexcept : 
-            m_buckets_iterator(other.m_buckets_iterator), m_array_bucket_iterator(other.m_array_bucket_iterator),
-            m_array_hash(other.m_array_hash)
+                                                m_buckets_iterator(other.m_buckets_iterator), 
+                                                m_array_bucket_iterator(other.m_array_bucket_iterator),
+                                                m_array_hash(other.m_array_hash)
         {
         }
         
@@ -782,23 +741,24 @@ public:
         }
 #endif
         
-        template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+        template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
         reference value() const {
-            return this->m_array_hash->m_values[this->m_array_bucket_iterator.value()];
+            return this->m_array_hash->m_values[value_position()];
         }
         
-        template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+        template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
         reference operator*() const {
             return value();
         }
         
-        template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+        template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
         pointer operator->() const {
             return std::addressof(value());
         }
         
         array_hash_iterator& operator++() {
             tsl_assert(m_buckets_iterator != m_array_hash->m_buckets.end());
+            tsl_assert(m_array_bucket_iterator != m_buckets_iterator->cend());
             
             ++m_array_bucket_iterator;
             if(m_array_bucket_iterator == m_buckets_iterator->cend()) {
@@ -833,8 +793,8 @@ public:
         }
         
     private:
-        template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
-        array_bucket_value_type value_position() const {
+        template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
+        IndexSizeT value_position() const {
             return this->m_array_bucket_iterator.value();
         }
         
@@ -850,23 +810,28 @@ public:
 public:    
     array_hash(size_type bucket_count, 
                const Hash& hash,
-               float max_load_factor): Hash(hash), GrowthPolicy(bucket_count), m_buckets(0), 
-                                       m_nb_elements(0), m_max_load_factor(max_load_factor) 
+               float max_load_factor): Hash(hash), GrowthPolicy((bucket_count == 0)?++bucket_count:bucket_count), 
+                                       m_buckets(0), m_nb_elements(0) 
     {
+        tsl_assert(bucket_count > 0);
         m_buckets.resize(bucket_count);
+        
+        this->max_load_factor(max_load_factor);
     }
     
     array_hash(const array_hash& other) = default;
     
     array_hash(array_hash&& other) noexcept(std::is_nothrow_move_constructible<value_container<T>>::value &&
                                             std::is_nothrow_move_constructible<Hash>::value &&
+                                            std::is_nothrow_move_constructible<GrowthPolicy>::value &&
                                             std::is_nothrow_move_constructible<std::vector<array_bucket>>::value)
                                   : value_container<T>(std::move(other)),
                                     Hash(std::move(other)),
                                     GrowthPolicy(std::move(other)),
                                     m_buckets(std::move(other.m_buckets)),
                                     m_nb_elements(other.m_nb_elements),
-                                    m_max_load_factor(other.m_max_load_factor)
+                                    m_max_load_factor(other.m_max_load_factor),
+                                    m_load_threshold(other.m_load_threshold)
     {
         other.clear();
     }
@@ -885,13 +850,12 @@ public:
      * Iterators 
      */
     iterator begin() noexcept {
-        auto it_bucket = first_non_empty_bucket_iterator();
-        if(it_bucket != m_buckets.end()) {
-            return iterator(it_bucket, it_bucket->cbegin(), this);
+        auto begin = m_buckets.begin();
+        while(begin != m_buckets.end() && begin->empty()) {
+            ++begin;
         }
-        else {
-            return end();
-        }
+        
+        return (begin != m_buckets.end())?iterator(begin, begin->cbegin(), this):end();
     }
     
     const_iterator begin() const noexcept {
@@ -899,13 +863,12 @@ public:
     }
     
     const_iterator cbegin() const noexcept {
-        auto it_bucket = first_non_empty_bucket_iterator();
-        if(it_bucket != m_buckets.cend()) {
-            return const_iterator(it_bucket, it_bucket->cbegin(), this);
+        auto begin = m_buckets.cbegin();
+        while(begin != m_buckets.cend() && begin->empty()) {
+            ++begin;
         }
-        else {
-            return cend();
-        }
+        
+        return (begin != m_buckets.cend())?const_iterator(begin, begin->cbegin(), this):cend();
     }
     
     iterator end() noexcept {
@@ -940,16 +903,14 @@ public:
         return MAX_KEY_SIZE;
     }
     
-    template<class U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
     void shrink_to_fit() {
         rehash_impl(size_type(std::ceil(float(size())/max_load_factor())));
     }
     
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     void shrink_to_fit() {
-        if(size() != this->m_values.size()) {
-            clear_old_erased_values();
-        }
+        clear_old_erased_values();
         this->m_values.shrink_to_fit();
         
         rehash_impl(size_type(std::ceil(float(size())/max_load_factor())));
@@ -968,19 +929,37 @@ public:
         m_nb_elements = 0;
     }
     
+    
+    
     template<class... ValueArgs>
-    std::pair<iterator, bool> insert(const CharT* key, size_type key_size, ValueArgs&&... value_args) {
-        rehash_if_needed();
+    std::pair<iterator, bool> emplace(const CharT* key, size_type key_size, ValueArgs&&... value_args) {
+        const std::size_t hash = hash_key(key, key_size);
+        std::size_t ibucket = bucket_for_hash(hash);
         
-        const std::size_t ibucket = bucket_for_hash(hash_key(key, key_size));
-        auto it_find = m_buckets[ibucket].find_or_insert_position(key, key_size);
+        auto it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
         if(it_find.second) {
             return std::make_pair(iterator(m_buckets.begin() + ibucket, it_find.first, this), false);
         }
-        else {
-            return insert_at_position(ibucket, it_find.first, key, key_size, std::forward<ValueArgs>(value_args)...);
+        
+        if(grow_on_high_load()) {
+            ibucket = bucket_for_hash(hash);
+            it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
         }
+        
+        return emplace_impl(ibucket, it_find.first, key, key_size, std::forward<ValueArgs>(value_args)...);
     }
+    
+    template<class M>
+    std::pair<iterator, bool> insert_or_assign(const CharT* key, size_type key_size, M&& obj) { 
+        auto it = emplace(key, key_size, std::forward<M>(obj));
+        if(!it.second) {
+            it.first.value() = std::forward<M>(obj);
+        }
+        
+        return it;
+    }
+    
+    
     
     iterator erase(const_iterator pos) {
         if(shoud_clear_old_erased_values()) {
@@ -1007,12 +986,18 @@ public:
         return to_delete;
     }
     
+    
+    
     size_type erase(const CharT* key, size_type key_size) {
+        return erase(key, key_size, hash_key(key, key_size));
+    }
+    
+    size_type erase(const CharT* key, size_type key_size, std::size_t hash) {
         if(shoud_clear_old_erased_values()) {
             clear_old_erased_values();
         }
         
-        const std::size_t ibucket = bucket_for_hash(hash_key(key, key_size));
+        const std::size_t ibucket = bucket_for_hash(hash);
         if(m_buckets[ibucket].erase(key, key_size)) {
             m_nb_elements--;
             return 1;
@@ -1022,6 +1007,8 @@ public:
         }
     }
     
+    
+    
     void swap(array_hash& other) {
         using std::swap;
         
@@ -1029,22 +1016,33 @@ public:
         swap(static_cast<Hash&>(*this), static_cast<Hash&>(other));
         swap(static_cast<GrowthPolicy&>(*this), static_cast<GrowthPolicy&>(other));
         swap(m_buckets, other.m_buckets);
-        swap(m_nb_elements, other.m_nb_elements);;
+        swap(m_nb_elements, other.m_nb_elements);
         swap(m_max_load_factor, other.m_max_load_factor);
+        swap(m_load_threshold, other.m_load_threshold);
     }
     
     /*
      * Lookup
      */
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     U& at(const CharT* key, size_type key_size) {
-        return const_cast<U&>(static_cast<const array_hash*>(this)->at(key, key_size));
+        return at(key, key_size, hash_key(key, key_size));      
     }
     
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     const U& at(const CharT* key, size_type key_size) const {
-        const std::size_t ibucket = bucket_for_hash(hash_key(key, key_size));
-        auto it_find = m_buckets[ibucket].find_or_insert_position(key, key_size);
+        return at(key, key_size, hash_key(key, key_size));      
+    }
+    
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
+    U& at(const CharT* key, size_type key_size, std::size_t hash) {
+        return const_cast<U&>(static_cast<const array_hash*>(this)->at(key, key_size, hash));
+    }
+    
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
+    const U& at(const CharT* key, size_type key_size, std::size_t hash) const {
+        const std::size_t ibucket = bucket_for_hash(hash);
+        auto it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
         if(it_find.second) {
             return this->m_values[it_find.first.value()];
         }
@@ -1053,23 +1051,36 @@ public:
         }        
     }
     
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    
+    
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     U& access_operator(const CharT* key, size_type key_size) {
-        rehash_if_needed();
+        const std::size_t hash = hash_key(key, key_size);
+        std::size_t ibucket = bucket_for_hash(hash);
         
-        const std::size_t ibucket = bucket_for_hash(hash_key(key, key_size));
-        auto it_find = m_buckets[ibucket].find_or_insert_position(key, key_size);
+        auto it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
         if(it_find.second) {
             return this->m_values[it_find.first.value()];
         }
         else {
-            return insert_at_position(ibucket, it_find.first, key, key_size, U{}).first.value();
+            if(grow_on_high_load()) {
+                ibucket = bucket_for_hash(hash);
+                it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
+            }
+            
+            return emplace_impl(ibucket, it_find.first, key, key_size, U{}).first.value();
         }
     }
     
+    
+    
     size_type count(const CharT* key, size_type key_size) const {
-        const std::size_t ibucket = bucket_for_hash(hash_key(key, key_size));
-        auto it_find = m_buckets[ibucket].find_or_insert_position(key, key_size);
+        return count(key, key_size, hash_key(key, key_size));
+    }
+    
+    size_type count(const CharT* key, size_type key_size, std::size_t hash) const {
+        const std::size_t ibucket = bucket_for_hash(hash);
+        auto it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
         if(it_find.second) {
             return 1;
         }
@@ -1078,9 +1089,19 @@ public:
         }
     }
     
+    
+    
     iterator find(const CharT* key, size_type key_size) {
-        const std::size_t ibucket = bucket_for_hash(hash_key(key, key_size));
-        auto it_find = m_buckets[ibucket].find_or_insert_position(key, key_size);
+        return find(key, key_size, hash_key(key, key_size));
+    }
+    
+    const_iterator find(const CharT* key, size_type key_size) const {
+        return find(key, key_size, hash_key(key, key_size));
+    }
+    
+    iterator find(const CharT* key, size_type key_size, std::size_t hash) {
+        const std::size_t ibucket = bucket_for_hash(hash);
+        auto it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
         if(it_find.second) {
             return iterator(m_buckets.begin() + ibucket, it_find.first, this);
         }
@@ -1089,9 +1110,9 @@ public:
         }
     }
     
-    const_iterator find(const CharT* key, size_type key_size) const {
-        const std::size_t ibucket = bucket_for_hash(hash_key(key, key_size));
-        auto it_find = m_buckets[ibucket].find_or_insert_position(key, key_size);
+    const_iterator find(const CharT* key, size_type key_size, std::size_t hash) const {
+        const std::size_t ibucket = bucket_for_hash(hash);
+        auto it_find = m_buckets[ibucket].find_or_end_of_bucket(key, key_size);
         if(it_find.second) {
             return const_iterator(m_buckets.cbegin() + ibucket, it_find.first, this);
         }
@@ -1100,14 +1121,26 @@ public:
         }
     }
     
+    
+    
     std::pair<iterator, iterator> equal_range(const CharT* key, size_type key_size) {
-        iterator it = find(key, key_size);
-        return std::make_pair(it, it);
+        return equal_range(key, key_size, hash_key(key, key_size));
     }
     
     std::pair<const_iterator, const_iterator> equal_range(const CharT* key, size_type key_size) const {
-        const_iterator it = find(key, key_size);
-        return std::make_pair(it, it);
+        return equal_range(key, key_size, hash_key(key, key_size));
+    }
+    
+    std::pair<iterator, iterator> equal_range(const CharT* key, size_type key_size, std::size_t hash) {
+        iterator it = find(key, key_size, hash);
+        return std::make_pair(it, (it == end())?it:std::next(it));
+    }
+    
+    std::pair<const_iterator, const_iterator> equal_range(const CharT* key, size_type key_size, 
+                                                          std::size_t hash) const 
+    {
+        const_iterator it = find(key, key_size, hash);
+        return std::make_pair(it, (it == cend())?it:std::next(it));
     }
     
     /*
@@ -1118,7 +1151,7 @@ public:
     }
     
     size_type max_bucket_count() const { 
-        return m_buckets.max_size();
+        return std::min(GrowthPolicy::max_bucket_count(), m_buckets.max_size());
     }
     
     
@@ -1135,6 +1168,7 @@ public:
     
     void max_load_factor(float ml) {
         m_max_load_factor = ml;
+        m_load_threshold = size_type(float(bucket_count())*m_max_load_factor);
     }
     
     void rehash(size_type count) {
@@ -1172,27 +1206,14 @@ private:
     }
     
     std::size_t bucket_for_hash(std::size_t hash) const {
-        return GrowthPolicy::bucket_for_hash(hash, m_buckets.size());
+        return GrowthPolicy::bucket_for_hash(hash);
     }
     
-    std::size_t bucket_for_hash(std::size_t hash, size_type bucket_count) const {
-        return GrowthPolicy::bucket_for_hash(hash, bucket_count);
-    }
-    
-    typename std::vector<array_bucket>::iterator first_non_empty_bucket_iterator() noexcept {
-        auto it_first = static_cast<const array_hash*>(this)->first_non_empty_bucket_iterator();
-        return m_buckets.begin() + std::distance(m_buckets.cbegin(), it_first);
-    }
-    
-    typename std::vector<array_bucket>::const_iterator first_non_empty_bucket_iterator() const noexcept {
-        auto it_bucket = m_buckets.cbegin();
-        while(it_bucket != m_buckets.cend() && it_bucket->empty()) {
-            ++it_bucket;
-        }
-        
-        return it_bucket;
-    }
-    
+    /**
+     * If there is a mapped_type, the mapped value in m_values is not erased now.
+     * It will be erased when the ratio between the size of the map and 
+     * the size of the map + the number of deleted values still stored is low enough (see clear_old_erased_values).
+     */
     iterator erase_from_bucket(iterator pos) noexcept {
         auto array_bucket_next_it = pos.m_buckets_iterator->erase(pos.m_array_bucket_iterator);
         m_nb_elements--;
@@ -1201,9 +1222,9 @@ private:
             return iterator(pos.m_buckets_iterator, array_bucket_next_it, this);
         }
         else {
-            while(pos.m_buckets_iterator != m_buckets.end() && pos.m_buckets_iterator->empty()) {
+            do {
                 ++pos.m_buckets_iterator;
-            }
+            } while(pos.m_buckets_iterator != m_buckets.end() && pos.m_buckets_iterator->empty());
             
             if(pos.m_buckets_iterator != m_buckets.end()) {
                 return iterator(pos.m_buckets_iterator, pos.m_buckets_iterator->cbegin(), this);
@@ -1215,45 +1236,34 @@ private:
     }
     
     
-    /**
-     * Replace the value of the bucket which has old_index as value to new_index.
-     */
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
-    void update_index_in_buckets(std::size_t old_index, std::size_t new_index) {
-        if(old_index == new_index) {
-            return;
-        }
-        
-        for(array_bucket& bucket: m_buckets) {
-            for(auto it_bucket = bucket.begin(); it_bucket != bucket.end(); ++it_bucket) {
-                if(it_bucket.value() == old_index) {
-                    it_bucket.set_value(static_cast<array_bucket_value_type>(new_index));
-                    return;
-                }
-            }
-        }
-        
-    }
-    
-    
-    
-    template<class U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
     bool shoud_clear_old_erased_values(float /*threshold*/ = DEFAULT_CLEAR_OLD_ERASED_VALUE_THRESHOLD) const {
         return false;
     }
     
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     bool shoud_clear_old_erased_values(float threshold = DEFAULT_CLEAR_OLD_ERASED_VALUE_THRESHOLD) const {
-        return m_nb_elements >= DEFAULT_INIT_BUCKET_COUNT && 
-               float(m_nb_elements)/float(this->m_values.size()) < threshold;
+        if(this->m_values.size() == 0) {
+            return false;
+        }
+        
+        return float(m_nb_elements)/float(this->m_values.size()) < threshold;
     }
     
-    template<class U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
     void clear_old_erased_values() {
     }
     
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     void clear_old_erased_values() {
+        static_assert(std::is_nothrow_move_constructible<U>::value || 
+                      std::is_copy_constructible<U>::value, 
+                      "mapped_value must be either copy constructible or nothrow move constructible.");
+
+        if(m_nb_elements == this->m_values.size()) {
+            return;
+        }
+        
         std::vector<T> new_values;
         new_values.reserve(size());
         
@@ -1262,53 +1272,50 @@ private:
         }
         
         
-        array_bucket_value_type ivalue = 0;
-        for(array_bucket& bucket: m_buckets) {
-            for(auto it_bucket = bucket.begin(); it_bucket != bucket.end(); ++it_bucket) {
-                it_bucket.set_value(ivalue);
-                ivalue++;
-            }
+        IndexSizeT ivalue = 0;
+        for(auto it = begin(); it != end(); ++it) {
+            auto it_array_bucket = it.m_buckets_iterator->mutable_iterator(it.m_array_bucket_iterator);
+            it_array_bucket.set_value(ivalue);
+            ivalue++;
         }
         
         new_values.swap(this->m_values);
         tsl_assert(m_nb_elements == this->m_values.size());
     }
     
-    
-    
-    void rehash_if_needed() {
-        if(load_factor() > m_max_load_factor) {
-            rehash_impl(GrowthPolicy::next_bucket_count(m_buckets.size()));
+    /**
+     * Return true if a rehash occured.
+     */
+    bool grow_on_high_load() {
+        if(size() >= m_load_threshold) {
+            rehash_impl(GrowthPolicy::next_bucket_count());
+            return true;
         }
+        
+        return false;
     }
     
-    template<class... ValueArgs, class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
-    std::pair<iterator, bool> insert_at_position(std::size_t ibucket, typename array_bucket::const_iterator it_pos, 
-                                                 const CharT* key, size_type key_size, ValueArgs&&... value_args) 
+    template<class... ValueArgs, class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
+    std::pair<iterator, bool> emplace_impl(std::size_t ibucket, typename array_bucket::const_iterator end_of_bucket, 
+                                          const CharT* key, size_type key_size, ValueArgs&&... value_args) 
     {
-        /*
-         * Check that array_bucket_value_type and m_nb_elements don't overflow.
-         * If they do, there are too much elements in the map to add a new one.
-         * 
-         * We can't just check m_nb_elements as they may be some elements which were
-         * deleted from the map but still present in m_values (see quick_erase).
-         */
-        static_assert(std::is_unsigned<array_bucket_value_type>::value, "");
-        if(this->m_values.size() > static_cast<std::size_t>(std::numeric_limits<array_bucket_value_type>::max()-1)) {
-            throw std::length_error("Can't insert value, too much values in the map.");
+        if(this->m_values.size() >= max_size()) {
+            // Try to clear old erased values lingering in m_values. Throw if it doesn't change anything.
+            clear_old_erased_values();
+            if(this->m_values.size() >= max_size()) {
+                throw std::length_error("Can't insert value, too much values in the map.");
+            }
         }
-        static_assert(std::is_same<decltype(m_nb_elements), array_bucket_value_type>::value, "");
-        const array_bucket_value_type index_in_values = static_cast<array_bucket_value_type>(this->m_values.size());
         
         if(this->m_values.size() == this->m_values.capacity()) {
             this->m_values.reserve(std::size_t(float(this->m_values.size()) * value_container<T>::VECTOR_GROWTH_RATE));
         }
         
         
-         this->m_values.emplace_back(std::forward<ValueArgs>(value_args)...);
+        this->m_values.emplace_back(std::forward<ValueArgs>(value_args)...);
         
         try {
-            auto it = m_buckets[ibucket].insert_at_position(it_pos, key, key_size, index_in_values);
+            auto it = m_buckets[ibucket].append(end_of_bucket, key, key_size, IndexSizeT(this->m_values.size() - 1));
             m_nb_elements++;
             
             return std::make_pair(iterator(m_buckets.begin() + ibucket, it, this), true);
@@ -1319,15 +1326,15 @@ private:
         }
     }
     
-    template<class U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
-    std::pair<iterator, bool> insert_at_position(std::size_t ibucket, typename array_bucket::const_iterator it_pos, 
-                                                 const CharT* key, size_type key_size) 
+    template<class U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
+    std::pair<iterator, bool> emplace_impl(std::size_t ibucket, typename array_bucket::const_iterator end_of_bucket, 
+                                          const CharT* key, size_type key_size) 
     {
-        if(m_nb_elements == max_size()) {
+        if(m_nb_elements >= max_size()) {
             throw std::length_error("Can't insert value, too much values in the map.");
         }
         
-        auto it = m_buckets[ibucket].insert_at_position(it_pos, key, key_size);
+        auto it = m_buckets[ibucket].append(end_of_bucket, key, key_size);
         m_nb_elements++;
         
         return std::make_pair(iterator(m_buckets.begin() + ibucket, it, this), true);
@@ -1335,9 +1342,13 @@ private:
     
     void rehash_impl(size_type bucket_count) {
         GrowthPolicy new_growth_policy(bucket_count);
-        
         if(bucket_count == this->bucket_count()) {
             return;
+        }
+        
+        
+        if(shoud_clear_old_erased_values(0.9f)) {
+            clear_old_erased_values();
         }
         
         
@@ -1346,9 +1357,11 @@ private:
         
         std::size_t ivalue = 0;
         for(auto it = begin(); it != end(); ++it) {
-            const std::size_t ibucket = bucket_for_hash(hash_key(it.key(), it.key_size()), bucket_count);
+            const std::size_t hash = hash_key(it.key(), it.key_size());
+            const std::size_t ibucket = new_growth_policy.bucket_for_hash(hash);
+            
             bucket_for_ivalue[ivalue] = ibucket;
-            required_size_for_bucket[ibucket] += array_bucket::entry_required_size(it.key_size());
+            required_size_for_bucket[ibucket] += array_bucket::entry_required_bytes(it.key_size());
             ivalue++;
         }
         
@@ -1371,30 +1384,22 @@ private:
             ivalue++;
         }
         
-        static_assert(noexcept(std::swap(static_cast<GrowthPolicy&>(*this), new_growth_policy)), "");
-        std::swap(static_cast<GrowthPolicy&>(*this), new_growth_policy);
+        
+        using std::swap;
+        swap(static_cast<GrowthPolicy&>(*this), new_growth_policy);
+        
         m_buckets.swap(new_buckets);
         
-        try {
-            if(shoud_clear_old_erased_values(0.9f)) {
-                clear_old_erased_values();
-            }
-        }
-        catch(...) {
-            // Rollback
-            std::swap(static_cast<GrowthPolicy&>(*this), new_growth_policy);
-            m_buckets.swap(new_buckets);
-            
-            throw;
-        }
+        // Call max_load_factor to change m_load_threshold
+        max_load_factor(m_max_load_factor);
     }
     
-    template<class U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
     void append(array_bucket& bucket, iterator it) {
         bucket.append_in_reserved_bucket_no_check(it.key(), it.key_size());
     }
     
-    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
     void append(array_bucket& bucket, iterator it) {
         bucket.append_in_reserved_bucket_no_check(it.key(), it.key_size(), it.value_position());
     }
@@ -1411,6 +1416,7 @@ private:
     
     IndexSizeT m_nb_elements;
     float m_max_load_factor;
+    size_type m_load_threshold;
 };
 
 } // end namespace detail_array_hash
