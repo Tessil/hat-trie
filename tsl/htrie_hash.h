@@ -47,12 +47,12 @@ namespace detail_htrie_hash {
 
 
 
-template <typename T, typename... U>
-struct is_related : std::false_type {};
+template<typename T, typename... U>
+struct is_related: std::false_type {};
 
-template <typename T, typename U>
-struct is_related<T, U> : std::is_same<typename std::remove_cv<typename std::remove_reference<T>::type>::type, 
-                                       typename std::remove_cv<typename std::remove_reference<U>::type>::type> {};
+template<typename T, typename U>
+struct is_related<T, U>: std::is_same<typename std::remove_cv<typename std::remove_reference<T>::type>::type, 
+                                      typename std::remove_cv<typename std::remove_reference<U>::type>::type> {};
 
 template<class T>
 struct value_node {
@@ -92,7 +92,7 @@ private:
     
                             
 public:
-    template<bool is_const, bool is_prefix_iterator>
+    template<bool IsConst, bool IsPrefixIterator>
     class htrie_hash_iterator;
     
     
@@ -237,7 +237,7 @@ private:
     };
     
     
-    class trie_node : public anode {
+    class trie_node: public anode {
     public:
         trie_node(): anode(anode::node_type::TRIE_NODE),
                      m_value_node(nullptr), m_children() 
@@ -397,7 +397,7 @@ private:
     };
     
 
-    class hash_node : public anode {
+    class hash_node: public anode {
     public:
         hash_node(const Hash& hash, float max_load_factor): 
                 hash_node(HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT, hash, max_load_factor) 
@@ -432,18 +432,18 @@ private:
     
     
 public:
-    template<bool is_const, bool is_prefix_iterator>
+    template<bool IsConst, bool IsPrefixIterator>
     class htrie_hash_iterator {
         // TODO better encapsulation
         friend class htrie_hash;
         
     private:
-        using anode_type = typename std::conditional<is_const, const anode, anode>::type;
-        using trie_node_type = typename std::conditional<is_const, const trie_node, trie_node>::type;
-        using hash_node_type = typename std::conditional<is_const, const hash_node, hash_node>::type;
+        using anode_type = typename std::conditional<IsConst, const anode, anode>::type;
+        using trie_node_type = typename std::conditional<IsConst, const trie_node, trie_node>::type;
+        using hash_node_type = typename std::conditional<IsConst, const hash_node, hash_node>::type;
         
         using array_hash_iterator_type = 
-                typename std::conditional<is_const, 
+                typename std::conditional<IsConst, 
                                           typename array_hash_type::const_iterator, 
                                           typename array_hash_type::iterator>::type;
                                                                              
@@ -453,13 +453,13 @@ public:
         using difference_type = std::ptrdiff_t;
         using reference = typename std::conditional<
                                 has_value<T>::value, 
-                                typename std::conditional<is_const, 
+                                typename std::conditional<IsConst, 
                                                           typename std::add_lvalue_reference<const T>::type,
                                                           typename std::add_lvalue_reference<T>::type>::type, 
                                 void>::type;
         using pointer = typename std::conditional<
                                     has_value<T>::value, 
-                                    typename std::conditional<is_const, const T*, T*>::type, 
+                                    typename std::conditional<IsConst, const T*, T*>::type, 
                                     void>::type;
         
     private:
@@ -493,7 +493,7 @@ public:
             tsl_assert(m_current_trie_node->val_node() != nullptr);
         }
         
-        template<bool P = is_prefix_iterator, typename std::enable_if<!P>::type* = nullptr> 
+        template<bool P = IsPrefixIterator, typename std::enable_if<!P>::type* = nullptr> 
         htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
                             bool read_trie_node_value) noexcept:
@@ -503,7 +503,7 @@ public:
         {
         }
         
-        template<bool P = is_prefix_iterator, typename std::enable_if<P>::type* = nullptr> 
+        template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
                             bool read_trie_node_value, std::string prefix_filter) noexcept:
@@ -517,7 +517,7 @@ public:
         htrie_hash_iterator() noexcept {
         }
         
-        template<bool P = is_prefix_iterator, typename std::enable_if<!P>::type* = nullptr> 
+        template<bool P = IsPrefixIterator, typename std::enable_if<!P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, false>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
@@ -526,7 +526,7 @@ public:
         {
         }
         
-        template<bool P = is_prefix_iterator, typename std::enable_if<P>::type* = nullptr> 
+        template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         htrie_hash_iterator(const htrie_hash_iterator<false, true>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
@@ -660,11 +660,11 @@ public:
         }
         
     private:        
-        template<bool P = is_prefix_iterator, typename std::enable_if<!P>::type* = nullptr> 
+        template<bool P = IsPrefixIterator, typename std::enable_if<!P>::type* = nullptr> 
         void filter_prefix() {
         } 
         
-        template<bool P = is_prefix_iterator, typename std::enable_if<P>::type* = nullptr> 
+        template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         void filter_prefix() {
             tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             
@@ -753,8 +753,8 @@ public:
         array_hash_iterator_type m_array_hash_end_iterator;
         
         bool m_read_trie_node_value;
-        // TODO can't have void if !is_prefix, use inheritance
-        typename std::conditional<is_prefix_iterator, std::string, bool>::type m_prefix_filter;
+        // TODO can't have void if !IsPrefixIterator, use inheritance
+        typename std::conditional<IsPrefixIterator, std::string, bool>::type m_prefix_filter;
     }; 
     
 
