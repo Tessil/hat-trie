@@ -41,7 +41,267 @@ $(function() {
 <div class="title">hat-trie Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-</div><!-- contents -->
+<div class="textblock"><p><a href="https://travis-ci.org/Tessil/hat-trie"></a> <a href="https://ci.appveyor.com/project/Tessil/hat-trie/branch/master"></a> </p><h2>A C++ implementation of a fast and memory efficient HAT-trie</h2>
+<p>Trie implementation based on the "HAT-trie: A Cache-conscious Trie-based Data Structure for Strings." (Askitis Nikolas and Sinha Ranjan, 2007) paper. For now, only the pure HAT-trie has been implemented, the hybrid version may arrive later. Details regarding the HAT-trie data structure can be found <a href="https://tessil.github.io/2017/06/22/hat-trie.html">here</a>.</p>
+<p>The library provides an efficient and compact way to store a set or a map of strings by compressing the common prefixes. It also allows to search for keys that match a prefix.</p>
+<p>It's a well adapted structure to store a large number of strings.</p>
+<div class="image">
+<img src="https://tessil.github.io/images/hat-trie.png" width="600px"/>
+</div>
+ <p>For the àrray hash part, the <a href="https://github.com/Tessil/array-hash">array-hash</a> project is used and included as git subtree.</p>
+<p>The library provides two classes: <code><a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a></code> and <code><a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a></code>.</p>
+<h3>Overview</h3>
+<ul>
+<li>Header-only library, just include the project to your include path and you are ready to go.</li>
+<li>Low memory usage while keeping reasonable performances (see <a href="https://github.com/Tessil/hat-trie#benchmark">benchmark</a>).</li>
+<li>Allow prefix searches through <code>equal_prefix_range</code> (usefull for autocompletion for example).</li>
+<li>Keys are not ordered as they are partially stored in a hash map.</li>
+<li>All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators.</li>
+<li>Support null characters in the key (you can thus store binary data in the trie).</li>
+<li>Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.</li>
+<li>The balance between speed and memory usage can be modified through <code>max_load_factor</code>. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to 8.0.</li>
+<li>The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8 192 or 4 096 for faster iteration on the results through <code>burst_threshold</code>.</li>
+<li>By default the maximum allowed size for a key is set to 65 535. This can be raised through the <code>KeySizeT</code> template parameter.</li>
+</ul>
+<p>Thread-safety and exception guarantees are similar to the STL containers.</p>
+<h3>Hash function</h3>
+<p>To avoid dependencies, the default hash function is a simple <a href="https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash">FNV-1a</a> hash function. If you can, I recommend to use something like <a href="https://github.com/google/cityhash">CityHash</a>, MurmurHash, <a href="https://github.com/google/farmhash">FarmHash</a>, ... for better performances. On the tests I did with the <a href="https://github.com/Tessil/hat-trie#wikipedia-dataset">Wikipedia dataset</a>, CityHash64 offers a **~20% improvement** on reads compared to FNV-1a.</p>
+<div class="fragment"><div class="line">{c++}</div><div class="line">#include &lt;city.h&gt;</div><div class="line"></div><div class="line">struct str_hash {</div><div class="line">    std::size_t operator()(const char* key, std::size_t key_size) const {</div><div class="line">        return CityHash64(key, key_size);</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line">tsl::htrie_map&lt;char, int, str_hash&gt; map;</div></div><!-- fragment --><p>If you have access to <code>std::string_view</code> and you want to use the compiler provided hash implementation for strings.</p>
+<div class="fragment"><div class="line">{c++}</div><div class="line">#include &lt;string_view&gt;</div><div class="line"></div><div class="line">struct str_hash {</div><div class="line">    std::size_t operator()(const char* key, std::size_t key_size) const {</div><div class="line">        return std::hash&lt;std::string_view&gt;()(std::string_view(key, key_size));</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line">tsl::htrie_map&lt;char, int, str_hash&gt; map;</div></div><!-- fragment --><p>The <code>std::hash&lt;std::string&gt;</code> can't be used efficiently as the structure doesn't store any <code>std::string</code> object. Any time a hash would be needed a temporary <code>std::string</code> would have to be created.</p>
+<h3>Benchmark</h3>
+<h4>Wikipedia dataset</h4>
+<p>The benchmark consists in inserting all the titles from the main namespace of the Wikipedia archive into the data structure, check the used memory space after the insert (including potential memory fragmentation) and search for all the titles again in the data structure. The peak memory usage during the insert process is also measured with <a href="https://linux.die.net/man/1/time">time(1)</a>.</p>
+<ul>
+<li>Dataset: <a href="https://dumps.wikimedia.org/enwiki/20170320/">enwiki-20170320-all-titles-in-ns0.gz</a></li>
+<li>Size: 262.7 MiB</li>
+<li>Number of keys: 13 099 148</li>
+<li>Average key length: 19.90</li>
+<li>Median key length: 17</li>
+<li>Max key length: 251</li>
+</ul>
+<p>Each title is associated with an int (32 bits). All the hash based structures use <a href="https://github.com/google/cityhash">CityHash64</a> as hash function. For the tests marked <em>with reserve</em>, the <code>reserve</code> function is called beforehand to avoid any rehash.</p>
+<p>Note that <code>tsl::hopscotch_map</code>, <code>std::unordered_map</code>, <code>google::dense_hash_map</code> and <code>spp::sparse_hash_map</code> use <code>std::string</code> as key which imposes a minimum size of 32 bytes (on x64) even if the key is only one character long. Other structures may be able to store one-character keys with 1 byte + 8 bytes for a pointer (on x64).</p>
+<p>The benchmark was compiled with GCC 6.3 and ran on Debian Stretch x64 with an Intel i5-5200u and 8Go of RAM. Best of 20 runs was taken.</p>
+<p>The code of the benchmark can be found on <a href="https://gist.github.com/Tessil/72e11891fc155f5b2eb53de22cbc4053">Gist</a>.</p>
+<h5>Unsorted</h5>
+<p>The <em>enwiki-20170320-all-titles-in-ns0.gz</em> dataset is alphabetically sorted. For this benchmark, we first shuffle the dataset through <a href="https://linux.die.net/man/1/shuf">shuf(1)</a> to avoid a biased sorted dataset.</p>
+<table class="doxtable">
+<tr>
+<th>Library </th><th>Data structure </th><th align="right">Peak memory (MiB) </th><th align="right">Memory (MiB) </th><th align="right">Insert (ns/key) </th><th align="right">Read (ns/key)  </th></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> </td><td>HAT-trie </td><td align="right"><b>405.22</b> </td><td align="right"><b>402.25</b> </td><td align="right">643.10 </td><td align="right">250.87 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=4 </td><td>HAT-trie </td><td align="right">471.85 </td><td align="right">468.50 </td><td align="right">638.66 </td><td align="right">212.90 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=2 </td><td>HAT-trie </td><td align="right">569.76 </td><td align="right">566.52 </td><td align="right">630.61 </td><td align="right">201.10 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=1 </td><td>HAT-trie </td><td align="right">713.44 </td><td align="right">709.81 </td><td align="right">645.76 </td><td align="right">190.87 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array trie </td><td align="right">1269.68 </td><td align="right">1254.41 </td><td align="right">1102.93 </td><td align="right">557.20 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array trie </td><td align="right">1269.80 </td><td align="right">1254.41 </td><td align="right">1089.78 </td><td align="right">570.13 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array reduced trie </td><td align="right">1183.07 </td><td align="right">1167.79 </td><td align="right">1076.68 </td><td align="right">645.79 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array reduced trie </td><td align="right">1183.14 </td><td align="right">1167.85 </td><td align="right">1065.43 </td><td align="right">641.98 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array prefix trie </td><td align="right">498.69 </td><td align="right">496.54 </td><td align="right">1096.90 </td><td align="right">628.01 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array prefix trie </td><td align="right">498.65 </td><td align="right">496.60 </td><td align="right">1048.40 </td><td align="right">628.94 </td></tr>
+<tr>
+<td><a href="https://github.com/dcjones/hat-trie">hat-trie</a><sup>1</sup> (C) </td><td>HAT-trie </td><td align="right">504.07 </td><td align="right">501.50 </td><td align="right">917.49 </td><td align="right">261.00 </td></tr>
+<tr>
+<td><a href="https://github.com/fanf2/qp">qp trie</a> (C) </td><td>QP trie </td><td align="right">941.23 </td><td align="right">938.17 </td><td align="right">1349.25 </td><td align="right">1281.46 </td></tr>
+<tr>
+<td><a href="https://github.com/fanf2/qp">crit-bit trie</a> (C) </td><td>Crit-bit trie </td><td align="right">1074.96 </td><td align="right">1071.98 </td><td align="right">2930.42 </td><td align="right">2869.74 </td></tr>
+<tr>
+<td><a href="http://judy.sourceforge.net/">JudySL</a> (C) </td><td>Judy array </td><td align="right">631.09 </td><td align="right">628.37 </td><td align="right">884.29 </td><td align="right">803.58 </td></tr>
+<tr>
+<td><a href="http://judy.sourceforge.net/">JudyHS</a> (C) </td><td>Judy array </td><td align="right">723.44 </td><td align="right">719.47 </td><td align="right">476.79 </td><td align="right">417.15 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/array-hash">tsl::array_map</a> </td><td>Array hash table </td><td align="right">823.54 </td><td align="right">678.73 </td><td align="right">603.94 </td><td align="right">138.24 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/array-hash">tsl::array_map</a> <br />
+with reserve </td><td>Array hash table </td><td align="right">564.26 </td><td align="right">555.91 </td><td align="right">249.52 </td><td align="right">128.28 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hopscotch-map">tsl::hopscotch_map</a> </td><td>Hash table </td><td align="right">1325.83 </td><td align="right">1077.99 </td><td align="right">368.26 </td><td align="right"><b>119.49</b> </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hopscotch-map">tsl::hopscotch_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">1080.51 </td><td align="right">1077.98 </td><td align="right"><b>240.58</b> </td><td align="right">119.91 </td></tr>
+<tr>
+<td><a href="https://github.com/sparsehash/sparsehash">google::dense_hash_map</a> </td><td>Hash table </td><td align="right">2319.40 </td><td align="right">1677.11 </td><td align="right">466.60 </td><td align="right">138.87 </td></tr>
+<tr>
+<td><a href="https://github.com/sparsehash/sparsehash">google::dense_hash_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">1592.51 </td><td align="right">1589.99 </td><td align="right">259.56 </td><td align="right">120.40 </td></tr>
+<tr>
+<td><a href="https://github.com/greg7mdp/sparsepp">spp::sparse_hash_map</a> </td><td>Sparse hash table </td><td align="right">918.67 </td><td align="right">917.10 </td><td align="right">769.00 </td><td align="right">175.59 </td></tr>
+<tr>
+<td><a href="https://github.com/greg7mdp/sparsepp">spp::sparse_hash_map</a> <br />
+with reserve </td><td>Sparse hash table </td><td align="right">913.35 </td><td align="right">910.65 </td><td align="right">427.22 </td><td align="right">159.08 </td></tr>
+<tr>
+<td><a href="http://en.cppreference.com/w/cpp/container/unordered_map">std::unordered_map</a> </td><td>Hash table </td><td align="right">1249.05 </td><td align="right">1246.60 </td><td align="right">590.88 </td><td align="right">173.58 </td></tr>
+<tr>
+<td><a href="http://en.cppreference.com/w/cpp/container/unordered_map">std::unordered_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">1212.23 </td><td align="right">1209.71 </td><td align="right">350.33 </td><td align="right">178.70 </td></tr>
+</table>
+<ol type="1">
+<li>As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.</li>
+</ol>
+<h5>Sorted</h5>
+<p>The key are inserted and read in alphabetical order.</p>
+<table class="doxtable">
+<tr>
+<th>Library </th><th>Data structure </th><th align="right">Peak memory (MiB) </th><th align="right">Memory (MiB) </th><th align="right">Insert (ns/key) </th><th align="right">Read (ns/key)  </th></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> </td><td>HAT-trie </td><td align="right"><b>396.10</b> </td><td align="right"><b>393.22</b> </td><td align="right">255.76 </td><td align="right">68.08 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=4 </td><td>HAT-trie </td><td align="right">465.02 </td><td align="right">461.80 </td><td align="right">248.88 </td><td align="right">59.23 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=2 </td><td>HAT-trie </td><td align="right">543.99 </td><td align="right">541.21 </td><td align="right">230.13 </td><td align="right">53.50 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=1 </td><td>HAT-trie </td><td align="right">692.29 </td><td align="right">689.70 </td><td align="right">243.84 </td><td align="right"><b>49.22</b> </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array trie </td><td align="right">1269.58 </td><td align="right">1254.41 </td><td align="right">278.51 </td><td align="right">54.72 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array trie </td><td align="right">1269.66 </td><td align="right">1254.41 </td><td align="right">264.43 </td><td align="right">56.02 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array reduced trie </td><td align="right">1183.01 </td><td align="right">1167.78 </td><td align="right">254.60 </td><td align="right">69.18 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array reduced trie </td><td align="right">1183.03 </td><td align="right">1167.78 </td><td align="right">241.45 </td><td align="right">69.67 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array prefix trie </td><td align="right">621.59 </td><td align="right">619.38 </td><td align="right">246.88 </td><td align="right">57.83 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array prefix trie </td><td align="right">621.59 </td><td align="right">619.38 </td><td align="right"><b>187.98</b> </td><td align="right">58.56 </td></tr>
+<tr>
+<td><a href="https://github.com/dcjones/hat-trie">hat-trie</a><sup>2</sup> (C) </td><td>HAT-trie </td><td align="right">521.25 </td><td align="right">518.52 </td><td align="right">503.01 </td><td align="right">86.40 </td></tr>
+<tr>
+<td><a href="https://github.com/fanf2/qp">qp trie</a> (C) </td><td>QP trie </td><td align="right">940.65 </td><td align="right">937.66 </td><td align="right">392.86 </td><td align="right">190.19 </td></tr>
+<tr>
+<td><a href="https://github.com/fanf2/qp">crit-bit trie</a> (C) </td><td>Crit-bit trie </td><td align="right">1074.87 </td><td align="right">1071.98 </td><td align="right">430.04 </td><td align="right">347.60 </td></tr>
+<tr>
+<td><a href="http://judy.sourceforge.net/">JudySL</a> (C) </td><td>Judy array </td><td align="right">616.95 </td><td align="right">614.27 </td><td align="right">279.07 </td><td align="right">114.47 </td></tr>
+<tr>
+<td><a href="http://judy.sourceforge.net/">JudyHS</a> (C) </td><td>Judy array </td><td align="right">722.29 </td><td align="right">719.47 </td><td align="right">439.66 </td><td align="right">372.25 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/array-hash">tsl::array_map</a> </td><td>Array hash table </td><td align="right">826.98 </td><td align="right">682.99 </td><td align="right">612.31 </td><td align="right">139.16 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/array-hash">tsl::array_map</a> <br />
+with reserve </td><td>Array hash table </td><td align="right">565.37 </td><td align="right">555.35 </td><td align="right">246.55 </td><td align="right">126.32 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hopscotch-map">tsl::hopscotch_map</a> </td><td>Hash table </td><td align="right">1331.87 </td><td align="right">1078.02 </td><td align="right">375.19 </td><td align="right">118.08 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hopscotch-map">tsl::hopscotch_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">1080.51 </td><td align="right">1077.97 </td><td align="right">238.93 </td><td align="right">117.20 </td></tr>
+<tr>
+<td><a href="https://github.com/sparsehash/sparsehash">google::dense_hash_map</a> </td><td>Hash table </td><td align="right">2325.27 </td><td align="right">1683.07 </td><td align="right">483.95 </td><td align="right">137.09 </td></tr>
+<tr>
+<td><a href="https://github.com/sparsehash/sparsehash">google::dense_hash_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">1592.54 </td><td align="right">1589.99 </td><td align="right">257.22 </td><td align="right">113.71 </td></tr>
+<tr>
+<td><a href="https://github.com/greg7mdp/sparsepp">spp::sparse_hash_map</a> </td><td>Sparse hash table </td><td align="right">920.96 </td><td align="right">918.70 </td><td align="right">772.03 </td><td align="right">176.64 </td></tr>
+<tr>
+<td><a href="https://github.com/greg7mdp/sparsepp">spp::sparse_hash_map</a> <br />
+with reserve </td><td>Sparse hash table </td><td align="right">914.84 </td><td align="right">912.47 </td><td align="right">422.85 </td><td align="right">158.73 </td></tr>
+<tr>
+<td><a href="http://en.cppreference.com/w/cpp/container/unordered_map">std::unordered_map</a> </td><td>Hash table </td><td align="right">1249.09 </td><td align="right">1246.65 </td><td align="right">594.85 </td><td align="right">173.54 </td></tr>
+<tr>
+<td><a href="http://en.cppreference.com/w/cpp/container/unordered_map">std::unordered_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">1212.21 </td><td align="right">1209.71 </td><td align="right">347.40 </td><td align="right">176.49 </td></tr>
+</table>
+<ol type="1">
+<li>As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.</li>
+</ol>
+<h4>Dr. Askitis dataset</h4>
+<p>The benchmark consists in inserting all the words from the "Distinct Strings" dataset of Dr. Askitis into the data structure, check the used memory space and search for all the words from the "Skew String Set 1" dataset in the data structure. It's similar to the one on the <a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar</a> homepage.</p>
+<ul>
+<li>Dataset: <a href="http://web.archive.org/web/20120206015921/http://www.naskitis.com/">distinct_1</a> (write) / <a href="http://web.archive.org/web/20120206015921/http://www.naskitis.com/">skew1_1</a> (read)</li>
+<li>Size: 290.45 MiB / 1 029.46 MiB</li>
+<li>Number of keys: 28 772 169 / 177 999 203</li>
+<li>Average key length: 9.59 / 5.06</li>
+<li>Median key length: 8 / 4</li>
+<li>Max key length: 126 / 62</li>
+</ul>
+<p>The benchmark protocol is the same as for the <a href="https://github.com/Tessil/hat-trie#wikipedia-dataset">Wikipedia dataset</a>.</p>
+<table class="doxtable">
+<tr>
+<th>Library </th><th>Data structure </th><th align="right">Peak memory (MiB) </th><th align="right">Memory (MiB) </th><th align="right">Insert (ns/key) </th><th align="right">Read (ns/key)  </th></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> </td><td>HAT-trie </td><td align="right"><b>604.76</b> </td><td align="right"><b>601.79</b> </td><td align="right">485.45 </td><td align="right">77.80 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=4 </td><td>HAT-trie </td><td align="right">768.10 </td><td align="right">764.98 </td><td align="right">491.78 </td><td align="right">75.48 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=2 </td><td>HAT-trie </td><td align="right">1002.42 </td><td align="right">999.34 </td><td align="right">496.78 </td><td align="right">72.53 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hat-trie">tsl::htrie_map</a> <br />
+ max_load_factor=1 </td><td>HAT-trie </td><td align="right">1344.98 </td><td align="right">1341.97 </td><td align="right">520.66 </td><td align="right">72.45 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array trie </td><td align="right">1105.45 </td><td align="right">1100.05 </td><td align="right">682.25 </td><td align="right">71.98 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array trie </td><td align="right">1105.47 </td><td align="right">1100.05 </td><td align="right">668.75 </td><td align="right">71.95 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array reduced trie </td><td align="right">941.16 </td><td align="right">926.04 </td><td align="right">684.38 </td><td align="right">79.11 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array reduced trie </td><td align="right">941.16 </td><td align="right">925.98 </td><td align="right">672.14 </td><td align="right">79.02 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> </td><td>Double-array prefix trie </td><td align="right">714.58 </td><td align="right">712.59 </td><td align="right">831.71 </td><td align="right">75.83 </td></tr>
+<tr>
+<td><a href="http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/">cedar::da</a> ORDERED=false </td><td>Double-array prefix trie </td><td align="right">714.66 </td><td align="right">712.31 </td><td align="right">786.93 </td><td align="right">75.89 </td></tr>
+<tr>
+<td><a href="https://github.com/dcjones/hat-trie">hat-trie</a><sup>3</sup> (C) </td><td>HAT-trie </td><td align="right">786.93 </td><td align="right">784.32 </td><td align="right">743.34 </td><td align="right">93.58 </td></tr>
+<tr>
+<td><a href="https://github.com/fanf2/qp">qp trie</a> (C) </td><td>QP trie </td><td align="right">1800.02 </td><td align="right">1797.21 </td><td align="right">987.95 </td><td align="right">428.51 </td></tr>
+<tr>
+<td><a href="https://github.com/fanf2/qp">crit-bit trie</a> (C) </td><td>Crit-bit trie </td><td align="right">2210.52 </td><td align="right">2207.64 </td><td align="right">1986.19 </td><td align="right">1109.88 </td></tr>
+<tr>
+<td><a href="http://judy.sourceforge.net/">JudySL</a> (C) </td><td>Judy array </td><td align="right">1025.59 </td><td align="right">1023.11 </td><td align="right">535.02 </td><td align="right">202.36 </td></tr>
+<tr>
+<td><a href="http://judy.sourceforge.net/">JudyHS</a> (C) </td><td>Judy array </td><td align="right">1002.50 </td><td align="right">999.97 </td><td align="right">456.09 </td><td align="right">148.36 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/array-hash">tsl::array_map</a> </td><td>Array hash table </td><td align="right">1308.08 </td><td align="right">1031.67 </td><td align="right">545.82 </td><td align="right">46.41 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/array-hash">tsl::array_map</a> <br />
+with reserve </td><td>Array hash table </td><td align="right">979.44 </td><td align="right">921.363 </td><td align="right">244.19 </td><td align="right">45.74 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hopscotch-map">tsl::hopscotch_map</a> </td><td>Hash table </td><td align="right">2336.39 </td><td align="right">1611.54 </td><td align="right">288.70 </td><td align="right">47.05 </td></tr>
+<tr>
+<td><a href="https://github.com/Tessil/hopscotch-map">tsl::hopscotch_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">1614.22 </td><td align="right">1611.64 </td><td align="right"><b>220.67</b> </td><td align="right">46.39 </td></tr>
+<tr>
+<td><a href="https://github.com/sparsehash/sparsehash">google::dense_hash_map</a> </td><td>Hash table </td><td align="right">3913.64 </td><td align="right">2636.31 </td><td align="right">317.66 </td><td align="right">43.62 </td></tr>
+<tr>
+<td><a href="https://github.com/sparsehash/sparsehash">google::dense_hash_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">2638.19 </td><td align="right">2635.68 </td><td align="right">227.58 </td><td align="right"><b>43.09</b> </td></tr>
+<tr>
+<td><a href="https://github.com/greg7mdp/sparsepp">spp::sparse_hash_map</a> </td><td>Sparse hash table </td><td align="right">1419.69 </td><td align="right">1417.61 </td><td align="right">586.26 </td><td align="right">56.00 </td></tr>
+<tr>
+<td><a href="https://github.com/greg7mdp/sparsepp">spp::sparse_hash_map</a> <br />
+with reserve </td><td>Sparse hash table </td><td align="right">1424.21 </td><td align="right">1421.69 </td><td align="right">392.76 </td><td align="right">55.73 </td></tr>
+<tr>
+<td><a href="http://en.cppreference.com/w/cpp/container/unordered_map">std::unordered_map</a> </td><td>Hash table </td><td align="right">2112.66 </td><td align="right">2110.19 </td><td align="right">554.02 </td><td align="right">105.05 </td></tr>
+<tr>
+<td><a href="http://en.cppreference.com/w/cpp/container/unordered_map">std::unordered_map</a> <br />
+with reserve </td><td>Hash table </td><td align="right">2053.95 </td><td align="right">2051.67 </td><td align="right">309.06 </td><td align="right">109.89 </td></tr>
+</table>
+<ol type="1">
+<li>As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.</li>
+</ol>
+<h3>Installation</h3>
+<p>To use hat-trie library, just add the project to your include path. It's a <b>header-only</b> library.</p>
+<p>The code should work with any C++11 standard-compliant compiler and has been tested with GCC 4.8.4, Clang 3.5.0 and Visual Studio 2015.</p>
+<p>To run the tests you will need the Boost Test library and CMake.</p>
+<div class="fragment"><div class="line">git clone https://github.com/Tessil/hat-trie.git</div><div class="line">cd hat-trie</div><div class="line">mkdir build</div><div class="line">cd build</div><div class="line">cmake ..</div><div class="line">make</div><div class="line">./test_hat_trie</div></div><!-- fragment --><h3>Usage</h3>
+<p>The API can be found <a href="https://tessil.github.io/hat-trie/doc_without_string_view/html">here</a>. If <code>std::string_view</code> is available, the API changes slightly and can be found <a href="https://tessil.github.io/hat-trie/doc/html/">here</a>.</p>
+<p>### Example </p><div class="fragment"><div class="line">{c++}</div><div class="line">#include &lt;iostream&gt;</div><div class="line">#include &lt;string&gt;</div><div class="line">#include &lt;tsl/htrie_map.h&gt;</div><div class="line">#include &lt;tsl/htrie_set.h&gt;</div><div class="line"></div><div class="line"></div><div class="line">int main() {</div><div class="line">    /*</div><div class="line">     * Map of strings to int having char as character type. </div><div class="line">     * There is no support for wchar_t, char16_t or char32_t yet, </div><div class="line">     * but UTF-8 strings will work fine.</div><div class="line">     */</div><div class="line">    tsl::htrie_map&lt;char, int&gt; map = {{&quot;one&quot;, 1}, {&quot;two&quot;, 2}};</div><div class="line">    map[&quot;three&quot;] = 3;</div><div class="line">    map[&quot;four&quot;] = 4;</div><div class="line"></div><div class="line">    map.insert(&quot;five&quot;, 5);</div><div class="line">    map.insert_ks(&quot;six_with_extra_chars_we_ignore&quot;, 3, 6);</div><div class="line"></div><div class="line">    map.erase(&quot;two&quot;);</div><div class="line"></div><div class="line">    /*</div><div class="line">     * Due to the compression on the common prefixes, the letters of the string </div><div class="line">     * are not always stored contiguously. When we retrieve the key, we have to </div><div class="line">     * construct it.</div><div class="line">     * </div><div class="line">     * To avoid a heap-allocation at each iteration (when SSO doesn&#39;t occur), </div><div class="line">     * we reuse the key_buffer to construct the key.</div><div class="line">     */</div><div class="line">    std::string key_buffer;</div><div class="line">    for(auto it = map.begin(); it != map.end(); ++it) {</div><div class="line">        it.key(key_buffer);</div><div class="line">        std::cout &lt;&lt; &quot;{&quot; &lt;&lt; key_buffer &lt;&lt; &quot;, &quot; &lt;&lt; it.value() &lt;&lt; &quot;}&quot; &lt;&lt; std::endl;</div><div class="line">    }</div><div class="line"></div><div class="line">    /*</div><div class="line">     * If you don&#39;t care about the allocation.</div><div class="line">     */</div><div class="line">    for(auto it = map.begin(); it != map.end(); ++it) {</div><div class="line">        std::cout &lt;&lt; &quot;{&quot; &lt;&lt; it.key() &lt;&lt; &quot;, &quot; &lt;&lt; *it &lt;&lt; &quot;}&quot; &lt;&lt; std::endl;</div><div class="line">    }</div><div class="line"></div><div class="line"></div><div class="line">    tsl::htrie_map&lt;char, int&gt; map2 = {{&quot;apple&quot;, 1}, {&quot;mango&quot;, 2}, {&quot;apricot&quot;, 3},</div><div class="line">                                      {&quot;mandarin&quot;, 4}, {&quot;melon&quot;, 5}, {&quot;macadamia&quot;, 6}};</div><div class="line"></div><div class="line">    // Prefix search</div><div class="line">    auto prefix_range = map2.equal_prefix_range(&quot;ma&quot;);</div><div class="line"></div><div class="line">    // {mandarin, 4} {mango, 2} {macadamia, 6}</div><div class="line">    for(auto it = prefix_range.first; it != prefix_range.second; ++it) {</div><div class="line">        std::cout &lt;&lt; &quot;{&quot; &lt;&lt; it.key() &lt;&lt; &quot;, &quot; &lt;&lt; *it &lt;&lt; &quot;}&quot; &lt;&lt; std::endl;</div><div class="line">    }</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">    tsl::htrie_set&lt;char&gt; set = {&quot;one&quot;, &quot;two&quot;, &quot;three&quot;};</div><div class="line">    set.insert({&quot;four&quot;, &quot;five&quot;});</div><div class="line"></div><div class="line">    // {one} {two} {five} {four} {three}</div><div class="line">    for(auto it = set.begin(); it != set.end(); ++it) {</div><div class="line">        it.key(key_buffer);</div><div class="line">        std::cout &lt;&lt; &quot;{&quot; &lt;&lt; key_buffer &lt;&lt; &quot;}&quot; &lt;&lt; std::endl;</div><div class="line">    }</div><div class="line">} </div></div><!-- fragment --><h3>License</h3>
+<p>The code is licensed under the MIT license, see the [LICENSE file](LICENSE) for details. </p>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

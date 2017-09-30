@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>hat-trie: tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt; Class Template Reference</title>
+<title>hat-trie: tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; IsConst, IsPrefixIterator &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -47,7 +47,7 @@ $(function() {
 <a href="#friends">Friends</a> &#124;
 <a href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; is_const, is_prefix_iterator &gt; Class Template Reference</div>  </div>
+<div class="title">tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;::htrie_hash_iterator&lt; IsConst, IsPrefixIterator &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -55,44 +55,44 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ac0003dea70067a1c28bb80e6cbe72324"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ac0003dea70067a1c28bb80e6cbe72324">iterator_category</a> = std::forward_iterator_tag</td></tr>
-<tr class="separator:ac0003dea70067a1c28bb80e6cbe72324"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a3eeee0ce4536de781afe5f171c799a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a9a3eeee0ce4536de781afe5f171c799a">value_type</a> = typename std::conditional&lt; has_value&lt; T &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">value</a>, T, void &gt;::type</td></tr>
-<tr class="separator:a9a3eeee0ce4536de781afe5f171c799a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1273bded3816e0f1b9aad4762ee8ff05"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a1273bded3816e0f1b9aad4762ee8ff05">difference_type</a> = std::ptrdiff_t</td></tr>
-<tr class="separator:a1273bded3816e0f1b9aad4762ee8ff05"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab29b1e0905200db4bf076dadfdfc0ae0"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab29b1e0905200db4bf076dadfdfc0ae0">reference</a> = typename std::conditional&lt; has_value&lt; T &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">value</a>, typename std::conditional&lt; is_const, typename std::add_lvalue_reference&lt; const T &gt;::type, typename std::add_lvalue_reference&lt; T &gt;::type &gt;::type, void &gt;::type</td></tr>
-<tr class="separator:ab29b1e0905200db4bf076dadfdfc0ae0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8641bc95ac2f86c38d06b87bcaca474b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a8641bc95ac2f86c38d06b87bcaca474b">pointer</a> = typename std::conditional&lt; has_value&lt; T &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">value</a>, typename std::conditional&lt; is_const, const T *, T * &gt;::type, void &gt;::type</td></tr>
-<tr class="separator:a8641bc95ac2f86c38d06b87bcaca474b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af086af75d5dd928ca5fa12f797c6c794"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#af086af75d5dd928ca5fa12f797c6c794">iterator_category</a> = std::forward_iterator_tag</td></tr>
+<tr class="separator:af086af75d5dd928ca5fa12f797c6c794"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a813e5b2a5816259903d897c0ce1c87e5"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a813e5b2a5816259903d897c0ce1c87e5">value_type</a> = typename std::conditional&lt; has_value&lt; T &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3116cf4329025bd61b49fa3b1aca4d87">value</a>, T, void &gt;::type</td></tr>
+<tr class="separator:a813e5b2a5816259903d897c0ce1c87e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab67f67b9a26b5c2eca57e842e7491924"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab67f67b9a26b5c2eca57e842e7491924">difference_type</a> = std::ptrdiff_t</td></tr>
+<tr class="separator:ab67f67b9a26b5c2eca57e842e7491924"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a525a35fa2a23b852069f5e285f9e0b25"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a525a35fa2a23b852069f5e285f9e0b25">reference</a> = typename std::conditional&lt; has_value&lt; T &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3116cf4329025bd61b49fa3b1aca4d87">value</a>, typename std::conditional&lt; IsConst, typename std::add_lvalue_reference&lt; const T &gt;::type, typename std::add_lvalue_reference&lt; T &gt;::type &gt;::type, void &gt;::type</td></tr>
+<tr class="separator:a525a35fa2a23b852069f5e285f9e0b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4aa2f3aeaa82e543cced0346443002e4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a4aa2f3aeaa82e543cced0346443002e4">pointer</a> = typename std::conditional&lt; has_value&lt; T &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3116cf4329025bd61b49fa3b1aca4d87">value</a>, typename std::conditional&lt; IsConst, const T *, T * &gt;::type, void &gt;::type</td></tr>
+<tr class="separator:a4aa2f3aeaa82e543cced0346443002e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abbd3473fb634f7de8286f180fce21471"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#abbd3473fb634f7de8286f180fce21471">htrie_hash_iterator</a> () noexcept</td></tr>
-<tr class="separator:abbd3473fb634f7de8286f180fce21471"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67a3d51ad8057fd815a1182c291089ce"><td class="memTemplParams" colspan="2">template&lt;bool P = is_prefix_iterator, typename std::enable_if&lt;!P &gt;::type *  = nullptr&gt; </td></tr>
-<tr class="memitem:a67a3d51ad8057fd815a1182c291089ce"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a67a3d51ad8057fd815a1182c291089ce">htrie_hash_iterator</a> (const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; false, false &gt; &amp;other) noexcept</td></tr>
-<tr class="separator:a67a3d51ad8057fd815a1182c291089ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e58ed116d736bc8deab2f1df632f25e"><td class="memTemplParams" colspan="2">template&lt;bool P = is_prefix_iterator, typename std::enable_if&lt; P &gt;::type *  = nullptr&gt; </td></tr>
-<tr class="memitem:a3e58ed116d736bc8deab2f1df632f25e"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3e58ed116d736bc8deab2f1df632f25e">htrie_hash_iterator</a> (const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; false, true &gt; &amp;other) noexcept</td></tr>
-<tr class="separator:a3e58ed116d736bc8deab2f1df632f25e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04385cb3e862d6f571f29854d66f5f23"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a04385cb3e862d6f571f29854d66f5f23">key</a> (std::string &amp;key_buffer_out) const</td></tr>
-<tr class="separator:a04385cb3e862d6f571f29854d66f5f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4320a4cef6cf910427825792b20711f8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a4320a4cef6cf910427825792b20711f8">key</a> () const</td></tr>
-<tr class="separator:a4320a4cef6cf910427825792b20711f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a99bc2f921cd302c34b197407ca5181"><td class="memTemplParams" colspan="2">template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
-<tr class="memitem:a5a99bc2f921cd302c34b197407ca5181"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab29b1e0905200db4bf076dadfdfc0ae0">reference</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">value</a> () const</td></tr>
-<tr class="separator:a5a99bc2f921cd302c34b197407ca5181"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fadc56503963d13720f34c3496c42ca"><td class="memTemplParams" colspan="2">template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
-<tr class="memitem:a3fadc56503963d13720f34c3496c42ca"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab29b1e0905200db4bf076dadfdfc0ae0">reference</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3fadc56503963d13720f34c3496c42ca">operator*</a> () const</td></tr>
-<tr class="separator:a3fadc56503963d13720f34c3496c42ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15d2245fab805dbf4b57b31b0557d7af"><td class="memTemplParams" colspan="2">template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
-<tr class="memitem:a15d2245fab805dbf4b57b31b0557d7af"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a8641bc95ac2f86c38d06b87bcaca474b">pointer</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a15d2245fab805dbf4b57b31b0557d7af">operator-&gt;</a> () const</td></tr>
-<tr class="separator:a15d2245fab805dbf4b57b31b0557d7af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a960844d236d731ec7bfe0506226f06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a7a960844d236d731ec7bfe0506226f06">operator++</a> ()</td></tr>
-<tr class="separator:a7a960844d236d731ec7bfe0506226f06"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58cf62a0c3bb5434d484003b39003932"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a58cf62a0c3bb5434d484003b39003932">operator++</a> (int)</td></tr>
-<tr class="separator:a58cf62a0c3bb5434d484003b39003932"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b372342081d8f5944efc2d1614e40f8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5b372342081d8f5944efc2d1614e40f8">htrie_hash_iterator</a> () noexcept</td></tr>
+<tr class="separator:a5b372342081d8f5944efc2d1614e40f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93cb085b1ed9fcc97926c4ca39c6a945"><td class="memTemplParams" colspan="2">template&lt;bool P = IsPrefixIterator, typename std::enable_if&lt;!P &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a93cb085b1ed9fcc97926c4ca39c6a945"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a93cb085b1ed9fcc97926c4ca39c6a945">htrie_hash_iterator</a> (const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; false, false &gt; &amp;other) noexcept</td></tr>
+<tr class="separator:a93cb085b1ed9fcc97926c4ca39c6a945"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ed8b7070f71ee0d5e47f75efaed1be4"><td class="memTemplParams" colspan="2">template&lt;bool P = IsPrefixIterator, typename std::enable_if&lt; P &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a2ed8b7070f71ee0d5e47f75efaed1be4"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a2ed8b7070f71ee0d5e47f75efaed1be4">htrie_hash_iterator</a> (const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; false, true &gt; &amp;other) noexcept</td></tr>
+<tr class="separator:a2ed8b7070f71ee0d5e47f75efaed1be4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b219f3f379b5cb242dadabb4ec9056a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a8b219f3f379b5cb242dadabb4ec9056a">key</a> (std::string &amp;key_buffer_out) const</td></tr>
+<tr class="separator:a8b219f3f379b5cb242dadabb4ec9056a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26ce442b593cecd2a4b086e043ae26ee"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a26ce442b593cecd2a4b086e043ae26ee">key</a> () const</td></tr>
+<tr class="separator:a26ce442b593cecd2a4b086e043ae26ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3116cf4329025bd61b49fa3b1aca4d87"><td class="memTemplParams" colspan="2">template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a3116cf4329025bd61b49fa3b1aca4d87"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a525a35fa2a23b852069f5e285f9e0b25">reference</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3116cf4329025bd61b49fa3b1aca4d87">value</a> () const</td></tr>
+<tr class="separator:a3116cf4329025bd61b49fa3b1aca4d87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb43f1d3be66347e54b5da25ecc4bf82"><td class="memTemplParams" colspan="2">template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:adb43f1d3be66347e54b5da25ecc4bf82"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a525a35fa2a23b852069f5e285f9e0b25">reference</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#adb43f1d3be66347e54b5da25ecc4bf82">operator*</a> () const</td></tr>
+<tr class="separator:adb43f1d3be66347e54b5da25ecc4bf82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35ec6db468c2e57695a2fb13ae82b1e8"><td class="memTemplParams" colspan="2">template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a35ec6db468c2e57695a2fb13ae82b1e8"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a4aa2f3aeaa82e543cced0346443002e4">pointer</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a35ec6db468c2e57695a2fb13ae82b1e8">operator-&gt;</a> () const</td></tr>
+<tr class="separator:a35ec6db468c2e57695a2fb13ae82b1e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe33bd4d7a8af04fd48751a73c989221"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#afe33bd4d7a8af04fd48751a73c989221">operator++</a> ()</td></tr>
+<tr class="separator:afe33bd4d7a8af04fd48751a73c989221"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc2e4e33e45a3af2b9e7797cb18fca11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#abc2e4e33e45a3af2b9e7797cb18fca11">operator++</a> (int)</td></tr>
+<tr class="separator:abc2e4e33e45a3af2b9e7797cb18fca11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -104,90 +104,90 @@ Friends</h2></td></tr>
 <tr class="separator:a0a3140417bbda6870fdca72e2c417f7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a1273bded3816e0f1b9aad4762ee8ff05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1273bded3816e0f1b9aad4762ee8ff05">&#9670;&nbsp;</a></span>difference_type</h2>
+<a id="ab67f67b9a26b5c2eca57e842e7491924"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab67f67b9a26b5c2eca57e842e7491924">&#9670;&nbsp;</a></span>difference_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a1273bded3816e0f1b9aad4762ee8ff05">difference_type</a> =  std::ptrdiff_t</td>
+          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab67f67b9a26b5c2eca57e842e7491924">difference_type</a> =  std::ptrdiff_t</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="ac0003dea70067a1c28bb80e6cbe72324"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0003dea70067a1c28bb80e6cbe72324">&#9670;&nbsp;</a></span>iterator_category</h2>
+<a id="af086af75d5dd928ca5fa12f797c6c794"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af086af75d5dd928ca5fa12f797c6c794">&#9670;&nbsp;</a></span>iterator_category</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ac0003dea70067a1c28bb80e6cbe72324">iterator_category</a> =  std::forward_iterator_tag</td>
+          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#af086af75d5dd928ca5fa12f797c6c794">iterator_category</a> =  std::forward_iterator_tag</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a8641bc95ac2f86c38d06b87bcaca474b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8641bc95ac2f86c38d06b87bcaca474b">&#9670;&nbsp;</a></span>pointer</h2>
+<a id="a4aa2f3aeaa82e543cced0346443002e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4aa2f3aeaa82e543cced0346443002e4">&#9670;&nbsp;</a></span>pointer</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a8641bc95ac2f86c38d06b87bcaca474b">pointer</a> =  typename std::conditional&lt; has_value&lt;T&gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">value</a>, typename std::conditional&lt;is_const, const T*, T*&gt;::type, void&gt;::type</td>
+          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a4aa2f3aeaa82e543cced0346443002e4">pointer</a> =  typename std::conditional&lt; has_value&lt;T&gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3116cf4329025bd61b49fa3b1aca4d87">value</a>, typename std::conditional&lt;IsConst, const T*, T*&gt;::type, void&gt;::type</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="ab29b1e0905200db4bf076dadfdfc0ae0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab29b1e0905200db4bf076dadfdfc0ae0">&#9670;&nbsp;</a></span>reference</h2>
+<a id="a525a35fa2a23b852069f5e285f9e0b25"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a525a35fa2a23b852069f5e285f9e0b25">&#9670;&nbsp;</a></span>reference</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab29b1e0905200db4bf076dadfdfc0ae0">reference</a> =  typename std::conditional&lt; has_value&lt;T&gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">value</a>, typename std::conditional&lt;is_const, typename std::add_lvalue_reference&lt;const T&gt;::type, typename std::add_lvalue_reference&lt;T&gt;::type&gt;::type, void&gt;::type</td>
+          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a525a35fa2a23b852069f5e285f9e0b25">reference</a> =  typename std::conditional&lt; has_value&lt;T&gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3116cf4329025bd61b49fa3b1aca4d87">value</a>, typename std::conditional&lt;IsConst, typename std::add_lvalue_reference&lt;const T&gt;::type, typename std::add_lvalue_reference&lt;T&gt;::type&gt;::type, void&gt;::type</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a9a3eeee0ce4536de781afe5f171c799a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9a3eeee0ce4536de781afe5f171c799a">&#9670;&nbsp;</a></span>value_type</h2>
+<a id="a813e5b2a5816259903d897c0ce1c87e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a813e5b2a5816259903d897c0ce1c87e5">&#9670;&nbsp;</a></span>value_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a9a3eeee0ce4536de781afe5f171c799a">value_type</a> =  typename std::conditional&lt;has_value&lt;T&gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a5a99bc2f921cd302c34b197407ca5181">value</a>, T, void&gt;::type</td>
+          <td class="memname">using <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a813e5b2a5816259903d897c0ce1c87e5">value_type</a> =  typename std::conditional&lt;has_value&lt;T&gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a3116cf4329025bd61b49fa3b1aca4d87">value</a>, T, void&gt;::type</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -195,21 +195,21 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="abbd3473fb634f7de8286f180fce21471"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abbd3473fb634f7de8286f180fce21471">&#9670;&nbsp;</a></span>htrie_hash_iterator() <span class="overload">[1/3]</span></h2>
+<a id="a5b372342081d8f5944efc2d1614e40f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b372342081d8f5944efc2d1614e40f8">&#9670;&nbsp;</a></span>htrie_hash_iterator() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -224,23 +224,23 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 
 </div>
 </div>
-<a id="a67a3d51ad8057fd815a1182c291089ce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a67a3d51ad8057fd815a1182c291089ce">&#9670;&nbsp;</a></span>htrie_hash_iterator() <span class="overload">[2/3]</span></h2>
+<a id="a93cb085b1ed9fcc97926c4ca39c6a945"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93cb085b1ed9fcc97926c4ca39c6a945">&#9670;&nbsp;</a></span>htrie_hash_iterator() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <div class="memtemplate">
-template&lt;bool P = is_prefix_iterator, typename std::enable_if&lt;!P &gt;::type *  = nullptr&gt; </div>
+template&lt;bool P = IsPrefixIterator, typename std::enable_if&lt;!P &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; false, false &gt; &amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
@@ -256,23 +256,23 @@ template&lt;bool P = is_prefix_iterator, typename std::enable_if&lt;!P &gt;::typ
 
 </div>
 </div>
-<a id="a3e58ed116d736bc8deab2f1df632f25e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3e58ed116d736bc8deab2f1df632f25e">&#9670;&nbsp;</a></span>htrie_hash_iterator() <span class="overload">[3/3]</span></h2>
+<a id="a2ed8b7070f71ee0d5e47f75efaed1be4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ed8b7070f71ee0d5e47f75efaed1be4">&#9670;&nbsp;</a></span>htrie_hash_iterator() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <div class="memtemplate">
-template&lt;bool P = is_prefix_iterator, typename std::enable_if&lt; P &gt;::type *  = nullptr&gt; </div>
+template&lt;bool P = IsPrefixIterator, typename std::enable_if&lt; P &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; false, true &gt; &amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
@@ -289,21 +289,21 @@ template&lt;bool P = is_prefix_iterator, typename std::enable_if&lt; P &gt;::typ
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a04385cb3e862d6f571f29854d66f5f23"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a04385cb3e862d6f571f29854d66f5f23">&#9670;&nbsp;</a></span>key() <span class="overload">[1/2]</span></h2>
+<a id="a8b219f3f379b5cb242dadabb4ec9056a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b219f3f379b5cb242dadabb4ec9056a">&#9670;&nbsp;</a></span>key() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::key </td>
+          <td class="memname">void <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::key </td>
           <td>(</td>
           <td class="paramtype">std::string &amp;&#160;</td>
           <td class="paramname"><em>key_buffer_out</em></td><td>)</td>
@@ -319,21 +319,21 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 
 </div>
 </div>
-<a id="a4320a4cef6cf910427825792b20711f8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4320a4cef6cf910427825792b20711f8">&#9670;&nbsp;</a></span>key() <span class="overload">[2/2]</span></h2>
+<a id="a26ce442b593cecd2a4b086e043ae26ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26ce442b593cecd2a4b086e043ae26ee">&#9670;&nbsp;</a></span>key() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::string <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::key </td>
+          <td class="memname">std::string <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::key </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -348,15 +348,15 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 
 </div>
 </div>
-<a id="a3fadc56503963d13720f34c3496c42ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3fadc56503963d13720f34c3496c42ca">&#9670;&nbsp;</a></span>operator*()</h2>
+<a id="adb43f1d3be66347e54b5da25ecc4bf82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb43f1d3be66347e54b5da25ecc4bf82">&#9670;&nbsp;</a></span>operator*()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <div class="memtemplate">
 template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
@@ -364,7 +364,7 @@ template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::valu
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab29b1e0905200db4bf076dadfdfc0ae0">reference</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::operator* </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a525a35fa2a23b852069f5e285f9e0b25">reference</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::operator* </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -379,21 +379,21 @@ template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::valu
 
 </div>
 </div>
-<a id="a7a960844d236d731ec7bfe0506226f06"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7a960844d236d731ec7bfe0506226f06">&#9670;&nbsp;</a></span>operator++() <span class="overload">[1/2]</span></h2>
+<a id="afe33bd4d7a8af04fd48751a73c989221"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe33bd4d7a8af04fd48751a73c989221">&#9670;&nbsp;</a></span>operator++() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&amp; <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::operator++ </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&amp; <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::operator++ </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -408,21 +408,21 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 
 </div>
 </div>
-<a id="a58cf62a0c3bb5434d484003b39003932"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a58cf62a0c3bb5434d484003b39003932">&#9670;&nbsp;</a></span>operator++() <span class="overload">[2/2]</span></h2>
+<a id="abc2e4e33e45a3af2b9e7797cb18fca11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2e4e33e45a3af2b9e7797cb18fca11">&#9670;&nbsp;</a></span>operator++() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::operator++ </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::operator++ </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -438,15 +438,15 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 
 </div>
 </div>
-<a id="a15d2245fab805dbf4b57b31b0557d7af"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a15d2245fab805dbf4b57b31b0557d7af">&#9670;&nbsp;</a></span>operator->()</h2>
+<a id="a35ec6db468c2e57695a2fb13ae82b1e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35ec6db468c2e57695a2fb13ae82b1e8">&#9670;&nbsp;</a></span>operator->()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <div class="memtemplate">
 template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
@@ -454,7 +454,7 @@ template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::valu
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a8641bc95ac2f86c38d06b87bcaca474b">pointer</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::operator-&gt; </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a4aa2f3aeaa82e543cced0346443002e4">pointer</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::operator-&gt; </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -469,15 +469,15 @@ template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::valu
 
 </div>
 </div>
-<a id="a5a99bc2f921cd302c34b197407ca5181"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5a99bc2f921cd302c34b197407ca5181">&#9670;&nbsp;</a></span>value()</h2>
+<a id="a3116cf4329025bd61b49fa3b1aca4d87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3116cf4329025bd61b49fa3b1aca4d87">&#9670;&nbsp;</a></span>value()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <div class="memtemplate">
 template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::value &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
@@ -485,7 +485,7 @@ template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::valu
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#ab29b1e0905200db4bf076dadfdfc0ae0">reference</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt;::value </td>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html#a525a35fa2a23b852069f5e285f9e0b25">reference</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt;::value </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -509,7 +509,7 @@ template&lt;class U  = T, typename std::enable_if&lt; has_value&lt; U &gt;::valu
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -535,7 +535,7 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -543,13 +543,13 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
         <tr>
           <td class="memname">bool operator!= </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt; &amp;&#160;</td>
           <td class="paramname"><em>lhs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt; &amp;&#160;</td>
           <td class="paramname"><em>rhs</em>&#160;</td>
         </tr>
         <tr>
@@ -575,7 +575,7 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 <div class="memtemplate">
 template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
 <div class="memtemplate">
-template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
+template&lt;bool IsConst, bool IsPrefixIterator&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -583,13 +583,13 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
         <tr>
           <td class="memname">bool operator== </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt; &amp;&#160;</td>
           <td class="paramname"><em>lhs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; is_const, is_prefix_iterator &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash_1_1htrie__hash__iterator.html">htrie_hash_iterator</a>&lt; IsConst, IsPrefixIterator &gt; &amp;&#160;</td>
           <td class="paramname"><em>rhs</em>&#160;</td>
         </tr>
         <tr>
@@ -608,7 +608,7 @@ template&lt;bool is_const, bool is_prefix_iterator&gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>src/<a class="el" href="htrie__hash_8h_source.html">htrie_hash.h</a></li>
+<li>tsl/<a class="el" href="htrie__hash_8h_source.html">htrie_hash.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

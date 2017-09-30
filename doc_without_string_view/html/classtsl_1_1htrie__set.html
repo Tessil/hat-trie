@@ -103,6 +103,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a966bb083c7d8f51109481cf7051602f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d4943e3a2ad4a7c0e70d1788128cf81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1htrie__set.html#a49adc56dcc3c3def4169e630f13c9723">size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__set.html#a5d4943e3a2ad4a7c0e70d1788128cf81">max_key_size</a> () const noexcept</td></tr>
 <tr class="separator:a5d4943e3a2ad4a7c0e70d1788128cf81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63841836ead586f56bf5a867be2f32b1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__set.html#a63841836ead586f56bf5a867be2f32b1">shrink_to_fit</a> ()</td></tr>
+<tr class="separator:a63841836ead586f56bf5a867be2f32b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9984a642fcf9137ca06552c4055f578f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__set.html#a9984a642fcf9137ca06552c4055f578f">clear</a> () noexcept</td></tr>
 <tr class="separator:a9984a642fcf9137ca06552c4055f578f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d1f27b96c8a9e85ec7f4e59fe262daa"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="classtsl_1_1htrie__set.html#ae6504ad3538b537625a19521dddc6719">iterator</a>, bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__set.html#a0d1f27b96c8a9e85ec7f4e59fe262daa">insert_ks</a> (const CharT *key, <a class="el" href="classtsl_1_1htrie__set.html#a49adc56dcc3c3def4169e630f13c9723">size_type</a> key_size)</td></tr>
@@ -203,7 +205,7 @@ Friends</h2></td></tr>
 <tr class="separator:a7bce6bd10267415f736118e330e402b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;class CharT, class Hash = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT = std::uint16_t&gt;<br />
+<div class="textblock"><h3>template&lt;class CharT, class Hash = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT = std::uint16_t&gt;<br />
 class tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</h3>
 
 <p>Implementation of a hat-trie set.</p>
@@ -220,7 +222,7 @@ class tsl::htrie_set&lt; CharT, Hash, KeySizeT &gt;</h3>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#a0f86cddeeb61cff5044fe7862526d907">char_type</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a8cf1b286d2d13814c147ef750f062d47">ht::char_type</a></td>
@@ -236,7 +238,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#a628fdd2521b893763a55d594347af95a">const_iterator</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ab761495eb888915c7a09cbec9b6825a8">ht::const_iterator</a></td>
@@ -252,7 +254,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#aa2d2863e761bfe6310c37dfc840b7aa1">const_prefix_iterator</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a4fe66111812336218d88f009306e061c">ht::const_prefix_iterator</a></td>
@@ -268,7 +270,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#a71336a03a9413b125da5fd3a736310cb">hasher</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#add53859fc2680ceff7f937c7b813e774">ht::hasher</a></td>
@@ -284,7 +286,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#ae6504ad3538b537625a19521dddc6719">iterator</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ad3c46cbddd4dc394b9ad4cd7e1552d78">ht::iterator</a></td>
@@ -300,7 +302,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#a60aed8c4469c3b45454cddf607bb5053">key_size_type</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a6c38def94a8add233c56d7d5c1e629ac">ht::key_size_type</a></td>
@@ -316,7 +318,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#a922db0fe0f783550b44c7bfefd5f36bb">prefix_iterator</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a2df3d66d1ad4244a18f86adfc1d5a285">ht::prefix_iterator</a></td>
@@ -332,7 +334,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html#a49adc56dcc3c3def4169e630f13c9723">size_type</a> =  typename <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">ht::size_type</a></td>
@@ -349,7 +351,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -377,7 +379,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <div class="memtemplate">
 template&lt;class InputIt &gt; </div>
 <table class="mlabels">
@@ -423,7 +425,7 @@ template&lt;class InputIt &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -462,7 +464,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -489,7 +491,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -516,7 +518,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -543,7 +545,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -571,7 +573,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -598,7 +600,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -625,7 +627,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -652,7 +654,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -680,7 +682,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -708,7 +710,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -746,7 +748,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -774,7 +776,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -802,7 +804,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -840,7 +842,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -867,7 +869,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -894,7 +896,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -921,7 +923,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -952,7 +954,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -983,7 +985,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1014,7 +1016,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1045,7 +1047,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1084,7 +1086,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1125,7 +1127,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1153,7 +1155,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1181,7 +1183,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1209,7 +1211,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1237,7 +1239,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1275,7 +1277,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1313,7 +1315,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1341,7 +1343,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1379,7 +1381,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1407,7 +1409,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1435,7 +1437,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1473,7 +1475,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1504,7 +1506,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1535,7 +1537,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1574,7 +1576,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1602,7 +1604,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1630,7 +1632,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1658,7 +1660,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1686,7 +1688,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1724,7 +1726,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1762,7 +1764,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1789,7 +1791,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1817,7 +1819,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1845,7 +1847,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <div class="memtemplate">
 template&lt;class InputIt &gt; </div>
 <table class="mlabels">
@@ -1885,7 +1887,7 @@ template&lt;class InputIt &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1913,7 +1915,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1951,7 +1953,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1978,7 +1980,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2005,7 +2007,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2033,7 +2035,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2060,7 +2062,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2082,13 +2084,41 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 
 </div>
 </div>
+<a id="a63841836ead586f56bf5a867be2f32b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63841836ead586f56bf5a867be2f32b1">&#9670;&nbsp;</a></span>shrink_to_fit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::shrink_to_fit </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Call <a class="el" href="classtsl_1_1htrie__set.html#a63841836ead586f56bf5a867be2f32b1">shrink_to_fit()</a> on each hash node of the hat-trie to reduce its size. </p>
+
+</div>
+</div>
 <a id="a49879c51ef76e59bcd096bb6e398bb7b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a49879c51ef76e59bcd096bb6e398bb7b">&#9670;&nbsp;</a></span>size()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2115,7 +2145,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2144,7 +2174,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2182,7 +2212,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2220,7 +2250,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2253,7 +2283,7 @@ template&lt;class CharT , class Hash  = tsl::str_hash_ah&lt;CharT&gt;, class Key
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>src/<a class="el" href="htrie__set_8h_source.html">htrie_set.h</a></li>
+<li>tsl/<a class="el" href="htrie__set_8h_source.html">htrie_set.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
