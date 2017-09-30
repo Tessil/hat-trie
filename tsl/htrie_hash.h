@@ -110,10 +110,10 @@ private:
     using array_hash_type = 
         typename std::conditional<
                         has_value<T>::value, 
-                        tsl::array_map<CharT, T, Hash, tsl::str_equal_ah<CharT>, false, 
-                                       KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy_ah<4>>,
-                        tsl::array_set<CharT, Hash, tsl::str_equal_ah<CharT>, false, 
-                                       KeySizeT, std::uint16_t, tsl::power_of_two_growth_policy_ah<4>>>::type;
+                        tsl::array_map<CharT, T, Hash, tsl::ah::str_equal<CharT>, false, 
+                                       KeySizeT, std::uint16_t, tsl::ah::power_of_two_growth_policy<4>>,
+                        tsl::array_set<CharT, Hash, tsl::ah::str_equal<CharT>, false, 
+                                       KeySizeT, std::uint16_t, tsl::ah::power_of_two_growth_policy<4>>>::type;
     
         
 private:                                         

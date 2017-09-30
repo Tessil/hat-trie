@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert, TMap, test_types) {
 }
 
 BOOST_AUTO_TEST_CASE(test_insert_with_too_long_string) {
-    tsl::htrie_map<char, int64_t, tsl::str_hash_ah<char>, std::uint8_t> map;
+    tsl::htrie_map<char, int64_t, tsl::ah::str_hash<char>, std::uint8_t> map;
     map.burst_threshold(8);
     
     for(std::size_t i=0; i < 1000; i++) {
