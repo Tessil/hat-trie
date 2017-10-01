@@ -931,8 +931,10 @@ public:
             return mutable_iterator(first);
         }
         
-        auto to_delete = erase(first);
-        while(to_delete != last) {
+        // TODO Optimize, could avoid the call to std::distance
+        const std::size_t nb_to_erase = std::size_t(std::distance(first, last));
+        auto to_delete = mutable_iterator(first);
+        for(std::size_t i = 0; i < nb_to_erase; i++) {
             to_delete = erase(to_delete);
         }
         

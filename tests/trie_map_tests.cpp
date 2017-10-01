@@ -100,6 +100,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_erase_all, TMap, test_types) {
     BOOST_CHECK(map.empty());
 }
 
+BOOST_AUTO_TEST_CASE(test_range_erase) {
+    // insert x values, delete all except 14 first and 6 last value
+    using TMap = tsl::htrie_map<char, std::int64_t>;
+    
+    const std::size_t nb_values = 1000;
+    TMap map = utils::get_filled_map<TMap>(nb_values, 8);
+    
+    auto it_first = std::next(map.begin(), 14);
+    auto it_last = std::next(map.begin(), 994);
+    
+    auto it = map.erase(it_first, it_last);
+    BOOST_CHECK_EQUAL(std::distance(it, map.end()), 6);
+    BOOST_CHECK_EQUAL(map.size(), 20);
+    BOOST_CHECK_EQUAL(std::distance(map.begin(), map.end()), 20);
+}
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_erase_loop, TMap, test_types) {
     // insert x values, delete all one by one
     size_t nb_values = 1000;
