@@ -395,7 +395,8 @@ BOOST_AUTO_TEST_CASE(test_move) {
     const tsl::htrie_map<char, int64_t> init_map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(nb_elements, 8);
     
     tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(nb_elements, 8);
-    tsl::htrie_map<char, int64_t> map2 = std::move(map);
+    tsl::htrie_map<char, int64_t> map2 = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1, 8);
+    map2 = std::move(map);
     
     BOOST_CHECK(map.empty());
     BOOST_CHECK(map.begin() == map.end());
