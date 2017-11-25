@@ -991,20 +991,20 @@ public:
             trie_node* parent = current_node->parent();
             
             if(parent != nullptr) {
-                const size_type nb_erased = size(current_node->as_trie_node());
-                const CharT child_of_char = current_node->child_of_char();
+                const size_type nb_erased = size_descendants(current_node->as_trie_node());
                 
-                std::unique_ptr<anode> empty_hnode(new hash_node(m_hash, m_max_load_factor));
-                parent->set_child(child_of_char, std::move(empty_hnode));
-                
+                parent->set_child(current_node->child_of_char(), nullptr);
                 m_nb_elements -= nb_erased;
-                clear_empty_nodes(parent->child(child_of_char)->as_hash_node());
+                
+                if(parent->empty()) {
+                    clear_empty_nodes(*parent);
+                }
 
                 return nb_erased;
             }
             else {
                 const size_type nb_erased = m_nb_elements;
-                m_root.reset(new hash_node(m_hash, m_max_load_factor));
+                m_root.reset(nullptr);
                 m_nb_elements = 0;
                 
                 return nb_erased;
@@ -1217,7 +1217,7 @@ private:
         return it;
     }
     
-    size_type size(const anode& start_node) const {
+    size_type size_descendants(const anode& start_node) const {
         auto first = cbegin<const_iterator>(start_node);
         auto last = cend<const_iterator>(start_node);
         
@@ -1331,44 +1331,59 @@ private:
             pos.m_current_trie_node->val_node().reset(nullptr);
             m_nb_elements--;
             
+            if(pos.m_current_trie_node->empty()) {
+                clear_empty_nodes(*pos.m_current_trie_node);
+            }
+            
             return next_pos;
-        }
-        
-        
-        tsl_assert(pos.m_current_hash_node != nullptr);
-        auto next_array_hash_it = pos.m_current_hash_node->array_hash().erase(pos.m_array_hash_iterator);
-        m_nb_elements--;
-        
-        if(next_array_hash_it != pos.m_current_hash_node->array_hash().end()) {
-            return iterator(*pos.m_current_hash_node, next_array_hash_it);
         }
         else {
-            if(pos.m_current_hash_node->array_hash().empty()) {
-                clear_empty_nodes(*pos.m_current_hash_node);
+            tsl_assert(pos.m_current_hash_node != nullptr);
+            auto next_array_hash_it = pos.m_current_hash_node->array_hash().erase(pos.m_array_hash_iterator);
+            m_nb_elements--;
+            
+            if(next_array_hash_it != pos.m_current_hash_node->array_hash().end()) {
+                // The erase on array_hash invalidated the next_pos iterator, return the right one.
+                return iterator(*pos.m_current_hash_node, next_array_hash_it);
             }
-                        
-            return next_pos;
+            else {
+                if(pos.m_current_hash_node->array_hash().empty()) {
+                    clear_empty_nodes(*pos.m_current_hash_node);
+                }
+                            
+                return next_pos;
+            }
         }
     }
     
-    void clear_empty_nodes(hash_node& empty_hnode) noexcept {
-        tsl_assert(empty_hnode.array_hash().empty());
+    /**
+     * Clear all the empty nodes from the tree starting from empty_node (empty for a hash_node means that 
+     * the array hash is empty, for a trie_node it means the node doesn't have any child or value_node 
+     * associated to it).
+     */
+    void clear_empty_nodes(anode& empty_node) noexcept {
+        tsl_assert(!empty_node.is_trie_node() || empty_node.as_trie_node().empty());
+        tsl_assert(!empty_node.is_hash_node() || empty_node.as_hash_node().array_hash().empty());
+
         
-        trie_node* parent = empty_hnode.parent();
+        trie_node* parent = empty_node.parent();
         if(parent == nullptr) {
-            tsl_assert(m_root.get() == &empty_hnode);
+            tsl_assert(m_root.get() == &empty_node);
+            tsl_assert(m_nb_elements == 0);
+            m_root.reset(nullptr);
         }
         else if(parent->val_node() != nullptr || parent->nb_children() > 1) {
-            parent->child(empty_hnode.child_of_char()).reset(nullptr);
+            parent->child(empty_node.child_of_char()).reset(nullptr);
         }
         else if(parent->parent() == nullptr) {
+            tsl_assert(m_root.get() == empty_node.parent());
             tsl_assert(m_nb_elements == 0);
-            m_root = std::move(parent->child(empty_hnode.child_of_char()));
+            m_root.reset(nullptr);
         }
         else {
             /**
-             * Parent is empty if we remove its empty_hnode child. 
-             * Put empty_hnode as new child of the grand parent instead of parent (move hnode up,
+             * Parent is empty if we remove its empty_node child. 
+             * Put empty_node as new child of the grand parent instead of parent (move hnode up,
              * and delete the parent). And recurse.
              * 
              * We can't just set grand_parent->child(parent->child_of_char()) to nullptr as
@@ -1377,10 +1392,10 @@ private:
              */
             trie_node* grand_parent = parent->parent();
             grand_parent->set_child(parent->child_of_char(), 
-                                    std::move(parent->child(empty_hnode.child_of_char())));
+                                    std::move(parent->child(empty_node.child_of_char())));
             
             
-            clear_empty_nodes(empty_hnode);
+            clear_empty_nodes(empty_node);
         }
     }    
     

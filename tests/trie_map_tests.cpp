@@ -203,6 +203,30 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert_erase_insert, TMap, test_types) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_erase_with_empty_trie_node) {
+    // Construct a hat-trie so that the multiple erases occur on trie_node without any child.
+    tsl::htrie_map<char, int> map = {{"k11", 1}, {"k12", 2}, {"k13", 3}, {"k14", 4}};
+    map.burst_threshold(4);
+    map.insert("k1", 5);
+    map.insert("k", 6);
+    map.insert("", 7);
+    
+    BOOST_CHECK_EQUAL(map.erase("k11"), 1);
+    BOOST_CHECK_EQUAL(map.erase("k12"), 1);
+    BOOST_CHECK_EQUAL(map.erase("k13"), 1);
+    BOOST_CHECK_EQUAL(map.erase("k14"), 1);
+    BOOST_CHECK_EQUAL(std::distance(map.begin(), map.end()), 3);
+    
+    BOOST_CHECK_EQUAL(map.erase("k1"), 1);
+    BOOST_CHECK_EQUAL(std::distance(map.begin(), map.end()), 2);
+    
+    BOOST_CHECK_EQUAL(map.erase("k"), 1);
+    BOOST_CHECK_EQUAL(std::distance(map.begin(), map.end()), 1);
+    
+    BOOST_CHECK_EQUAL(map.erase(""), 1);
+    BOOST_CHECK_EQUAL(std::distance(map.begin(), map.end()), 0);
+}
+
 /**
  * emplace
  */
