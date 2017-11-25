@@ -74,7 +74,7 @@ struct value_node<void> {
 
     
 /**
- * T should be void if there is not value associated to a key (in a set for example).
+ * T should be void if there is no value associated to a key (in a set for example).
  */
 template<class CharT,
          class T, 
@@ -114,19 +114,14 @@ private:
                                        KeySizeT, std::uint16_t, tsl::ah::power_of_two_growth_policy<4>>,
                         tsl::array_set<CharT, Hash, tsl::ah::str_equal<CharT>, false, 
                                        KeySizeT, std::uint16_t, tsl::ah::power_of_two_growth_policy<4>>>::type;
-    
-        
-private:                                         
-    static std::size_t as_position(CharT c) noexcept {
-        return static_cast<std::size_t>(static_cast<typename std::make_unsigned<CharT>::type>(c));
-    }
+                                       
     
 private:
     /*
-     * The tree is mainly composed of two nodes: trie_node and hash_node which both have anode as base class.
+     * The tree is mainly composed of two nodes types: trie_node and hash_node which both have anode as base class.
      * Each child is either a hash_node or a trie_node.
      * 
-     * A hash_node is always a leaf node, it doesn't have any child.
+     * A hash_node is always a leaf node, it doesn't have any child. 
      * 
      * Example:
      *      | ... | a |.. ..................... | f | ... | trie_node_1
@@ -136,20 +131,28 @@ private:
      *                     |array_hash = {"ble", "bric", "lse"}| hash_node_2
      * 
      * 
-     * Each trie_node may also have a value node if the trie_node marks the end of a string value.
+     * Each trie_node may also have a value node, which contains a value T, if the trie_node marks 
+     * the end of a string value.
      * 
-     * A trie node should at least have one child, except if it has a value node then no child is a possibility.
+     * A trie node should at least have one child or a value node. There can't be a trie node without 
+     * any child or value node.
      */
     
     using value_node = tsl::detail_htrie_hash::value_node<T>;
     
+    
     class trie_node;
     class hash_node;
     
+    // TODO better encapsulate operations modifying the tree.
     class anode {
         friend class trie_node;
         
     public:
+        /*
+         * TODO Avoid the virtual to economise 8 bytes. We could use a custom deleter in the std::unique_ptr<anode>
+         * we use (as we know if an anode is a trie_node or hash_node).
+         */
         virtual ~anode() = default;
         
         bool is_trie_node() const noexcept {
@@ -180,7 +183,11 @@ private:
             return static_cast<const hash_node&>(*this);
         }
         
+        /**
+         * @see m_child_of_char
+         */
         CharT child_of_char() const noexcept {
+            tsl_assert(parent() != nullptr);
             return m_child_of_char;
         }
         
@@ -188,6 +195,9 @@ private:
             m_child_of_char = c;
         }
         
+        /**
+         * Return nullptr if none.
+         */
         trie_node* parent() noexcept {
             return m_parent_node;
         }
@@ -208,8 +218,8 @@ private:
         }
     
         anode(node_type node_type_, CharT child_of_char): m_node_type(node_type_), 
-                                                         m_child_of_char(child_of_char), 
-                                                         m_parent_node(nullptr) 
+                                                          m_child_of_char(child_of_char), 
+                                                          m_parent_node(nullptr) 
         {
         }
         
@@ -218,7 +228,7 @@ private:
         node_type m_node_type;
         
         /**
-         * If the node has a parent, then it's a descendent of some char.
+         * If the node has a parent, then it's a descendant of some char.
          * 
          * Example:
          *      | ... | a | b | ... | trie_node_1
@@ -236,6 +246,10 @@ private:
         trie_node* m_parent_node;
     };
     
+    // Give the position in trie_node::m_children corresponding the character c
+    static std::size_t as_position(CharT c) noexcept {
+        return static_cast<std::size_t>(static_cast<typename std::make_unsigned<CharT>::type>(c));
+    }
     
     class trie_node: public anode {
     public:
@@ -326,7 +340,7 @@ private:
                 }
                 
                 const anode* first_child = current_node->first_child();
-                tsl_assert(first_child != nullptr);
+                tsl_assert(first_child != nullptr); // a trie_node must either have a value_node or at least one child.
                 if(first_child->is_hash_node()) {
                     return *current_node;
                 }
@@ -337,25 +351,14 @@ private:
         
         
         
-        std::size_t nb_children() const noexcept {
-            std::size_t nb_children = 0;
-            for(const auto& node: m_children) {
-                if(node != nullptr) {
-                    nb_children++;
-                }
-            }
-            
-            return nb_children;
+        size_type nb_children() const noexcept {
+            return std::count_if(m_children.cbegin(), m_children.cend(), 
+                                 [](const std::unique_ptr<anode>& n) { return n != nullptr; });
         }
         
         bool empty() const noexcept {
-            for(const auto& node: m_children) {
-                if(node != nullptr) {
-                    return false;
-                }
-            }
-            
-            return true;
+            return std::all_of(m_children.cbegin(), m_children.cend(), 
+                               [](const std::unique_ptr<anode>& n) { return n == nullptr; });
         }
         
         std::unique_ptr<anode>& child(CharT for_char) noexcept {
@@ -393,6 +396,13 @@ private:
         
     private:
         std::unique_ptr<value_node> m_value_node;
+        
+        /**
+         * Each character CharT corresponds to one position in the array. To convert a character
+         * to a position use the as_position method.
+         * 
+         * TODO Try to reduce the size of m_children with a hash map, linear/binary search on array, ...
+         */
         std::array<std::unique_ptr<anode>, ALPHABET_SIZE> m_children;
     };
     
@@ -434,7 +444,6 @@ private:
 public:
     template<bool IsConst, bool IsPrefixIterator>
     class htrie_hash_iterator {
-        // TODO better encapsulation
         friend class htrie_hash;
         
     private:
@@ -713,7 +722,8 @@ public:
                 }
                 else {
                     anode_type* first_child = m_current_trie_node->first_child();
-                    tsl_assert(first_child != nullptr);
+                    // a trie_node must either have a value_node or at least one child.
+                    tsl_assert(first_child != nullptr); 
                     
                     set_current_hash_node(first_child->as_hash_node());
                 }
@@ -888,7 +898,7 @@ public:
             else {
                 /*
                  * skrink_to_fit on array_hash will invalidate the iterators of array_hash.
-                 * save pointer to array_hash, skip the array_hash_node and then call 
+                 * Save pointer to array_hash, skip the array_hash_node and then call 
                  * shrink_to_fit on the saved pointer.
                  */
                 hash_node* hnode = first.m_current_hash_node;
@@ -1161,6 +1171,9 @@ private:
         }
     }
     
+    /**
+     * Get an iterator to the node that come just after the last descendant of search_start_node.
+     */
     template<typename Iterator>
     Iterator cend(const anode& search_start_node) const {
         if(search_start_node.parent() == nullptr) {
@@ -1289,7 +1302,7 @@ private:
             }
             else {
                 trie_node* parent = hnode.parent();
-                char child_of_char = hnode.child_of_char();
+                const CharT child_of_char = hnode.child_of_char();
                 
                 parent->set_child(child_of_char, std::move(new_node));
                 
@@ -1307,8 +1320,6 @@ private:
             return std::make_pair(iterator(hnode, it_insert.first), it_insert.second);
         }
     }
-    
-
     
     
     iterator erase(iterator pos) {
@@ -1528,7 +1539,6 @@ private:
             }
         }
         
-        burst_children(*new_node);
         
         tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
         return new_node;
@@ -1570,7 +1580,6 @@ private:
                 }
             }
             
-            burst_children(*new_node);
             
             tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
             return new_node;
@@ -1605,24 +1614,9 @@ private:
             }
         }
         
-        burst_children(*new_node);
         
         tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
         return new_node;
-    }
-    
-    void burst_children(trie_node& node) {
-        for(auto& child: node) {
-            if(child == nullptr) {
-                continue;
-            }
-            
-            hash_node& child_hash_node = child->as_hash_node();
-            if(need_burst(child_hash_node)) {
-                std::unique_ptr<trie_node> new_child = burst(child_hash_node);
-                node.set_child(child_hash_node.child_of_char(), std::move(new_child));
-            }
-        }
     }
         
     std::array<size_type, ALPHABET_SIZE> get_first_char_count(typename array_hash_type::const_iterator begin, 
