@@ -24,7 +24,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 - All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
 - Support null characters in the key (you can thus store binary data in the trie).
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
-- The balance between speed and memory usage can be modified through `max_load_factor`. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to 8.0.
+- The balance between speed and memory usage can be modified through the `max_load_factor` method. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to 8.0.
 - The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8 192 or 4 096 for faster iteration on the results through `burst_threshold`.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
 
@@ -154,7 +154,7 @@ The key are inserted and read in alphabetical order.
 
 #### Dr. Askitis dataset
 
-The benchmark consists in inserting all the words from the "Distinct Strings" dataset of Dr. Askitis into the data structure, check the used memory space and search for all the words from the "Skew String Set 1" dataset in the data structure. It's similar to the one on the [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) homepage.
+The benchmark consists in inserting all the words from the "Distinct Strings" dataset of Dr. Askitis into the data structure, check the used memory space and search for all the words from the "Skew String Set 1" dataset (where a string can be present multiple times) in the data structure. Note that the strings in this dataset have a quite short average and median key length (which may not be a realistic use case compared to the Wikipedia dataset used above). It's similar to the one on the [cedar](http://www.tkl.iis.u-tokyo.ac.jp/~ynaga/cedar/) homepage.
 
 * Dataset: [distinct_1](http://web.archive.org/web/20120206015921/http://www.naskitis.com/) (write) / [skew1_1](http://web.archive.org/web/20120206015921/http://www.naskitis.com/) (read)
 * Size: 290.45 MiB / 1 029.46 MiB
@@ -262,6 +262,8 @@ int main() {
     }
     
     
+    
+    
     tsl::htrie_map<char, int> map2 = {{"apple", 1}, {"mango", 2}, {"apricot", 3},
                                       {"mandarin", 4}, {"melon", 5}, {"macadamia", 6}};
     
@@ -270,6 +272,15 @@ int main() {
     
     // {mandarin, 4} {mango, 2} {macadamia, 6}
     for(auto it = prefix_range.first; it != prefix_range.second; ++it) {
+        std::cout << "{" << it.key() << ", " << *it << "}" << std::endl;
+    }
+    
+    
+    // Prefix erase
+    map2.erase_prefix("ma");
+    
+    // {apricot, 3} {melon, 5} {apple, 1}
+    for(auto it = map2.begin(); it != map2.end(); ++it) {
         std::cout << "{" << it.key() << ", " << *it << "}" << std::endl;
     }
     
