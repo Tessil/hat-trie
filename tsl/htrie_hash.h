@@ -135,7 +135,7 @@ private:
      * the end of a string value.
      * 
      * A trie node should at least have one child or a value node. There can't be a trie node without 
-     * any child or value node.
+     * any child and no value node.
      */
     
     using value_node = tsl::detail_htrie_hash::value_node<T>;
@@ -191,10 +191,6 @@ private:
             return m_child_of_char;
         }
         
-        void child_of_char(CharT c) noexcept {
-            m_child_of_char = c;
-        }
-        
         /**
          * Return nullptr if none.
          */
@@ -246,7 +242,7 @@ private:
         trie_node* m_parent_node;
     };
     
-    // Give the position in trie_node::m_children corresponding the character c
+    // Give the position in trie_node::m_children corresponding to the character c
     static std::size_t as_position(CharT c) noexcept {
         return static_cast<std::size_t>(static_cast<typename std::make_unsigned<CharT>::type>(c));
     }
@@ -303,7 +299,7 @@ private:
         
         
         /**
-         * Return nullptr if no next child.
+         * Get the next_child that come after current_child. Return nullptr if no next child.
          */
         anode* next_child(const anode& current_child) noexcept {
             return const_cast<anode*>(static_cast<const trie_node*>(this)->next_child(current_child)); 
@@ -328,11 +324,11 @@ private:
         /**
          * Return the first left-descendant trie node with an m_value_node. If none return the most left trie node.
          */
-        trie_node& most_left_descendant_value() noexcept {
-            return const_cast<trie_node&>(static_cast<const trie_node*>(this)->most_left_descendant_value());
+        trie_node& most_left_descendant_value_trie_node() noexcept {
+            return const_cast<trie_node&>(static_cast<const trie_node*>(this)->most_left_descendant_value_trie_node());
         }
         
-        const trie_node& most_left_descendant_value() const noexcept {
+        const trie_node& most_left_descendant_value_trie_node() const noexcept {
             const trie_node* current_node = this;
             while(true) {
                 if(current_node->m_value_node != nullptr) {
@@ -395,6 +391,7 @@ private:
         }
         
     private:
+        // TODO Avoid storing a value_node when has_value<T>::value is false
         std::unique_ptr<value_node> m_value_node;
         
         /**
@@ -402,6 +399,9 @@ private:
          * to a position use the as_position method.
          * 
          * TODO Try to reduce the size of m_children with a hash map, linear/binary search on array, ...
+         * TODO Store number of non-null values in m_children. Check if we can store this value in the alignment
+         * space as we don't want the node to get bigger (empty() and nb_children() are rarely used so it is
+         * not an important variable).
          */
         std::array<std::unique_ptr<anode>, ALPHABET_SIZE> m_children;
     };
@@ -515,7 +515,7 @@ public:
         template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode, 
                             array_hash_iterator_type begin, array_hash_iterator_type end, 
-                            bool read_trie_node_value, std::string prefix_filter) noexcept:
+                            bool read_trie_node_value, std::basic_string<CharT> prefix_filter) noexcept:
             m_current_trie_node(tnode), m_current_hash_node(hnode), 
             m_array_hash_iterator(begin), m_array_hash_end_iterator(end),
             m_read_trie_node_value(read_trie_node_value), m_prefix_filter(std::move(prefix_filter))
@@ -544,7 +544,7 @@ public:
         {
         }
         
-        void key(std::string& key_buffer_out) const {
+        void key(std::basic_string<CharT>& key_buffer_out) const {
             key_buffer_out.clear();
             
             trie_node_type* tnode = m_current_trie_node;
@@ -565,8 +565,8 @@ public:
             }
         }
         
-        std::string key() const {
-            std::string key_buffer;
+        std::basic_string<CharT> key() const {
+            std::basic_string<CharT> key_buffer;
             key(key_buffer);
             
             return key_buffer;
@@ -716,7 +716,7 @@ public:
                 set_current_hash_node(search_start.as_hash_node());
             }
             else {
-                m_current_trie_node = &search_start.as_trie_node().most_left_descendant_value();
+                m_current_trie_node = &search_start.as_trie_node().most_left_descendant_value_trie_node();
                 if(m_current_trie_node->val_node() != nullptr) {
                     m_read_trie_node_value = true;
                 }
@@ -764,15 +764,15 @@ public:
         
         bool m_read_trie_node_value;
         // TODO can't have void if !IsPrefixIterator, use inheritance
-        typename std::conditional<IsPrefixIterator, std::string, bool>::type m_prefix_filter;
+        typename std::conditional<IsPrefixIterator, std::basic_string<CharT>, bool>::type m_prefix_filter;
     }; 
     
 
     
 public:
     htrie_hash(const Hash& hash, float max_load_factor, size_type burst_threshold): 
-                                  m_root(nullptr), m_nb_elements(0), 
-                                  m_hash(hash), m_max_load_factor(max_load_factor)
+                                         m_root(nullptr), m_nb_elements(0), 
+                                         m_hash(hash), m_max_load_factor(max_load_factor)
     {
         this->burst_threshold(burst_threshold);
     }
@@ -937,10 +937,6 @@ public:
     }
     
     iterator erase(const_iterator first, const_iterator last) {
-        if(first == last) {
-            return mutable_iterator(first);
-        }
-        
         // TODO Optimize, could avoid the call to std::distance
         const std::size_t nb_to_erase = std::size_t(std::distance(first, last));
         auto to_delete = mutable_iterator(first);
@@ -1159,7 +1155,7 @@ private:
             return Iterator(search_start_node.as_hash_node());
         }
         
-        const trie_node& tnode = search_start_node.as_trie_node().most_left_descendant_value();
+        const trie_node& tnode = search_start_node.as_trie_node().most_left_descendant_value_trie_node();
         if(tnode.val_node() != nullptr) {
             return Iterator(tnode);
         }
@@ -1175,7 +1171,7 @@ private:
      * Get an iterator to the node that come just after the last descendant of search_start_node.
      */
     template<typename Iterator>
-    Iterator cend(const anode& search_start_node) const {
+    Iterator cend(const anode& search_start_node) const noexcept {
         if(search_start_node.parent() == nullptr) {
             Iterator it;
             it.set_as_end_iterator();
@@ -1245,7 +1241,6 @@ private:
         for(size_type ikey = 0; ikey < key_size; ikey++) {
             if(current_node->is_trie_node()) {
                 trie_node& tnode = current_node->as_trie_node();
-                
                 
                 if(tnode.child(key[ikey]) != nullptr) {
                     current_node = tnode.child(key[ikey]).get();
@@ -1362,7 +1357,8 @@ private:
      * associated to it).
      */
     void clear_empty_nodes(anode& empty_node) noexcept {
-        tsl_assert(!empty_node.is_trie_node() || empty_node.as_trie_node().empty());
+        tsl_assert(!empty_node.is_trie_node() || 
+                    (empty_node.as_trie_node().empty() && empty_node.as_trie_node().val_node() == nullptr));
         tsl_assert(!empty_node.is_hash_node() || empty_node.as_hash_node().array_hash().empty());
 
         
@@ -1481,7 +1477,7 @@ private:
                 const hash_node& hnode = current_node->as_hash_node();
                 const_prefix_iterator begin(hnode.parent(), &hnode, 
                                             hnode.array_hash().begin(), hnode.array_hash().end(), 
-                                            false, std::string(prefix + iprefix, prefix_size - iprefix));
+                                            false, std::basic_string<CharT>(prefix + iprefix, prefix_size - iprefix));
                 begin.filter_prefix();
                 
                 const_prefix_iterator end = cend<const_prefix_iterator>(*current_node);
@@ -1651,7 +1647,7 @@ private:
     
     
     hash_node& get_hash_node_for_char(const std::array<size_type, ALPHABET_SIZE>& first_char_count, 
-                                      trie_node& tnode, char for_char)
+                                      trie_node& tnode, CharT for_char)
     {
         if(tnode.child(for_char) == nullptr) {
             const size_type nb_buckets = 
