@@ -191,7 +191,7 @@ public:
     template<class InputIt>
     void insert(InputIt first, InputIt last) {
         for(auto it = first; it != last; ++it) {
-            insert(it->first, it->second);
+            insert_pair(*it);
         }
     }
     
@@ -504,6 +504,17 @@ public:
 
     friend void swap(htrie_map& lhs, htrie_map& rhs) {
         lhs.swap(rhs);
+    }
+    
+private:
+    template<class U, class V>
+    void insert_pair(const std::pair<U, V>& value) {
+        insert(value.first, value.second);
+    }
+    
+    template<class U, class V>
+    void insert_pair(std::pair<U, V>&& value) {
+        insert(value.first, std::move(value.second));
     }
     
 private:
