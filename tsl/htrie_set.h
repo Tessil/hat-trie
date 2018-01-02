@@ -162,6 +162,61 @@ public:
         return m_ht.insert(key.data(), key.size()); 
     }
 #endif
+
+       
+               
+    template<class InputIt>
+    void insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, InputIt first, InputIt last) {
+        m_ht.insert_with_prefix(prefix, prefix_size, first, last);
+    }
+
+#ifdef TSL_HAS_STRING_VIEW  
+    void insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, 
+                               std::initializer_list<std::basic_string_view<CharT>> ilist) 
+    {
+        m_ht.insert_with_prefix(prefix, prefix_size, ilist.begin(), ilist.end());
+    }
+#else
+    void insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, 
+                               std::initializer_list<const CharT*> ilist) 
+    {
+        m_ht.insert_with_prefix(prefix, prefix_size, ilist.begin(), ilist.end());
+    }
+#endif    
+    
+
+#ifdef TSL_HAS_STRING_VIEW 
+    template<class InputIt>
+    void insert_with_prefix(const std::basic_string_view<CharT>& prefix, InputIt first, InputIt last) {
+        m_ht.insert_with_prefix(prefix, prefix.size(), first, last);
+    }
+    
+    void insert_with_prefix(const std::basic_string<CharT>& prefix, 
+                            std::initializer_list<std::basic_string_view<CharT>> ilist) 
+    {
+        m_ht.insert_with_prefix(prefix, prefix.size(), ilist.begin(), ilist.end());
+    } 
+#else
+    template<class InputIt>
+    void insert_with_prefix(const CharT* prefix, InputIt first, InputIt last) {
+        m_ht.insert_with_prefix(prefix, std::strlen(prefix), first, last);
+    }
+    
+    void insert_with_prefix(const CharT* prefix, std::initializer_list<const CharT*> ilist) {
+        m_ht.insert_with_prefix(prefix, std::strlen(prefix), ilist.begin(), ilist.end());
+    }
+    
+    template<class InputIt>
+    void insert_with_prefix(const std::basic_string<CharT>& prefix, InputIt first, InputIt last) {
+        m_ht.insert_with_prefix(prefix, prefix.size(), first, last);
+    }
+    
+    void insert_with_prefix(const std::basic_string<CharT>& prefix, 
+                            std::initializer_list<const CharT*> ilist) 
+    {
+        m_ht.insert_with_prefix(prefix, prefix.size(), ilist.begin(), ilist.end());
+    }
+#endif    
        
        
        

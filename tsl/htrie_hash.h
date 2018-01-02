@@ -932,6 +932,36 @@ public:
         return insert_impl(*m_root, key, key_size, std::forward<ValueArgs>(value_args)...); 
     }
     
+        
+    template<class InputIt>
+    void insert_with_prefix(const CharT* prefix, size_type prefix_size, InputIt first, InputIt last) {        
+        if(prefix_size > max_key_size()) {
+            throw std::length_error("Key is too long.");
+        }
+        
+        if(m_root == nullptr) {
+            m_root.reset(new hash_node(m_hash, m_max_load_factor));
+        }
+        
+        if(prefix_size == 0) {
+            for(auto it = first; it != last; ++it) {            
+                insert_pair(*m_root, *it);
+            }
+        }
+        
+        anode& end_prefix_node = insert_prefix(*m_root, prefix, prefix_size);
+        // insert_prefix must have created a parent node as prefix_size != 0
+        tsl_assert(end_prefix_node.parent() != nullptr);
+        
+        // We can't just keep the end_prefix_node as insert_position as it may be converted from
+        // a hash_node to a trie_node invalidating the pointer we have. Use the parent instead and
+        // get the child at each iteration.
+        trie_node* insert_node_parent = end_prefix_node.parent();
+        for(auto it = first; it != last; ++it) {
+            insert_pair(*insert_node_parent->child(prefix[prefix_size - 1]), *it);
+        }
+    }
+    
     iterator erase(const_iterator pos) {
         return erase(mutable_iterator(pos));
     }
@@ -1283,6 +1313,51 @@ private:
         }
     }
     
+    
+    
+    anode& insert_prefix(anode& search_start_node, 
+                         const CharT* prefix, size_type prefix_size) 
+    {
+        anode* current_node = &search_start_node;
+        
+        for(size_type iprefix = 0; iprefix < prefix_size; iprefix++) {
+            if(current_node->is_trie_node()) {
+                trie_node* tnode = &current_node->as_trie_node();
+                
+                if(tnode->child(prefix[iprefix]) == nullptr) {
+                    if(iprefix + 1 == prefix_size) {
+                        tnode->set_child(prefix[iprefix], std::unique_ptr<anode>(new hash_node(m_hash, m_max_load_factor)));
+                    }
+                    else {
+                        tnode->set_child(prefix[iprefix], std::unique_ptr<anode>(new trie_node()));
+                    }
+                }
+                
+                current_node = tnode->child(prefix[iprefix]).get();
+            }
+            else {
+                hash_node& hnode = current_node->as_hash_node();
+                
+                std::unique_ptr<trie_node> new_node = burst(hnode);
+                current_node = new_node.get();
+                
+                if(hnode.parent() == nullptr) {
+                    tsl_assert(m_root.get() == &hnode);
+                    m_root = std::move(new_node);
+                }
+                else {
+                    trie_node* parent = hnode.parent();
+                    parent->set_child(hnode.child_of_char(), std::move(new_node));
+                }
+                
+                iprefix--;
+            }
+        }
+        
+        tsl_assert(current_node != nullptr);
+        return *current_node;
+    }
+    
     template<class... ValueArgs>
     std::pair<iterator, bool> insert_in_hash_node(hash_node& hnode, 
                                                   const CharT* key, size_type key_size, ValueArgs&&... value_args)
@@ -1316,6 +1391,26 @@ private:
         }
     }
     
+    // TODO add string_view
+    template<class U>
+    void insert_pair(anode& start_insert_node, const std::pair<std::string, U>& key_val) {
+        insert_impl(start_insert_node, key_val.first, key_val.first.size(), key_val.second);
+    }
+    
+    template<class U>
+    void insert_pair(anode& start_insert_node, std::pair<std::string, U>&& key_val) {
+        insert_impl(start_insert_node, key_val.first, key_val.first.size(), std::move(key_val.second));
+    }
+    
+    template<class U>
+    void insert_pair(anode& start_insert_node, const std::pair<const CharT*, U>& key_val) {
+        insert_impl(start_insert_node, key_val.first, std::strlen(key_val.first), key_val.second);
+    }
+    
+    template<class U>
+    void insert_pair(anode& start_insert_node, std::pair<const CharT*, U>&& key_val) {
+        insert_impl(start_insert_node, key_val.first, std::strlen(key_val.first), std::move(key_val.second));
+    }
     
     iterator erase(iterator pos) {
         iterator next_pos = std::next(pos);
@@ -1551,7 +1646,7 @@ private:
         }
         
         
-        tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
+//         tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
         return new_node;
     } 
     
