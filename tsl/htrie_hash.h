@@ -945,7 +945,7 @@ public:
         
         if(prefix_size == 0) {
             for(auto it = first; it != last; ++it) {            
-                insert_pair(*m_root, *it);
+                insert_iterator_value(*m_root, *it);
             }
         }
         
@@ -958,7 +958,7 @@ public:
         // get the child at each iteration.
         trie_node* insert_node_parent = end_prefix_node.parent();
         for(auto it = first; it != last; ++it) {
-            insert_pair(*insert_node_parent->child(prefix[prefix_size - 1]), *it);
+            insert_iterator_value(*insert_node_parent->child(prefix[prefix_size - 1]), *it);
         }
     }
     
@@ -1391,26 +1391,64 @@ private:
         }
     }
     
-    // TODO add string_view
-    template<class U>
-    void insert_pair(anode& start_insert_node, const std::pair<std::string, U>& key_val) {
-        insert_impl(start_insert_node, key_val.first, key_val.first.size(), key_val.second);
+    // TODO can't we simplify these overloads?
+    template<class U, class V = T, 
+             typename std::enable_if<has_value<V>::value && 
+#ifdef TSL_HAS_STRING_VIEW 
+                                     std::is_same<std::basic_string_view<CharT>, typename std::decay<U>::type>::value
+#else
+                                     std::is_same<std::basic_string<CharT>, typename std::decay<U>::type>::value
+#endif                                     
+                                    >::type* = nullptr>
+    void insert_iterator_value(anode& start_insert_node, const std::pair<U, V>& key_val) {
+        insert_impl(start_insert_node, key_val.first.data(), key_val.first.size(), key_val.second);
     }
     
-    template<class U>
-    void insert_pair(anode& start_insert_node, std::pair<std::string, U>&& key_val) {
-        insert_impl(start_insert_node, key_val.first, key_val.first.size(), std::move(key_val.second));
+    template<class U, class V = T, 
+             typename std::enable_if<has_value<V>::value && 
+#ifdef TSL_HAS_STRING_VIEW 
+                                     std::is_same<std::basic_string_view<CharT>, typename std::decay<U>::type>::value
+#else
+                                     std::is_same<std::basic_string<CharT>, typename std::decay<U>::type>::value
+#endif                                                  
+                                    >::type* = nullptr>
+    void insert_iterator_value(anode& start_insert_node, std::pair<U, V>&& key_val) {
+        insert_impl(start_insert_node, key_val.first.data(), key_val.first.size(), std::move(key_val.second));
     }
     
-    template<class U>
-    void insert_pair(anode& start_insert_node, const std::pair<const CharT*, U>& key_val) {
+#ifndef TSL_HAS_STRING_VIEW     
+    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    void insert_iterator_value(anode& start_insert_node, const std::pair<const CharT*, U>& key_val) {
         insert_impl(start_insert_node, key_val.first, std::strlen(key_val.first), key_val.second);
     }
     
-    template<class U>
-    void insert_pair(anode& start_insert_node, std::pair<const CharT*, U>&& key_val) {
+    template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    void insert_iterator_value(anode& start_insert_node, std::pair<const CharT*, U>&& key_val) {
         insert_impl(start_insert_node, key_val.first, std::strlen(key_val.first), std::move(key_val.second));
     }
+#endif    
+    
+    
+    template<class U, class V = T, 
+             typename std::enable_if<has_value<V>::value && 
+#ifdef TSL_HAS_STRING_VIEW 
+                                     std::is_same<std::basic_string_view<CharT>, typename std::decay<U>::type>::value
+#else
+                                     std::is_same<std::basic_string<CharT>, typename std::decay<U>::type>::value
+#endif                                     
+                                    >::type* = nullptr>
+    void insert_iterator_value(anode& start_insert_node, const U& key) {
+        insert_impl(start_insert_node, key.data(), key.size());
+    }
+    
+#ifndef TSL_HAS_STRING_VIEW     
+    template<class U = T, typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    void insert_iterator_value(anode& start_insert_node, const CharT* key) {
+        insert_impl(start_insert_node, key, std::strlen(key));
+    }
+#endif
+    
+    
     
     iterator erase(iterator pos) {
         iterator next_pos = std::next(pos);
