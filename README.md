@@ -3,7 +3,7 @@
 
 Trie implementation based on the "HAT-trie: A Cache-conscious Trie-based Data Structure for Strings." (Askitis Nikolas and  Sinha Ranjan, 2007) paper. For now, only the pure HAT-trie has been implemented, the hybrid version may arrive later. Details regarding the HAT-trie data structure can be found [here](https://tessil.github.io/2017/06/22/hat-trie.html).
 
-The library provides an efficient and compact way to store a set or a map of strings by compressing the common prefixes. It also allows to search for keys that match a prefix.
+The library provides an efficient and compact way to store a set or a map of strings by compressing the common prefixes. It also allows to search for keys that match a prefix. Note though that the default parameters of the structure are geared toward optimizing exact searches, if you do a lot of prefix searches you may want to reduce the burst threshold through the `burst_threshold` method.
 
 It's a well adapted structure to store a large number of strings.
 
@@ -25,7 +25,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 - Support null characters in the key (you can thus store binary data in the trie).
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
 - The balance between speed and memory usage can be modified through the `max_load_factor` method. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to 8.0.
-- The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 8 192 or 4 096 for faster iteration on the results through `burst_threshold`.
+- The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 4096 or lower for faster iteration on the results through the `burst_threshold` method.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
 
 Thread-safety and exception guarantees are similar to the STL containers.
@@ -61,7 +61,7 @@ struct str_hash {
 tsl::htrie_map<char, int, str_hash> map;
 ```
 
-The `std::hash<std::string>` can't be used efficiently as the structure doesn't store any `std::string` object. Any time a hash would be needed a temporary `std::string` would have to be created.
+The `std::hash<std::string>` can't be used efficiently as the structure doesn't store any `std::string` object. Any time a hash would be needed, a temporary `std::string` would have to be created.
 
 ### Benchmark
 
