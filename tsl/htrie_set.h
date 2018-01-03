@@ -188,13 +188,13 @@ public:
 #ifdef TSL_HAS_STRING_VIEW 
     template<class InputIt>
     void insert_with_prefix(const std::basic_string_view<CharT>& prefix, InputIt first, InputIt last) {
-        m_ht.insert_with_prefix(prefix, prefix.size(), first, last);
+        m_ht.insert_with_prefix(prefix.data(), prefix.size(), first, last);
     }
     
-    void insert_with_prefix(const std::basic_string<CharT>& prefix, 
+    void insert_with_prefix(const std::basic_string_view<CharT>& prefix, 
                             std::initializer_list<std::basic_string_view<CharT>> ilist) 
     {
-        m_ht.insert_with_prefix(prefix, prefix.size(), ilist.begin(), ilist.end());
+        m_ht.insert_with_prefix(prefix.data(), prefix.size(), ilist.begin(), ilist.end());
     } 
 #else
     template<class InputIt>
@@ -208,13 +208,13 @@ public:
     
     template<class InputIt>
     void insert_with_prefix(const std::basic_string<CharT>& prefix, InputIt first, InputIt last) {
-        m_ht.insert_with_prefix(prefix, prefix.size(), first, last);
+        m_ht.insert_with_prefix(prefix.data(), prefix.size(), first, last);
     }
     
     void insert_with_prefix(const std::basic_string<CharT>& prefix, 
                             std::initializer_list<const CharT*> ilist) 
     {
-        m_ht.insert_with_prefix(prefix, prefix.size(), ilist.begin(), ilist.end());
+        m_ht.insert_with_prefix(prefix.data(), prefix.size(), ilist.begin(), ilist.end());
     }
 #endif    
        

@@ -1395,9 +1395,9 @@ private:
     template<class U, class V = T, 
              typename std::enable_if<has_value<V>::value && 
 #ifdef TSL_HAS_STRING_VIEW 
-                                     std::is_same<std::basic_string_view<CharT>, typename std::decay<U>::type>::value
+                                     std::is_convertible<typename std::decay<U>::type, std::basic_string_view<CharT>>::value
 #else
-                                     std::is_same<std::basic_string<CharT>, typename std::decay<U>::type>::value
+                                     std::is_convertible<typename std::decay<U>::type, std::basic_string<CharT>>::value
 #endif                                     
                                     >::type* = nullptr>
     void insert_iterator_value(anode& start_insert_node, const std::pair<U, V>& key_val) {
@@ -1407,9 +1407,9 @@ private:
     template<class U, class V = T, 
              typename std::enable_if<has_value<V>::value && 
 #ifdef TSL_HAS_STRING_VIEW 
-                                     std::is_same<std::basic_string_view<CharT>, typename std::decay<U>::type>::value
+                                     std::is_convertible<typename std::decay<U>::type, std::basic_string_view<CharT>>::value
 #else
-                                     std::is_same<std::basic_string<CharT>, typename std::decay<U>::type>::value
+                                     std::is_convertible<typename std::decay<U>::type, std::basic_string<CharT>>::value
 #endif                                                  
                                     >::type* = nullptr>
     void insert_iterator_value(anode& start_insert_node, std::pair<U, V>&& key_val) {
