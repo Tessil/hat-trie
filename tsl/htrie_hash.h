@@ -935,6 +935,10 @@ public:
         
     template<class InputIt>
     void insert_with_prefix(const CharT* prefix, size_type prefix_size, InputIt first, InputIt last) {        
+        if(first == last) {
+            return;
+        }
+        
         if(prefix_size > max_key_size()) {
             throw std::length_error("Key is too long.");
         }
@@ -947,6 +951,8 @@ public:
             for(auto it = first; it != last; ++it) {            
                 insert_iterator_value(*m_root, *it);
             }
+            
+            return;
         }
         
         anode& end_prefix_node = insert_prefix(*m_root, prefix, prefix_size);
@@ -957,8 +963,28 @@ public:
         // a hash_node to a trie_node invalidating the pointer we have. Use the parent instead and
         // get the child at each iteration.
         trie_node* insert_node_parent = end_prefix_node.parent();
-        for(auto it = first; it != last; ++it) {
-            insert_iterator_value(*insert_node_parent->child(prefix[prefix_size - 1]), *it);
+        
+        try {
+            // 
+            tsl_assert(first != last);
+            insert_iterator_value(*insert_node_parent->child(prefix[prefix_size - 1]), *first);
+            ++first;
+        }
+        catch(...) {
+            anode& end_pefix = *insert_node_parent->child(prefix[prefix_size - 1]);
+            if((end_pefix.is_hash_node() && end_pefix.as_hash_node().array_hash().empty()) ||
+               (end_pefix.is_trie_node() && end_pefix.as_trie_node().empty() && 
+                end_pefix.as_trie_node().val_node() == nullptr)) 
+            {
+                clear_empty_nodes(end_pefix);
+            }
+
+            throw;
+        }
+        
+        while(first != last) {
+            insert_iterator_value(*insert_node_parent->child(prefix[prefix_size - 1]), *first);
+            ++first;
         }
     }
     
@@ -1320,42 +1346,56 @@ private:
     {
         anode* current_node = &search_start_node;
         
-        for(size_type iprefix = 0; iprefix < prefix_size; iprefix++) {
-            if(current_node->is_trie_node()) {
-                trie_node* tnode = &current_node->as_trie_node();
-                
-                if(tnode->child(prefix[iprefix]) == nullptr) {
-                    if(iprefix + 1 == prefix_size) {
-                        tnode->set_child(prefix[iprefix], std::unique_ptr<anode>(new hash_node(m_hash, m_max_load_factor)));
+        try {
+            for(size_type iprefix = 0; iprefix < prefix_size; iprefix++) {
+                if(current_node->is_trie_node()) {
+                    trie_node* tnode = &current_node->as_trie_node();
+                    
+                    if(tnode->child(prefix[iprefix]) == nullptr) {
+                        if(iprefix + 1 == prefix_size) {
+                            tnode->set_child(prefix[iprefix], 
+                                             std::unique_ptr<anode>(new hash_node(m_hash, m_max_load_factor)));
+                        }
+                        else {
+                            tnode->set_child(prefix[iprefix], 
+                                             std::unique_ptr<anode>(new trie_node()));
+                        }
                     }
-                    else {
-                        tnode->set_child(prefix[iprefix], std::unique_ptr<anode>(new trie_node()));
-                    }
-                }
-                
-                current_node = tnode->child(prefix[iprefix]).get();
-            }
-            else {
-                hash_node& hnode = current_node->as_hash_node();
-                
-                std::unique_ptr<trie_node> new_node = burst(hnode);
-                current_node = new_node.get();
-                
-                if(hnode.parent() == nullptr) {
-                    tsl_assert(m_root.get() == &hnode);
-                    m_root = std::move(new_node);
+                    
+                    current_node = tnode->child(prefix[iprefix]).get();
                 }
                 else {
-                    trie_node* parent = hnode.parent();
-                    parent->set_child(hnode.child_of_char(), std::move(new_node));
+                    hash_node& hnode = current_node->as_hash_node();
+                    
+                    std::unique_ptr<trie_node> new_node = burst(hnode);
+                    current_node = new_node.get();
+                    
+                    if(hnode.parent() == nullptr) {
+                        tsl_assert(m_root.get() == &hnode);
+                        m_root = std::move(new_node);
+                    }
+                    else {
+                        trie_node* parent = hnode.parent();
+                        parent->set_child(hnode.child_of_char(), std::move(new_node));
+                    }
+                    
+                    iprefix--;
                 }
-                
-                iprefix--;
             }
+            
+            tsl_assert(current_node != nullptr);
+            return *current_node;
         }
-        
-        tsl_assert(current_node != nullptr);
-        return *current_node;
+        catch(...) {
+            if((current_node->is_hash_node() && current_node->as_hash_node().array_hash().empty()) ||
+               (current_node->is_trie_node() && current_node->as_trie_node().empty() && 
+                current_node->as_trie_node().val_node() == nullptr)) 
+            {
+                clear_empty_nodes(*current_node);
+            }
+
+            throw;
+        }
     }
     
     template<class... ValueArgs>
@@ -1390,6 +1430,8 @@ private:
             return std::make_pair(iterator(hnode, it_insert.first), it_insert.second);
         }
     }
+    
+    
     
     // TODO can't we simplify these overloads?
     template<class U, class V = T, 
@@ -1430,12 +1472,12 @@ private:
     
     
     template<class U, class V = T, 
-             typename std::enable_if<has_value<V>::value && 
+             typename std::enable_if<!has_value<V>::value && 
 #ifdef TSL_HAS_STRING_VIEW 
-                                     std::is_same<std::basic_string_view<CharT>, typename std::decay<U>::type>::value
+                                     std::is_convertible<typename std::decay<U>::type, std::basic_string_view<CharT>>::value
 #else
-                                     std::is_same<std::basic_string<CharT>, typename std::decay<U>::type>::value
-#endif                                     
+                                     std::is_convertible<typename std::decay<U>::type, std::basic_string<CharT>>::value
+#endif                         
                                     >::type* = nullptr>
     void insert_iterator_value(anode& start_insert_node, const U& key) {
         insert_impl(start_insert_node, key.data(), key.size());
@@ -1725,7 +1767,7 @@ private:
             }
             
             
-            tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
+//             tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
             return new_node;
         }
         catch(...) {
@@ -1759,7 +1801,7 @@ private:
         }
         
         
-        tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
+//         tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
         return new_node;
     }
         
