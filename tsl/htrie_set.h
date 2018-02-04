@@ -163,58 +163,50 @@ public:
     }
 #endif
 
+
        
-               
+    /**
+     * Insert all the values in the range [first, last) prepending the `prefix` beforehand. 
+     * Faster than inserting all the values through a normal insert. 
+     * 
+     * Example:
+     * \code
+     * std::set<std::string> entries = {"one", "two", "three"};
+     * 
+     * tsl::htrie_set<char> set;
+     * set.insert_with_prefix("num_", entries.begin(), entries.end());
+     * \endcode
+     * 
+     * This code will result in a trie with the values: `{"num/one", "num/two", "num/three"}`.
+     */      
     template<class InputIt>
     void insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, InputIt first, InputIt last) {
         m_ht.insert_with_prefix(prefix, prefix_size, first, last);
     }
 
-#ifdef TSL_HAS_STRING_VIEW  
-    void insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, 
-                               std::initializer_list<std::basic_string_view<CharT>> ilist) 
-    {
-        m_ht.insert_with_prefix(prefix, prefix_size, ilist.begin(), ilist.end());
-    }
-#else
-    void insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, 
-                               std::initializer_list<const CharT*> ilist) 
-    {
-        m_ht.insert_with_prefix(prefix, prefix_size, ilist.begin(), ilist.end());
-    }
-#endif    
-    
-
 #ifdef TSL_HAS_STRING_VIEW 
+    /**
+     * @copydoc insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, InputIt first, InputIt last)
+     */
     template<class InputIt>
     void insert_with_prefix(const std::basic_string_view<CharT>& prefix, InputIt first, InputIt last) {
         m_ht.insert_with_prefix(prefix.data(), prefix.size(), first, last);
     }
-    
-    void insert_with_prefix(const std::basic_string_view<CharT>& prefix, 
-                            std::initializer_list<std::basic_string_view<CharT>> ilist) 
-    {
-        m_ht.insert_with_prefix(prefix.data(), prefix.size(), ilist.begin(), ilist.end());
-    } 
 #else
+    /**
+     * @copydoc insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, InputIt first, InputIt last)
+     */
     template<class InputIt>
     void insert_with_prefix(const CharT* prefix, InputIt first, InputIt last) {
         m_ht.insert_with_prefix(prefix, std::strlen(prefix), first, last);
     }
     
-    void insert_with_prefix(const CharT* prefix, std::initializer_list<const CharT*> ilist) {
-        m_ht.insert_with_prefix(prefix, std::strlen(prefix), ilist.begin(), ilist.end());
-    }
-    
+    /**
+     * @copydoc insert_with_prefix_ks(const CharT* prefix, size_type prefix_size, InputIt first, InputIt last)
+     */
     template<class InputIt>
     void insert_with_prefix(const std::basic_string<CharT>& prefix, InputIt first, InputIt last) {
         m_ht.insert_with_prefix(prefix.data(), prefix.size(), first, last);
-    }
-    
-    void insert_with_prefix(const std::basic_string<CharT>& prefix, 
-                            std::initializer_list<const CharT*> ilist) 
-    {
-        m_ht.insert_with_prefix(prefix.data(), prefix.size(), ilist.begin(), ilist.end());
     }
 #endif    
        
