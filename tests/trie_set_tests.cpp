@@ -3,22 +3,23 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 #include <tuple>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "utils.h"
 #include "tsl/htrie_set.h"
 
 
-using test_types = boost::mpl::list<
-                        tsl::htrie_set<char>
-                        >;
-                                    
-                              
+BOOST_AUTO_TEST_SUITE(test_htrie_set)
+
+using test_types = boost::mpl::list<tsl::htrie_set<char>>;
+                        
                                         
 /**
  * insert
  */                                        
-BOOST_AUTO_TEST_CASE_TEMPLATE(stest_insert, TMap, test_types) {
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert, TMap, test_types) {
     // insert x values, insert them again, check values
     using char_tt = typename TMap::char_type; 
     
@@ -57,12 +58,47 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(stest_insert, TMap, test_types) {
     }
 }
 
+/**
+ * insert_with_prefix
+ */
+BOOST_AUTO_TEST_CASE(insert_with_prefix) {
+    const std::vector<std::string> entries = {"one", "two", "", "one", "", "four", "three"};
+    
+    tsl::htrie_set<char> set;
+    set.insert_with_prefix("nb_", entries.begin(), entries.end());
+    
+    BOOST_CHECK_EQUAL(set.size(), 5);
+    for(const auto& e: entries) {
+        BOOST_CHECK_EQUAL(set.count("nb_" + e), 1);
+    }
+    
+    
+    tsl::htrie_set<char> map_empty;
+    map_empty.insert_with_prefix("nb_", entries.begin(), entries.begin());
+    BOOST_CHECK(map_empty.empty());
+}
 
+BOOST_AUTO_TEST_CASE(insert_with_prefix_empty_prefix) {
+    const std::vector<const char*> entries = {"one", "two", "", "one", "", "four", "three"};;
+    
+    tsl::htrie_set<char> set;
+    set.insert_with_prefix("", entries.begin(), entries.end());
+    
+    BOOST_CHECK_EQUAL(set.size(), 5);
+    for(const auto& e: entries) {
+        BOOST_CHECK_EQUAL(set.count(e), 1);
+    }
+    
+    
+    tsl::htrie_set<char> map_empty;
+    map_empty.insert_with_prefix("", entries.begin(), entries.begin());
+    BOOST_CHECK(map_empty.empty());
+}
 
 /**
  * operator=
  */
-BOOST_AUTO_TEST_CASE(stest_assign_operator) {
+BOOST_AUTO_TEST_CASE(test_assign_operator) {
     tsl::htrie_set<char> set = {"test1", "test2"};
     BOOST_CHECK_EQUAL(set.size(), 2);
     
@@ -72,7 +108,7 @@ BOOST_AUTO_TEST_CASE(stest_assign_operator) {
 }
 
 
-BOOST_AUTO_TEST_CASE(stest_copy) {
+BOOST_AUTO_TEST_CASE(test_copy) {
     tsl::htrie_set<char> set = {"test1", "test2", "test3", "test4"};
     tsl::htrie_set<char> set2 = set;
     tsl::htrie_set<char> set3;
@@ -82,7 +118,7 @@ BOOST_AUTO_TEST_CASE(stest_copy) {
     BOOST_CHECK(set == set3);
 }
 
-BOOST_AUTO_TEST_CASE(stest_move) {
+BOOST_AUTO_TEST_CASE(test_move) {
     tsl::htrie_set<char> set = {"test1", "test2"};
     tsl::htrie_set<char> set2 = std::move(set);
     
@@ -103,3 +139,5 @@ BOOST_AUTO_TEST_CASE(stest_move) {
     set2 = {"test1"};
     BOOST_CHECK(set2 == (tsl::htrie_set<char>{"test1"}));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

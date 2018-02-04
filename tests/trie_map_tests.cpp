@@ -9,9 +9,12 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 #include "tsl/htrie_map.h"
 #include "utils.h"
+
+BOOST_AUTO_TEST_SUITE(test_htrie_map)
 
 using test_types = boost::mpl::list<
                         tsl::htrie_map<char, int64_t>,
@@ -85,6 +88,48 @@ BOOST_AUTO_TEST_CASE(test_insert_with_too_long_string) {
     BOOST_CHECK_THROW(map.insert(too_long_string, utils::get_value<int64_t>(1001)), std::length_error);
 }
 
+/**
+ * insert_with_prefix
+ */
+BOOST_AUTO_TEST_CASE(insert_with_prefix) {
+    const std::vector<std::pair<std::string, const std::string>> entries = 
+                                            {{"one", "1"}, {"two", "1"}, 
+                                             {"", ""}, {"one", "1"}, {"", ""}, 
+                                             {"four", "4"}, {"three", "3"}};
+    
+    tsl::htrie_map<char, std::string> map;
+    map.insert_with_prefix("nb_", entries.begin(), entries.end());
+    
+    BOOST_CHECK_EQUAL(map.size(), 5);
+    for(const auto& e: entries) {
+        BOOST_CHECK_EQUAL(map.at("nb_" + e.first), e.second);
+    }
+    
+    
+    tsl::htrie_map<char, std::string> map_empty;
+    map_empty.insert_with_prefix("nb_", entries.begin(), entries.begin());
+    BOOST_CHECK(map_empty.empty());
+}
+
+BOOST_AUTO_TEST_CASE(insert_with_prefix_empty_prefix) {
+    const std::vector<std::pair<const char*, const char*>> entries = 
+                                            {{"one", "1"}, {"two", "1"}, 
+                                             {"", ""}, {"one", "1"}, {"", ""}, 
+                                             {"four", "4"}, {"three", "3"}};
+    
+    tsl::htrie_map<char, std::string> map;
+    map.insert_with_prefix("", entries.begin(), entries.end());
+    
+    BOOST_CHECK_EQUAL(map.size(), 5);
+    for(const auto& e: entries) {
+        BOOST_CHECK_EQUAL(map.at(e.first), e.second);
+    }
+    
+    
+    tsl::htrie_map<char, std::string> map_empty;
+    map_empty.insert_with_prefix("", entries.begin(), entries.begin());
+    BOOST_CHECK(map_empty.empty());
+}
 
 /**
  * erase
@@ -581,3 +626,5 @@ BOOST_AUTO_TEST_CASE(test_empty_map) {
     
     BOOST_CHECK_EQUAL(map["new value"], int{});
 }
+
+BOOST_AUTO_TEST_SUITE_END()
