@@ -675,6 +675,7 @@ public:
         
         template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         void filter_prefix() {
+            tsl_assert(m_array_hash_iterator != m_array_hash_end_iterator);
             tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             
             if(m_prefix_filter.empty()) {
@@ -1491,7 +1492,10 @@ private:
                 const_prefix_iterator begin(hnode.parent(), &hnode, 
                                             hnode.array_hash().begin(), hnode.array_hash().end(), 
                                             false, std::basic_string<CharT>(prefix + iprefix, prefix_size - iprefix));
-                begin.filter_prefix();
+                
+                if(!hnode.array_hash().empty()) {
+                    begin.filter_prefix();
+                }
                 
                 const_prefix_iterator end = cend<const_prefix_iterator>(*current_node);
                                             
