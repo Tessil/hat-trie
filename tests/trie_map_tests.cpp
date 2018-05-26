@@ -296,6 +296,19 @@ BOOST_AUTO_TEST_CASE(test_equal_prefix_range) {
     BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
 }
 
+BOOST_AUTO_TEST_CASE(test_equal_prefix_range_empty) {
+    tsl::htrie_map<char, int> map;
+    
+    auto range = map.equal_prefix_range("");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
+    
+    range = map.equal_prefix_range("A");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
+    
+    range = map.equal_prefix_range("Aa");
+    BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);    
+}
+
 /**
  * erase_prefix
  */

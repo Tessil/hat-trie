@@ -675,14 +675,28 @@ public:
         
         template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         void filter_prefix() {
+            tsl_assert(m_array_hash_iterator != m_array_hash_end_iterator);
             tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             
-            if(!m_prefix_filter.empty()) {
-                if(m_prefix_filter.size() > m_array_hash_iterator.key_size() ||
+            if(m_prefix_filter.empty()) {
+                return;
+            }
+            
+            while((m_prefix_filter.size() > m_array_hash_iterator.key_size() ||
                    m_prefix_filter.compare(0, m_prefix_filter.size(),
-                                           m_array_hash_iterator.key(), m_prefix_filter.size()) != 0) 
-                {
-                    ++*this;
+                                           m_array_hash_iterator.key(), m_prefix_filter.size()) != 0)) 
+            {
+                ++m_array_hash_iterator;
+                if(m_array_hash_iterator == m_array_hash_end_iterator) {
+                    if(m_current_trie_node == nullptr) {
+                        set_as_end_iterator();
+                    }
+                    else {
+                        tsl_assert(m_current_hash_node != nullptr);
+                        set_next_node_ascending(*m_current_hash_node);
+                    }
+                    
+                    return;
                 }
             }
         }
