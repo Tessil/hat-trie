@@ -675,6 +675,7 @@ public:
         
         template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         void filter_prefix() {
+            tsl_assert(m_array_hash_iterator != m_array_hash_end_iterator);
             tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             
             if(m_prefix_filter.empty()) {
