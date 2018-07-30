@@ -1126,6 +1126,22 @@ public:
         return equal_prefix_range_impl(*m_root, prefix, prefix_size);
     }
     
+    iterator longest_prefix(const CharT* key, size_type key_size) {
+        if(m_root == nullptr) {
+            return end();
+        }
+        
+        return longest_prefix_impl(*m_root, key, key_size);
+    }
+    
+    const_iterator longest_prefix(const CharT* key, size_type key_size) const {
+        if(m_root == nullptr) {
+            return cend();
+        }
+        
+        return longest_prefix_impl(*m_root, key, key_size);
+    }
+    
     
     /*
      * Hash policy 
@@ -1458,7 +1474,72 @@ private:
         }
     }
     
+
+    iterator longest_prefix_impl(const anode& search_start_node,
+                                 const CharT* value, size_type value_size)
+    {
+        return mutable_iterator(static_cast<const htrie_hash*>(this)->longest_prefix_impl(search_start_node, 
+                                                                                          value, value_size));
+    }
     
+    const_iterator longest_prefix_impl(const anode& search_start_node,
+                                       const CharT* value, size_type value_size) const 
+    {
+        const anode* current_node = &search_start_node;
+        const_iterator longest_found_prefix = cend();
+        
+        for(size_type ivalue = 0; ivalue < value_size; ivalue++) {
+            if(current_node->is_trie_node()) {
+                const trie_node& tnode = current_node->as_trie_node();
+                
+                if(tnode.val_node() != nullptr) {
+                    longest_found_prefix = const_iterator(tnode);
+                }
+                
+                if(tnode.child(value[ivalue]) == nullptr) {
+                    return longest_found_prefix;
+                }
+                else {
+                    current_node = tnode.child(value[ivalue]).get();
+                }
+            }
+            else {
+                const hash_node& hnode = current_node->as_hash_node();
+                
+                /**
+                 * Test the presence in the hash node of each substring from the 
+                 * remaining [ivalue, value_size) string starting from the longest. 
+                 * Also test the empty string.
+                 */
+                for(std::size_t i = ivalue; i <= value_size; i++) {
+                    auto it = hnode.array_hash().find_ks(value + ivalue, (value_size - i));
+                    if(it != hnode.array_hash().end()) {
+                        return const_iterator(hnode, it);
+                    }
+                }
+                
+                return longest_found_prefix;
+            }
+        }
+        
+        if(current_node->is_trie_node()) {
+            const trie_node& tnode = current_node->as_trie_node();
+            
+            if(tnode.val_node() != nullptr) {
+                longest_found_prefix = const_iterator(tnode);
+            }
+        }
+        else {
+            const hash_node& hnode = current_node->as_hash_node();
+            
+            auto it = hnode.array_hash().find_ks("", 0);
+            if(it != hnode.array_hash().end()) {
+                longest_found_prefix = const_iterator(hnode, it);
+            }
+        }
+        
+        return longest_found_prefix;
+    }
     
     
     std::pair<prefix_iterator, prefix_iterator> equal_prefix_range_impl(

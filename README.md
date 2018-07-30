@@ -19,13 +19,14 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
 - Header-only library, just include the project to your include path and you are ready to go.
 - Low memory usage while keeping reasonable performances (see [benchmark](https://github.com/Tessil/hat-trie#benchmark)).
-- Allow prefix searches through `equal_prefix_range` (usefull for autocompletion for example).
+- Support prefix searches through `equal_prefix_range` (usefull for autocompletion for example) and prefix erasures through `erase_prefix`.
+- Support longest matching prefix searches through `longest_prefix`.
 - Keys are not ordered as they are partially stored in a hash map.
 - All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
 - Support null characters in the key (you can thus store binary data in the trie).
 - Support for any type of value as long at it's either copy-constructible or both nothrow move constructible and nothrow move assignable.
 - The balance between speed and memory usage can be modified through the `max_load_factor` method. A lower max load factor will increase the speed, a higher one will reduce the memory usage. Its default value is set to 8.0.
-- The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 4096 or lower for faster iteration on the results through the `burst_threshold` method.
+- The default burst threshold, which is the maximum size of an array hash node before a burst occurs, is set to 16 384 which provides good performances for exact searches. If you mainly use prefix searches, you may want to reduce it to something like 1024 or lower for faster iteration on the results through the `burst_threshold` method.
 - By default the maximum allowed size for a key is set to 65 535. This can be raised through the `KeySizeT` template parameter.
 
 Thread-safety and exception guarantees are similar to the STL containers.
@@ -218,6 +219,7 @@ make
 The API can be found [here](https://tessil.github.io/hat-trie/doc_without_string_view/html). If `std::string_view` is available, the API changes slightly and can be found [here](https://tessil.github.io/hat-trie/doc/html/).
 
 ### Example
+
 ```c++
 #include <iostream>
 #include <string>
@@ -275,6 +277,12 @@ int main() {
         std::cout << "{" << it.key() << ", " << *it << "}" << std::endl;
     }
     
+    // Find longest match prefix.
+    auto longest_prefix = map2.longest_prefix("apple juice");
+    if(longest_prefix != map2.end()) {
+        // {apple, 1}
+        std::cout << longest_prefix.key() << std::endl;
+    }
     
     // Prefix erase
     map2.erase_prefix("ma");

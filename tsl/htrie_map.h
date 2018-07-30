@@ -453,7 +453,78 @@ public:
         return m_ht.equal_prefix_range(prefix.data(), prefix.size());
     }
 #endif
-
+    
+    
+    
+    /**
+     * Return the element in the trie which is the longest prefix of `key`. If no
+     * element in the trie is a prefix of `key`, the end iterator is returned.
+     * 
+     * Example: 
+     * 
+     *     tsl::htrie_map<char, int> map = {{"/foo", 1}, {"/foo/bar", 1}};
+     *     
+     *     map.longest_prefix("/foo"); // returns {"/foo", 1} 
+     *     map.longest_prefix("/foo/baz"); // returns {"/foo", 1} 
+     *     map.longest_prefix("/foo/bar/baz"); // returns {"/foo/bar", 1} 
+     *     map.longest_prefix("/foo/bar/"); // returns {"/foo/bar", 1} 
+     *     map.longest_prefix("/bar"); // returns end() 
+     *     map.longest_prefix(""); // returns end() 
+     */
+    iterator longest_prefix_ks(const CharT* key, size_type key_size) {
+        return m_ht.longest_prefix(key, key_size);
+    }
+    
+    /**
+     * @copydoc longest_prefix_ks(const CharT* key, size_type key_size)
+     */
+    const_iterator longest_prefix_ks(const CharT* key, size_type key_size) const {
+        return m_ht.longest_prefix(key, key_size);
+    }
+#ifdef TSL_HAS_STRING_VIEW 
+    /**
+     * @copydoc longest_prefix_ks(const CharT* key, size_type key_size)
+     */
+    iterator longest_prefix(const std::basic_string_view<CharT>& key) {
+        return m_ht.longest_prefix(key.data(), key.size());
+    }
+    
+    /**
+     * @copydoc longest_prefix_ks(const CharT* key, size_type key_size)
+     */
+    const_iterator longest_prefix(const std::basic_string_view<CharT>& key) const {
+        return m_ht.longest_prefix(key.data(), key.size());
+    }
+#else
+    /**
+     * @copydoc longest_prefix_ks(const CharT* key, size_type key_size)
+     */
+    iterator longest_prefix(const CharT* key) {
+        return m_ht.longest_prefix(key, std::strlen(key));
+    }
+    
+    /**
+     * @copydoc longest_prefix_ks(const CharT* key, size_type key_size)
+     */
+    const_iterator longest_prefix(const CharT* key) const {
+        return m_ht.longest_prefix(key, std::strlen(key));
+    }
+    
+    /**
+     * @copydoc longest_prefix_ks(const CharT* key, size_type key_size)
+     */
+    iterator longest_prefix(const std::basic_string<CharT>& key) {
+        return m_ht.longest_prefix(key.data(), key.size());
+    }
+    
+    /**
+     * @copydoc longest_prefix_ks(const CharT* key, size_type key_size)
+     */
+    const_iterator longest_prefix(const std::basic_string<CharT>& key) const {
+        return m_ht.longest_prefix(key.data(), key.size());
+    }
+#endif 
+    
     
     
     /*
