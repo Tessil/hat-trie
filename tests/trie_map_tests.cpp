@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(test_longest_prefix) {
     tsl::htrie_map<char, int> map;
     map.burst_threshold(4);
     map = {{"a", 1}, {"aa", 1}, {"aaa", 1}, {"aaaaa", 1}, {"aaaaaa", 1}, {"aaaaaaa", 1},
-           {"ab", 1}, {"abcd", 1}, {"babc", 1}};
+           {"ab", 1}, {"abcde", 1}, {"abcdf", 1}, {"abcdg", 1}, {"abcdh", 1}, {"babc", 1}};
     
     BOOST_CHECK_EQUAL(map.longest_prefix("a").key(), "a");
     BOOST_CHECK_EQUAL(map.longest_prefix("aa").key(), "aa");
@@ -324,13 +324,21 @@ BOOST_AUTO_TEST_CASE(test_longest_prefix) {
     BOOST_CHECK_EQUAL(map.longest_prefix("aaaa").key(), "aaa");
     BOOST_CHECK_EQUAL(map.longest_prefix("ab").key(), "ab");
     BOOST_CHECK_EQUAL(map.longest_prefix("abc").key(), "ab");
-    BOOST_CHECK_EQUAL(map.longest_prefix("abcd").key(), "abcd");
-    BOOST_CHECK_EQUAL(map.longest_prefix("abcde").key(), "abcd");
+    BOOST_CHECK_EQUAL(map.longest_prefix("abcd").key(), "ab");
+    BOOST_CHECK_EQUAL(map.longest_prefix("abcdz").key(), "ab");
+    BOOST_CHECK_EQUAL(map.longest_prefix("abcde").key(), "abcde");
+    BOOST_CHECK_EQUAL(map.longest_prefix("abcdef").key(), "abcde");
+    BOOST_CHECK_EQUAL(map.longest_prefix("abcdefg").key(), "abcde");
     BOOST_CHECK(map.longest_prefix("dabc") == map.end());
     BOOST_CHECK(map.longest_prefix("b") == map.end());
     BOOST_CHECK(map.longest_prefix("bab") == map.end());
     BOOST_CHECK(map.longest_prefix("babd") == map.end());
     BOOST_CHECK(map.longest_prefix("") == map.end());
+    
+    map.insert("", 1);
+    BOOST_CHECK_EQUAL(map.longest_prefix("dabc").key(), "");
+    BOOST_CHECK_EQUAL(map.longest_prefix("").key(), "");
+    
 }
 
 /**

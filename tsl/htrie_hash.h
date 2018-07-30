@@ -1486,13 +1486,18 @@ private:
                                        const CharT* value, size_type value_size) const 
     {
         const anode* current_node = &search_start_node;
+        const_iterator longest_found_prefix = cend();
         
         for(size_type ivalue = 0; ivalue < value_size; ivalue++) {
             if(current_node->is_trie_node()) {
                 const trie_node& tnode = current_node->as_trie_node();
                 
+                if(tnode.val_node() != nullptr) {
+                    longest_found_prefix = const_iterator(tnode);
+                }
+                
                 if(tnode.child(value[ivalue]) == nullptr) {
-                    return cend();
+                    return longest_found_prefix;
                 }
                 else {
                     current_node = tnode.child(value[ivalue]).get();
@@ -1513,22 +1518,27 @@ private:
                     }
                 }
                 
-                return cend();
+                return longest_found_prefix;
             }
         }
         
         if(current_node->is_trie_node()) {
             const trie_node& tnode = current_node->as_trie_node();
+            
             if(tnode.val_node() != nullptr) {
-                return const_iterator(tnode);
-            }
-            else {
-                return cend();
+                longest_found_prefix = const_iterator(tnode);
             }
         }
         else {
-            return find_in_hash_node(current_node->as_hash_node(), "", 0);
+            const hash_node& hnode = current_node->as_hash_node();
+            
+            auto it = hnode.array_hash().find_ks("", 0);
+            if(it != hnode.array_hash().end()) {
+                longest_found_prefix = const_iterator(hnode, it);
+            }
         }
+        
+        return longest_found_prefix;
     }
     
     
