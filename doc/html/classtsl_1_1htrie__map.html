@@ -180,6 +180,14 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a0a3d6c21610a53470b56635f9b083bb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96d88b4ffe98f26bb02b0c07340b6a66"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="classtsl_1_1htrie__map.html#a867beb61fa89bda7ed12c7b6af6e1b0b">const_prefix_iterator</a>, <a class="el" href="classtsl_1_1htrie__map.html#a867beb61fa89bda7ed12c7b6af6e1b0b">const_prefix_iterator</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a96d88b4ffe98f26bb02b0c07340b6a66">equal_prefix_range</a> (const std::basic_string_view&lt; CharT &gt; &amp;prefix) const</td></tr>
 <tr class="separator:a96d88b4ffe98f26bb02b0c07340b6a66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaef9b4a15e2dc3552ad486c1a6a6838b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1htrie__map.html#afe5d944bc6faaf568e86a05f93a96783">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#aaef9b4a15e2dc3552ad486c1a6a6838b">longest_prefix_ks</a> (const CharT *key, <a class="el" href="classtsl_1_1htrie__map.html#a7f7b64d3cfd5795e1d1cea424f50e4f1">size_type</a> key_size)</td></tr>
+<tr class="separator:aaef9b4a15e2dc3552ad486c1a6a6838b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94efc12b0c8acbfa677fc3ac9b8d85d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1htrie__map.html#ab92dc60520529bf06109c5f28aa94344">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a94efc12b0c8acbfa677fc3ac9b8d85d0">longest_prefix_ks</a> (const CharT *key, <a class="el" href="classtsl_1_1htrie__map.html#a7f7b64d3cfd5795e1d1cea424f50e4f1">size_type</a> key_size) const</td></tr>
+<tr class="separator:a94efc12b0c8acbfa677fc3ac9b8d85d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb07374a82ce9c042ed3a071b851e94e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1htrie__map.html#afe5d944bc6faaf568e86a05f93a96783">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#afb07374a82ce9c042ed3a071b851e94e">longest_prefix</a> (const std::basic_string_view&lt; CharT &gt; &amp;key)</td></tr>
+<tr class="separator:afb07374a82ce9c042ed3a071b851e94e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02ad06c1e2480ed303905bb584db5bd3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1htrie__map.html#ab92dc60520529bf06109c5f28aa94344">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a02ad06c1e2480ed303905bb584db5bd3">longest_prefix</a> (const std::basic_string_view&lt; CharT &gt; &amp;key) const</td></tr>
+<tr class="separator:a02ad06c1e2480ed303905bb584db5bd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a316a9095c265496cf38dd60936c8580c"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a316a9095c265496cf38dd60936c8580c">max_load_factor</a> () const</td></tr>
 <tr class="separator:a316a9095c265496cf38dd60936c8580c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa39a152cfad652ac716352c3d3814bfe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#aa39a152cfad652ac716352c3d3814bfe">max_load_factor</a> (float ml)</td></tr>
@@ -1891,6 +1899,176 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
 </table>
 </div><div class="memdoc">
 
+</div>
+</div>
+<a id="afb07374a82ce9c042ed3a071b851e94e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb07374a82ce9c042ed3a071b851e94e">&#9670;&nbsp;</a></span>longest_prefix() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1htrie__map.html#afe5d944bc6faaf568e86a05f93a96783">iterator</a> <a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a>&lt; CharT, T, Hash, KeySizeT &gt;::longest_prefix </td>
+          <td>(</td>
+          <td class="paramtype">const std::basic_string_view&lt; CharT &gt; &amp;&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p></p>
+<p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
+<p>Example: </p><pre class="fragment">tsl::htrie_map&lt;char, int&gt; map = {{"/foo", 1}, {"/foo/bar", 1}};
+
+map.longest_prefix("/foo"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/baz"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/bar/baz"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/foo/bar/"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/bar"); // returns end() 
+map.longest_prefix(""); // returns end() </pre> 
+</div>
+</div>
+<a id="a02ad06c1e2480ed303905bb584db5bd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02ad06c1e2480ed303905bb584db5bd3">&#9670;&nbsp;</a></span>longest_prefix() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1htrie__map.html#ab92dc60520529bf06109c5f28aa94344">const_iterator</a> <a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a>&lt; CharT, T, Hash, KeySizeT &gt;::longest_prefix </td>
+          <td>(</td>
+          <td class="paramtype">const std::basic_string_view&lt; CharT &gt; &amp;&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p></p>
+<p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
+<p>Example: </p><pre class="fragment">tsl::htrie_map&lt;char, int&gt; map = {{"/foo", 1}, {"/foo/bar", 1}};
+
+map.longest_prefix("/foo"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/baz"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/bar/baz"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/foo/bar/"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/bar"); // returns end() 
+map.longest_prefix(""); // returns end() </pre> 
+</div>
+</div>
+<a id="aaef9b4a15e2dc3552ad486c1a6a6838b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaef9b4a15e2dc3552ad486c1a6a6838b">&#9670;&nbsp;</a></span>longest_prefix_ks() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1htrie__map.html#afe5d944bc6faaf568e86a05f93a96783">iterator</a> <a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a>&lt; CharT, T, Hash, KeySizeT &gt;::longest_prefix_ks </td>
+          <td>(</td>
+          <td class="paramtype">const CharT *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtsl_1_1htrie__map.html#a7f7b64d3cfd5795e1d1cea424f50e4f1">size_type</a>&#160;</td>
+          <td class="paramname"><em>key_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
+<p>Example: </p><pre class="fragment">tsl::htrie_map&lt;char, int&gt; map = {{"/foo", 1}, {"/foo/bar", 1}};
+
+map.longest_prefix("/foo"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/baz"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/bar/baz"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/foo/bar/"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/bar"); // returns end() 
+map.longest_prefix(""); // returns end() </pre> 
+</div>
+</div>
+<a id="a94efc12b0c8acbfa677fc3ac9b8d85d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94efc12b0c8acbfa677fc3ac9b8d85d0">&#9670;&nbsp;</a></span>longest_prefix_ks() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1htrie__map.html#ab92dc60520529bf06109c5f28aa94344">const_iterator</a> <a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a>&lt; CharT, T, Hash, KeySizeT &gt;::longest_prefix_ks </td>
+          <td>(</td>
+          <td class="paramtype">const CharT *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtsl_1_1htrie__map.html#a7f7b64d3cfd5795e1d1cea424f50e4f1">size_type</a>&#160;</td>
+          <td class="paramname"><em>key_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p></p>
+<p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
+<p>Example: </p><pre class="fragment">tsl::htrie_map&lt;char, int&gt; map = {{"/foo", 1}, {"/foo/bar", 1}};
+
+map.longest_prefix("/foo"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/baz"); // returns {"/foo", 1} 
+map.longest_prefix("/foo/bar/baz"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/foo/bar/"); // returns {"/foo/bar", 1} 
+map.longest_prefix("/bar"); // returns end() 
+map.longest_prefix(""); // returns end() </pre> 
 </div>
 </div>
 <a id="a2e3a8d2b443a723d2e35c352e17b11b3"></a>

@@ -150,6 +150,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aa6ef60d81934a820d17e215fe96ea72c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afec7724e468f2997109fed8e4d737fba"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a4fe66111812336218d88f009306e061c">const_prefix_iterator</a>, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a4fe66111812336218d88f009306e061c">const_prefix_iterator</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#afec7724e468f2997109fed8e4d737fba">equal_prefix_range</a> (const CharT *prefix, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a> prefix_size) const</td></tr>
 <tr class="separator:afec7724e468f2997109fed8e4d737fba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ad25bf7086360765b103530db819684"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ad3c46cbddd4dc394b9ad4cd7e1552d78">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a4ad25bf7086360765b103530db819684">longest_prefix</a> (const CharT *key, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a> key_size)</td></tr>
+<tr class="separator:a4ad25bf7086360765b103530db819684"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68ed6ada686cecdbd9695a75fff8dd51"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ab761495eb888915c7a09cbec9b6825a8">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a68ed6ada686cecdbd9695a75fff8dd51">longest_prefix</a> (const CharT *key, <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a> key_size) const</td></tr>
+<tr class="separator:a68ed6ada686cecdbd9695a75fff8dd51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a329d838c1ba39e3cea428b1abcb6e0b9"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a329d838c1ba39e3cea428b1abcb6e0b9">max_load_factor</a> () const</td></tr>
 <tr class="separator:a329d838c1ba39e3cea428b1abcb6e0b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a253aec5188aa66e59fe85c3ecf453988"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a253aec5188aa66e59fe85c3ecf453988">max_load_factor</a> (float ml)</td></tr>
@@ -172,7 +176,7 @@ Static Public Attributes</h2></td></tr>
 <div class="textblock"><h3>template&lt;class CharT, class T, class Hash, class KeySizeT&gt;<br />
 class tsl::detail_htrie_hash::htrie_hash&lt; CharT, T, Hash, KeySizeT &gt;</h3>
 
-<p>T should be void if there is not value associated to a key (in a set for example). </p>
+<p>T should be void if there is no value associated to a key (in a set for example). </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a8cf1b286d2d13814c147ef750f062d47"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8cf1b286d2d13814c147ef750f062d47">&#9670;&nbsp;</a></span>char_type</h2>
@@ -1265,6 +1269,82 @@ template&lt;class... ValueArgs&gt; </div>
           <td></td>
           <td>)</td>
           <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4ad25bf7086360765b103530db819684"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ad25bf7086360765b103530db819684">&#9670;&nbsp;</a></span>longest_prefix() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ad3c46cbddd4dc394b9ad4cd7e1552d78">iterator</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::longest_prefix </td>
+          <td>(</td>
+          <td class="paramtype">const CharT *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a>&#160;</td>
+          <td class="paramname"><em>key_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a68ed6ada686cecdbd9695a75fff8dd51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68ed6ada686cecdbd9695a75fff8dd51">&#9670;&nbsp;</a></span>longest_prefix() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#ab761495eb888915c7a09cbec9b6825a8">const_iterator</a> <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::longest_prefix </td>
+          <td>(</td>
+          <td class="paramtype">const CharT *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a1e86fe97d05ead7638c736a2e7fd04f3">size_type</a>&#160;</td>
+          <td class="paramname"><em>key_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
         </tr>
       </table>
   </td>
