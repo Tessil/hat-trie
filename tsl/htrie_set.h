@@ -412,7 +412,7 @@ public:
      * 
      * Example:
      * 
-     *     tsl::htrie_setp<char> map = {"/foo", "/foo/bar"};
+     *     tsl::htrie_set<char> map = {"/foo", "/foo/bar"};
      * 
      *     map.longest_prefix("/foo"); // returns "/foo"
      *     map.longest_prefix("/foo/baz"); // returns "/foo"
