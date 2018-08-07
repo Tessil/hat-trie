@@ -11,7 +11,7 @@ It's a well adapted structure to store a large number of strings.
   <img src="https://tessil.github.io/images/hat-trie.png" width="600px" />
 </p>
 
-For the àrray hash part, the [array-hash](https://github.com/Tessil/array-hash) project is used and included as git subtree.
+For the àrray hash part, the [array-hash](https://github.com/Tessil/array-hash) project is used and included in the repository.
 
 The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
