@@ -412,14 +412,14 @@ public:
      * 
      * Example:
      * 
-     *     tsl::htrie_set<char> map = {"/foo", "/foo/bar"};
+     *     tsl::htrie_set<char> set = {"/foo", "/foo/bar"};
      * 
-     *     map.longest_prefix("/foo"); // returns "/foo"
-     *     map.longest_prefix("/foo/baz"); // returns "/foo"
-     *     map.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
-     *     map.longest_prefix("/foo/bar/"); // returns "/foo/bar"
-     *     map.longest_prefix("/bar"); // returns end()
-     *     map.longest_prefix(""); // returns end()
+     *     set.longest_prefix("/foo"); // returns "/foo"
+     *     set.longest_prefix("/foo/baz"); // returns "/foo"
+     *     set.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
+     *     set.longest_prefix("/foo/bar/"); // returns "/foo/bar"
+     *     set.longest_prefix("/bar"); // returns end()
+     *     set.longest_prefix(""); // returns end()
      */
     iterator longest_prefix_ks(const CharT* key, size_type key_size) {
         return m_ht.longest_prefix(key, key_size);
