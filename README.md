@@ -281,7 +281,8 @@ int main() {
     auto longest_prefix = map2.longest_prefix("apple juice");
     if(longest_prefix != map2.end()) {
         // {apple, 1}
-        std::cout << longest_prefix.key() << std::endl;
+        std::cout << "{" << longest_prefix.key() << ", " 
+                  << *longest_prefix << "}" << std::endl;
     }
     
     // Prefix erase
