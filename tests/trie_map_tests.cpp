@@ -13,13 +13,13 @@
 #include "tsl/htrie_map.h"
 #include "utils.h"
 
-using test_types = boost::mpl::list<
-                        tsl::htrie_map<char, int64_t>,
-                        tsl::htrie_map<char, std::string>,
-                        tsl::htrie_map<char, throw_move_test>,
-                        tsl::htrie_map<char, move_only_test>
-                        >;
 
+BOOST_AUTO_TEST_SUITE(test_htrie_map)
+
+using test_types = boost::mpl::list<tsl::htrie_map<char, std::int64_t>,
+                                    tsl::htrie_map<char, std::string>,
+                                    tsl::htrie_map<char, throw_move_test>,
+                                    tsl::htrie_map<char, move_only_test>>;
 
 /**
  * insert
@@ -29,15 +29,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert, TMap, test_types) {
     using char_tt = typename TMap::char_type; 
     using value_tt = typename TMap::mapped_type;
     
-    const size_t nb_values = 1000;
+    const std::size_t nb_values = 1000;
     typename TMap::iterator it;
     bool inserted;
     
     
-    TMap map;
-    map.burst_threshold(8);
+    TMap map(8);
     
-    for(size_t i = 0; i < nb_values; i++) {
+    for(std::size_t i = 0; i < nb_values; i++) {
         std::tie(it, inserted) = map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
         
         BOOST_CHECK_EQUAL(it.key(), (utils::get_key<char_tt>(i)));
@@ -46,7 +45,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert, TMap, test_types) {
     }
     BOOST_CHECK_EQUAL(map.size(), nb_values);
     
-    for(size_t i = 0; i < nb_values; i++) {
+    for(std::size_t i = 0; i < nb_values; i++) {
         std::tie(it, inserted) = map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i+1));
         
         BOOST_CHECK_EQUAL(it.key(), (utils::get_key<char_tt>(i)));
@@ -54,7 +53,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert, TMap, test_types) {
         BOOST_CHECK(!inserted);
     }
     
-    for(size_t i = 0; i < nb_values; i++) {
+    for(std::size_t i = 0; i < nb_values; i++) {
         it = map.find(utils::get_key<char_tt>(i));
         
         BOOST_CHECK(it != map.end());
@@ -71,18 +70,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert, TMap, test_types) {
 }
 
 BOOST_AUTO_TEST_CASE(test_insert_with_too_long_string) {
-    tsl::htrie_map<char, int64_t, tsl::ah::str_hash<char>, std::uint8_t> map;
+    tsl::htrie_map<char, std::int64_t, tsl::ah::str_hash<char>, std::uint8_t> map;
     map.burst_threshold(8);
     
-    for(std::size_t i=0; i < 1000; i++) {
-        map.insert(utils::get_key<char>(i), utils::get_value<int64_t>(i));
+    for(std::size_t i = 0; i < 1000; i++) {
+        map.insert(utils::get_key<char>(i), utils::get_value<std::int64_t>(i));
     }
     
     const std::string long_string("a", map.max_key_size());
-    BOOST_CHECK(map.insert(long_string, utils::get_value<int64_t>(1000)).second);
+    BOOST_CHECK(map.insert(long_string, utils::get_value<std::int64_t>(1000)).second);
     
     const std::string too_long_string("a", map.max_key_size() + 1);
-    BOOST_CHECK_THROW(map.insert(too_long_string, utils::get_value<int64_t>(1001)), std::length_error);
+    BOOST_CHECK_THROW(map.insert(too_long_string, utils::get_value<std::int64_t>(1001)), std::length_error);
 }
 
 
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_insert_with_too_long_string) {
  */
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_erase_all, TMap, test_types) {
     // insert x values, delete all
-    const size_t nb_values = 1000;
+    const std::size_t nb_values = 1000;
     TMap map = utils::get_filled_map<TMap>(nb_values, 8);
     
     auto it = map.erase(map.begin(), map.end());
@@ -118,7 +117,7 @@ BOOST_AUTO_TEST_CASE(test_range_erase) {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_erase_loop, TMap, test_types) {
     // insert x values, delete all one by one
-    size_t nb_values = 1000;
+    std::size_t nb_values = 1000;
     TMap map = utils::get_filled_map<TMap>(nb_values, 8);
     TMap map2 = utils::get_filled_map<TMap>(nb_values, 8);
     
@@ -140,7 +139,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_erase_loop, TMap, test_types) {
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_erase_unknown, TMap, test_types) {
     using char_tt = typename TMap::char_type; 
     
-    size_t nb_values = 1000;
+    std::size_t nb_values = 1000;
     TMap map = utils::get_filled_map<TMap>(nb_values, 9);
     
     BOOST_CHECK_EQUAL(map.erase(utils::get_key<char_tt>(1001)), 0);
@@ -154,14 +153,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert_erase_insert, TMap, test_types) {
     using char_tt = typename TMap::char_type; 
     using value_tt = typename TMap::mapped_type;
     
-    const size_t nb_values = 1000;
+    const std::size_t nb_values = 1000;
     typename TMap::iterator it;
     bool inserted;
     
     TMap map;
     map.burst_threshold(8);
     
-    for(size_t i = 0; i < nb_values/2; i++) {
+    for(std::size_t i = 0; i < nb_values/2; i++) {
         std::tie(it, inserted) = map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
         
         BOOST_CHECK_EQUAL(it.key(), (utils::get_key<char_tt>(i)));
@@ -172,7 +171,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert_erase_insert, TMap, test_types) {
     
     
     // Delete half
-    for(size_t i = 0; i < nb_values/2; i++) {
+    for(std::size_t i = 0; i < nb_values/2; i++) {
         if(i%2 == 0) {
             BOOST_CHECK_EQUAL(map.erase(utils::get_key<char_tt>(i)), 1);
             BOOST_CHECK(map.find(utils::get_key<char_tt>(i)) == map.end());
@@ -181,7 +180,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert_erase_insert, TMap, test_types) {
     BOOST_CHECK_EQUAL(map.size(), nb_values/4);
     
     
-    for(size_t i = nb_values/2; i < nb_values; i++) {
+    for(std::size_t i = nb_values/2; i < nb_values; i++) {
         std::tie(it, inserted) = map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
         
         BOOST_CHECK_EQUAL(it.key(), (utils::get_key<char_tt>(i)));
@@ -190,7 +189,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_insert_erase_insert, TMap, test_types) {
     }
     BOOST_CHECK_EQUAL(map.size(), nb_values-nb_values/4);
     
-    for(size_t i = 0; i < nb_values; i++) {
+    for(std::size_t i = 0; i < nb_values; i++) {
         it = map.find(utils::get_key<char_tt>(i));
             
         if(i%2 == 0 && i < nb_values/2) {
@@ -313,8 +312,7 @@ BOOST_AUTO_TEST_CASE(test_equal_prefix_range_empty) {
  * longest_prefix
  */
 BOOST_AUTO_TEST_CASE(test_longest_prefix) {
-    tsl::htrie_map<char, int> map;
-    map.burst_threshold(4);
+    tsl::htrie_map<char, int> map(4);
     map = {{"a", 1}, {"aa", 1}, {"aaa", 1}, {"aaaaa", 1}, {"aaaaaa", 1}, {"aaaaaaa", 1},
            {"ab", 1}, {"abcde", 1}, {"abcdf", 1}, {"abcdg", 1}, {"abcdh", 1}, {"babc", 1}};
     
@@ -338,14 +336,13 @@ BOOST_AUTO_TEST_CASE(test_longest_prefix) {
     map.insert("", 1);
     BOOST_CHECK_EQUAL(map.longest_prefix("dabc").key(), "");
     BOOST_CHECK_EQUAL(map.longest_prefix("").key(), "");
-    
 }
 
 /**
  * erase_prefix
  */
 BOOST_AUTO_TEST_CASE(test_erase_prefix) {
-    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(10000, 200);
+    tsl::htrie_map<char, std::int64_t> map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(10000, 200);
     
     BOOST_CHECK_EQUAL(map.erase_prefix("Key 1"), 1111);
     BOOST_CHECK_EQUAL(map.size(), 8889);
@@ -373,27 +370,27 @@ BOOST_AUTO_TEST_CASE(test_erase_prefix) {
 }
 
 BOOST_AUTO_TEST_CASE(test_erase_prefix_all_1) {
-    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1000, 8);
+    tsl::htrie_map<char, std::int64_t> map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(1000, 8);
     BOOST_CHECK_EQUAL(map.size(), 1000);
     BOOST_CHECK_EQUAL(map.erase_prefix(""), 1000);
     BOOST_CHECK_EQUAL(map.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_erase_prefix_all_2) {
-    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1000, 8);
+    tsl::htrie_map<char, std::int64_t> map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(1000, 8);
     BOOST_CHECK_EQUAL(map.size(), 1000);
     BOOST_CHECK_EQUAL(map.erase_prefix("Ke"), 1000);
     BOOST_CHECK_EQUAL(map.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_erase_prefix_none) {
-    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1000, 8);
+    tsl::htrie_map<char, std::int64_t> map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(1000, 8);
     BOOST_CHECK_EQUAL(map.erase_prefix("Kea"), 0);
     BOOST_CHECK_EQUAL(map.size(), 1000);
 }
 
 BOOST_AUTO_TEST_CASE(test_erase_prefix_empty_map) {
-    tsl::htrie_map<char, int64_t> map;
+    tsl::htrie_map<char, std::int64_t> map;
     BOOST_CHECK_EQUAL(map.erase_prefix("Kea"), 0);
     BOOST_CHECK_EQUAL(map.erase_prefix(""), 0);
 }
@@ -404,10 +401,10 @@ BOOST_AUTO_TEST_CASE(test_erase_prefix_empty_map) {
  * operator== and operator!=
  */
 BOOST_AUTO_TEST_CASE(test_compare) {
-    tsl::htrie_map<char, int64_t> map =  {{"test1", 10}, {"test2", 20}, {"test3", 30}};
-    tsl::htrie_map<char, int64_t> map2 = {{"test3", 30}, {"test2", 20}, {"test1", 10}};
-    tsl::htrie_map<char, int64_t> map3 = {{"test1", 10}, {"test2", 20}, {"test3", -1}};
-    tsl::htrie_map<char, int64_t> map4 = {{"test3", 30}, {"test2", 20}};
+    tsl::htrie_map<char, std::int64_t> map =  {{"test1", 10}, {"test2", 20}, {"test3", 30}};
+    tsl::htrie_map<char, std::int64_t> map2 = {{"test3", 30}, {"test2", 20}, {"test1", 10}};
+    tsl::htrie_map<char, std::int64_t> map3 = {{"test1", 10}, {"test2", 20}, {"test3", -1}};
+    tsl::htrie_map<char, std::int64_t> map4 = {{"test3", 30}, {"test2", 20}};
     
     BOOST_CHECK(map == map);
     BOOST_CHECK(map2 == map2);
@@ -427,7 +424,7 @@ BOOST_AUTO_TEST_CASE(test_compare) {
  * clear
  */
 BOOST_AUTO_TEST_CASE(test_clear) {
-    tsl::htrie_map<char, int64_t> map = {{"test1", 10}, {"test2", 20}};
+    tsl::htrie_map<char, std::int64_t> map = {{"test1", 10}, {"test2", 20}};
     
     map.clear();
     BOOST_CHECK_EQUAL(map.size(), 0);
@@ -439,7 +436,7 @@ BOOST_AUTO_TEST_CASE(test_clear) {
  * operator=
  */
 BOOST_AUTO_TEST_CASE(test_assign_operator) {
-    tsl::htrie_map<char, int64_t> map = {{"test1", 10}, {"test2", 20}};
+    tsl::htrie_map<char, std::int64_t> map = {{"test1", 10}, {"test2", 20}};
     BOOST_CHECK_EQUAL(map.size(), 2);
     
     map = {{"test3", 30}};
@@ -448,10 +445,10 @@ BOOST_AUTO_TEST_CASE(test_assign_operator) {
 }
 
 
-BOOST_AUTO_TEST_CASE(test_copy) {
-    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1000, 8);
-    tsl::htrie_map<char, int64_t> map2 = map;
-    tsl::htrie_map<char, int64_t> map3;
+BOOST_AUTO_TEST_CASE(test_copy_operator) {
+    tsl::htrie_map<char, std::int64_t> map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(1000, 8);
+    tsl::htrie_map<char, std::int64_t> map2 = map;
+    tsl::htrie_map<char, std::int64_t> map3;
     map3 = map;
     
     BOOST_CHECK(map == map2);
@@ -459,12 +456,12 @@ BOOST_AUTO_TEST_CASE(test_copy) {
 }
 
 
-BOOST_AUTO_TEST_CASE(test_move) {
+BOOST_AUTO_TEST_CASE(test_move_operator) {
     const std::size_t nb_elements = 1000;
-    const tsl::htrie_map<char, int64_t> init_map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(nb_elements, 8);
+    const tsl::htrie_map<char, std::int64_t> init_map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(nb_elements, 8);
     
-    tsl::htrie_map<char, int64_t> map = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(nb_elements, 8);
-    tsl::htrie_map<char, int64_t> map2 = utils::get_filled_map<tsl::htrie_map<char, int64_t>>(1, 8);
+    tsl::htrie_map<char, std::int64_t> map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(nb_elements, 8);
+    tsl::htrie_map<char, std::int64_t> map2 = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(1, 8);
     map2 = std::move(map);
     
     BOOST_CHECK(map.empty());
@@ -473,7 +470,7 @@ BOOST_AUTO_TEST_CASE(test_move) {
     BOOST_CHECK(map2 == init_map);
     
     
-    tsl::htrie_map<char, int64_t> map3;
+    tsl::htrie_map<char, std::int64_t> map3;
     map3 = std::move(map2);
     
     BOOST_CHECK(map2.empty());
@@ -482,7 +479,7 @@ BOOST_AUTO_TEST_CASE(test_move) {
     BOOST_CHECK(map3 == init_map);
     
     map2 = {{"test1", 10}};
-    BOOST_CHECK(map2 == (tsl::htrie_map<char, int64_t>{{"test1", 10}}));
+    BOOST_CHECK(map2 == (tsl::htrie_map<char, std::int64_t>{{"test1", 10}}));
 }
 
 /**
@@ -490,7 +487,7 @@ BOOST_AUTO_TEST_CASE(test_move) {
  */
 BOOST_AUTO_TEST_CASE(test_at) {
     // insert x values, use at for known and unknown values.
-    tsl::htrie_map<char, int64_t> map = {{"test1", 10}, {"test2", 20}};
+    tsl::htrie_map<char, std::int64_t> map = {{"test1", 10}, {"test2", 20}};
     map.insert("test4", 40);
     
     BOOST_CHECK_EQUAL(map.at("test1"), 10);
@@ -499,7 +496,7 @@ BOOST_AUTO_TEST_CASE(test_at) {
     BOOST_CHECK_EQUAL(map.at("test4"), 40);
     
     
-    const tsl::htrie_map<char, int64_t> map_const = {{"test1", 10}, {"test2", 20}, {"test4", 40}};
+    const tsl::htrie_map<char, std::int64_t> map_const = {{"test1", 10}, {"test2", 20}, {"test4", 40}};
     
     BOOST_CHECK_EQUAL(map_const.at("test1"), 10);
     BOOST_CHECK_EQUAL(map_const.at("test2"), 20);
@@ -512,7 +509,7 @@ BOOST_AUTO_TEST_CASE(test_at) {
  * equal_range
  */
 BOOST_AUTO_TEST_CASE(test_equal_range) {
-    tsl::htrie_map<char, int64_t> map = {{"test1", 10}, {"test2", 20}};
+    tsl::htrie_map<char, std::int64_t> map = {{"test1", 10}, {"test2", 20}};
     
     auto it_pair = map.equal_range("test1");
     BOOST_REQUIRE_EQUAL(std::distance(it_pair.first, it_pair.second), 1);
@@ -529,11 +526,11 @@ BOOST_AUTO_TEST_CASE(test_equal_range) {
  */
 BOOST_AUTO_TEST_CASE(test_access_operator) {
     // insert x values, use at for known and unknown values.
-    tsl::htrie_map<char, int64_t> map = {{"test1", 10}, {"test2", 20}};
+    tsl::htrie_map<char, std::int64_t> map = {{"test1", 10}, {"test2", 20}};
     
     BOOST_CHECK_EQUAL(map["test1"], 10);
     BOOST_CHECK_EQUAL(map["test2"], 20);
-    BOOST_CHECK_EQUAL(map["test3"], int64_t());
+    BOOST_CHECK_EQUAL(map["test3"], std::int64_t());
     
     map["test3"] = 30;
     BOOST_CHECK_EQUAL(map["test3"], 30);
@@ -545,12 +542,12 @@ BOOST_AUTO_TEST_CASE(test_access_operator) {
  * shrink_to_fit
  */
 BOOST_AUTO_TEST_CASE(test_shrink_to_fit) {
-    using TMap = tsl::htrie_map<char, int64_t>;
+    using TMap = tsl::htrie_map<char, std::int64_t>;
     using char_tt = typename TMap::char_type; 
     using value_tt = typename TMap::mapped_type;
     
-    const size_t nb_elements = 4000;
-    const size_t burst_threshold = 7;
+    const std::size_t nb_elements = 4000;
+    const std::size_t burst_threshold = 7;
     
     TMap map;
     TMap map2;
@@ -558,7 +555,7 @@ BOOST_AUTO_TEST_CASE(test_shrink_to_fit) {
     map.burst_threshold(burst_threshold);
     map2.burst_threshold(burst_threshold);
     
-    for(size_t i = 0; i < nb_elements/2; i++) {
+    for(std::size_t i = 0; i < nb_elements/2; i++) {
         map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
         map2.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
     }
@@ -569,7 +566,7 @@ BOOST_AUTO_TEST_CASE(test_shrink_to_fit) {
 
     
     
-    for(size_t i = nb_elements/2; i < nb_elements; i++) {
+    for(std::size_t i = nb_elements/2; i < nb_elements; i++) {
         map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
         map2.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
     }
@@ -583,14 +580,14 @@ BOOST_AUTO_TEST_CASE(test_shrink_to_fit) {
  * swap
  */
 BOOST_AUTO_TEST_CASE(test_swap) {
-    tsl::htrie_map<char, int64_t> map = {{"test1", 10}, {"test2", 20}};
-    tsl::htrie_map<char, int64_t> map2 = {{"test3", 30}, {"test4", 40}, {"test5", 50}};
+    tsl::htrie_map<char, std::int64_t> map = {{"test1", 10}, {"test2", 20}};
+    tsl::htrie_map<char, std::int64_t> map2 = {{"test3", 30}, {"test4", 40}, {"test5", 50}};
     
     using std::swap;
     swap(map, map2);
     
-    BOOST_CHECK(map == (tsl::htrie_map<char, int64_t>{{"test3", 30}, {"test4", 40}, {"test5", 50}}));
-    BOOST_CHECK(map2 == (tsl::htrie_map<char, int64_t>{{"test1", 10}, {"test2", 20}}));
+    BOOST_CHECK(map == (tsl::htrie_map<char, std::int64_t>{{"test3", 30}, {"test4", 40}, {"test5", 50}}));
+    BOOST_CHECK(map2 == (tsl::htrie_map<char, std::int64_t>{{"test1", 10}, {"test2", 20}}));
 }
 
 /**
@@ -630,3 +627,5 @@ BOOST_AUTO_TEST_CASE(test_empty_map) {
     
     BOOST_CHECK_EQUAL(map["new value"], int{});
 }
+
+BOOST_AUTO_TEST_SUITE_END()

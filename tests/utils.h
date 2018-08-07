@@ -9,7 +9,7 @@
 
 class move_only_test {
 public:
-    explicit move_only_test(int64_t value) : m_value(new int64_t(value)) {
+    explicit move_only_test(std::int64_t value) : m_value(new std::int64_t(value)) {
     }
     
     move_only_test(const move_only_test&) = delete;
@@ -56,17 +56,17 @@ public:
         }
     }
     
-    int64_t value() const {
+    std::int64_t value() const {
         return *m_value;
     }
 private:    
-    std::unique_ptr<int64_t> m_value;
+    std::unique_ptr<std::int64_t> m_value;
 };
 
 
 class throw_move_test {
 public:
-    explicit throw_move_test(int64_t value) : m_value(value) {
+    explicit throw_move_test(std::int64_t value) : m_value(value) {
     }
     
     throw_move_test(const throw_move_test&) = default;
@@ -82,30 +82,30 @@ public:
     }
     
     
-    operator int64_t() const {
+    operator std::int64_t() const {
         return m_value;
     }
 private:    
-    int64_t m_value;
+    std::int64_t m_value;
 };
 
 class utils {
 public:
     template<typename CharT>
-    static std::basic_string<CharT> get_key(size_t counter);
+    static std::basic_string<CharT> get_key(std::size_t counter);
     
     template<typename T>
-    static T get_value(size_t counter);
+    static T get_value(std::size_t counter);
     
     template<typename TMap>
-    static TMap get_filled_map(size_t nb_elements, size_t burst_threshold);
+    static TMap get_filled_map(std::size_t nb_elements, std::size_t burst_threshold);
 };
 
 
 
 
 template<>
-inline std::basic_string<char> utils::get_key<char>(size_t counter) {
+inline std::basic_string<char> utils::get_key<char>(std::size_t counter) {
     return "Key " + std::to_string(counter);
 }
 
@@ -113,35 +113,34 @@ inline std::basic_string<char> utils::get_key<char>(size_t counter) {
 
 
 template<>
-inline int64_t utils::get_value<int64_t>(size_t counter) {
-    return boost::numeric_cast<int64_t>(counter*2);
+inline std::int64_t utils::get_value<std::int64_t>(std::size_t counter) {
+    return boost::numeric_cast<std::int64_t>(counter*2);
 }
 
 template<>
-inline std::string utils::get_value<std::string>(size_t counter) {
+inline std::string utils::get_value<std::string>(std::size_t counter) {
     return "Value " + std::to_string(counter);
 }
 
 template<>
-inline throw_move_test utils::get_value<throw_move_test>(size_t counter) {
-    return throw_move_test(boost::numeric_cast<int64_t>(counter*2));
+inline throw_move_test utils::get_value<throw_move_test>(std::size_t counter) {
+    return throw_move_test(boost::numeric_cast<std::int64_t>(counter*2));
 }
 
 template<>
-inline move_only_test utils::get_value<move_only_test>(size_t counter) {
-    return move_only_test(boost::numeric_cast<int64_t>(counter*2));
+inline move_only_test utils::get_value<move_only_test>(std::size_t counter) {
+    return move_only_test(boost::numeric_cast<std::int64_t>(counter*2));
 }
 
 
 
 template<typename TMap>
-inline TMap utils::get_filled_map(size_t nb_elements, size_t burst_threshold) {
+inline TMap utils::get_filled_map(std::size_t nb_elements, std::size_t burst_threshold) {
     using char_tt = typename TMap::char_type; 
     using value_tt = typename TMap::mapped_type;
     
-    TMap map;
-    map.burst_threshold(burst_threshold);
-    for(size_t i = 0; i < nb_elements; i++) {
+    TMap map(burst_threshold);
+    for(std::size_t i = 0; i < nb_elements; i++) {
         map.insert(utils::get_key<char_tt>(i), utils::get_value<value_tt>(i));
     }
     
