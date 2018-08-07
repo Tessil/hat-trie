@@ -67,12 +67,16 @@ public:
     using const_prefix_iterator = typename ht::const_prefix_iterator;
     
 public:
-    explicit htrie_map(const Hash& hash = Hash()): m_ht(hash, 
-                                                        ht::HASH_NODE_DEFAULT_MAX_LOAD_FACTOR,
+    explicit htrie_map(const Hash& hash = Hash()): m_ht(hash, ht::HASH_NODE_DEFAULT_MAX_LOAD_FACTOR,
                                                         ht::DEFAULT_BURST_THRESHOLD)
     {
     }
     
+    explicit htrie_map(size_type burst_threshold, 
+                       const Hash& hash = Hash()): m_ht(hash, ht::HASH_NODE_DEFAULT_MAX_LOAD_FACTOR, 
+                                                        burst_threshold) 
+    {
+    }
     
     template<class InputIt>
     htrie_map(InputIt first, InputIt last,
