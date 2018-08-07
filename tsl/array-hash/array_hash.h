@@ -976,9 +976,24 @@ public:
             return mutable_iterator(first);
         }
         
-        auto to_delete = erase_from_bucket(mutable_iterator(first));
-        while(to_delete != last) {
+        /**
+         * When erasing an element from a bucket with erase_from_bucket, it invalidates all the iterators 
+         * in the array bucket of the element (m_array_bucket_iterator) but not the iterators of the buckets 
+         * itself (m_buckets_iterator).
+         * 
+         * So first erase all the values between first and last which are not part of the bucket of last,
+         * and then erase carefully the values in last's bucket.
+         */
+        auto to_delete = mutable_iterator(first);
+        while(to_delete.m_buckets_iterator != last.m_buckets_iterator) {
             to_delete = erase_from_bucket(to_delete);
+        }
+        
+        std::size_t nb_elements_until_last = std::distance(to_delete.m_array_bucket_iterator, 
+                                                           last.m_array_bucket_iterator);
+        while(nb_elements_until_last > 0) {
+            to_delete = erase_from_bucket(to_delete);
+            nb_elements_until_last--;
         }
         
         if(shoud_clear_old_erased_values()) {
@@ -1186,7 +1201,7 @@ public:
      * Observers
      */
     hasher hash_function() const { 
-        return static_cast<hasher>(*this); 
+        return static_cast<const hasher&>(*this); 
     }
     
     // TODO add support for statefull KeyEqual

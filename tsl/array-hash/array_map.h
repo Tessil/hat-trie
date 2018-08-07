@@ -226,7 +226,7 @@ public:
         }
         
         for(auto it = first; it != last; ++it) {
-            insert(it->first, it->second);
+            insert_pair(*it);
         }
     }
     
@@ -777,6 +777,17 @@ public:
     friend void swap(array_map& lhs, array_map& rhs) {
         lhs.swap(rhs);
     }
+    
+private:
+    template<class U, class V>
+    void insert_pair(const std::pair<U, V>& value) {
+        insert(value.first, value.second);
+    }
+    
+    template<class U, class V>
+    void insert_pair(std::pair<U, V>&& value) {
+        insert(value.first, std::move(value.second));
+    }    
     
 public:
     static const size_type MAX_KEY_SIZE = ht::MAX_KEY_SIZE;
