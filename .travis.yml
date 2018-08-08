@@ -14,8 +14,9 @@ os:
   - osx  
 
 script:
+  - cd tests
   - mkdir build
   - cd build
   - cmake ..
   - make
-  - ./test_hat_trie
+  - ./tsl_hat_trie_tests
