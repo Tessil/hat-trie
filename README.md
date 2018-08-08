@@ -17,7 +17,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
 ### Overview
 
-- Header-only library, just include the project to your include path and you are ready to go.
+- Header-only library, just add the [include](include/) directory to your include path and you are ready to go. If you use CMake, you can also use the `tsl::hat_trie` exported target from the [CMakeLists.txt](CMakeLists.txt).
 - Low memory usage while keeping reasonable performances (see [benchmark](https://github.com/Tessil/hat-trie#benchmark)).
 - Support prefix searches through `equal_prefix_range` (usefull for autocompletion for example) and prefix erasures through `erase_prefix`.
 - Support longest matching prefix searches through `longest_prefix`.
@@ -198,7 +198,14 @@ The benchmark protocol is the same as for the [Wikipedia dataset](https://github
 3. As the hash function can't be passed in parameter, the code of the library itself is modified to use CityHash64.
 
 ### Installation
-To use hat-trie library, just add the project to your include path. It's a **header-only** library. 
+To use the library, just add the [include](include/) directory to your include path. It is a **header-only** library.
+
+If you use CMake, you can also use the `tsl::hat_trie` exported target from the [CMakeLists.txt](CMakeLists.txt) with `target_link_libraries`. 
+```cmake
+# Example where the hat-trie project is stored in a third-party directory
+add_subdirectory(third-party/hat-trie)
+target_link_libraries(your_target PRIVATE tsl::hat_trie)  
+```
 
 The code should work with any C++11 standard-compliant compiler and has been tested with GCC 4.8.4, Clang 3.5.0 and Visual Studio 2015.
 
@@ -206,12 +213,12 @@ To run the tests you will need the Boost Test library and CMake.
 
 ```bash
 git clone https://github.com/Tessil/hat-trie.git
-cd hat-trie
+cd hat-trie/tests
 mkdir build
 cd build
 cmake ..
-make
-./test_hat_trie
+cmake --build .
+./tsl_hat_trie_tests
 ```
 
 ### Usage
