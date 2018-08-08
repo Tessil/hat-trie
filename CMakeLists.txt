@@ -1,25 +1,22 @@
-cmake_minimum_required(VERSION 2.8.11)
-project(test_hat_trie)
-enable_testing()
+cmake_minimum_required(VERSION 3.1)
 
-find_package(Boost 1.54.0 REQUIRED COMPONENTS unit_test_framework) 
+project(tsl_hat_trie)
+
+add_library(tsl_hat_trie INTERFACE)
+# Use tsl::hat_trie as target, more consistent with other libraries conventions (Boost, Qt, ...)
+add_library(tsl::hat_trie ALIAS tsl_hat_trie)
+
+target_include_directories(tsl_hat_trie INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_sources(tsl_hat_trie INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/array-hash/array_growth_policy.h"
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/array-hash/array_hash.h"
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/array-hash/array_map.h"
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/array-hash/array_set.h"
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/htrie_hash.h"
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/htrie_map.h"
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/htrie_set.h")
 
 
-set(TEST_EXECUTABLE "test_hat_trie")
-
-add_executable("${TEST_EXECUTABLE}" "tests/main.cpp" 
-                                    "tests/trie_map_tests.cpp" 
-                                    "tests/trie_set_tests.cpp")
-                                    
-                                    
-target_include_directories("${TEST_EXECUTABLE}" PRIVATE "${Boost_INCLUDE_DIRS}" "include") 
-target_link_libraries("${TEST_EXECUTABLE}" ${Boost_LIBRARIES})
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options("${TEST_EXECUTABLE}" PRIVATE -std=c++11 -Werror -Wall -Wextra -Wold-style-cast -O3 -DTSL_DEBUG)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    target_compile_options("${TEST_EXECUTABLE}" PRIVATE /bigobj /WX /W3 /DTSL_DEBUG)
+if(${CMAKE_VERSION} VERSION_GREATER "3.7") 
+    # Only available since version 3.8
+    target_compile_features(tsl_hat_trie INTERFACE cxx_std_11)
 endif()
-
-
-add_test(NAME "all_tests" COMMAND "${TEST_EXECUTABLE}")
