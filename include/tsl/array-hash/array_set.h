@@ -96,7 +96,7 @@ public:
     }
     
     
-#ifdef TSL_HAS_STRING_VIEW
+#ifdef TSL_AH_HAS_STRING_VIEW
     array_set(std::initializer_list<std::basic_string_view<CharT>> init,
               size_type bucket_count = ht::DEFAULT_INIT_BUCKET_COUNT,
               const Hash& hash = Hash()): array_set(bucket_count, hash)
@@ -114,7 +114,7 @@ public:
     
     
 
-#ifdef TSL_HAS_STRING_VIEW
+#ifdef TSL_AH_HAS_STRING_VIEW
     array_set& operator=(std::initializer_list<std::basic_string_view<CharT>> ilist) {
         clear();
         
@@ -163,7 +163,7 @@ public:
     
         
     
-#ifdef TSL_HAS_STRING_VIEW
+#ifdef TSL_AH_HAS_STRING_VIEW
     std::pair<iterator, bool> insert(const std::basic_string_view<CharT>& key) {
         return m_ht.emplace(key.data(), key.size()); 
     }
@@ -202,7 +202,7 @@ public:
     
     
 
-#ifdef TSL_HAS_STRING_VIEW
+#ifdef TSL_AH_HAS_STRING_VIEW
     void insert(std::initializer_list<std::basic_string_view<CharT>> ilist) {
         insert(ilist.begin(), ilist.end());
     }
@@ -214,7 +214,7 @@ public:
     
     
 
-#ifdef TSL_HAS_STRING_VIEW
+#ifdef TSL_AH_HAS_STRING_VIEW
     /**
      * @copydoc emplace_ks(const CharT* key, size_type key_size)
      */
@@ -248,7 +248,7 @@ public:
     iterator erase(const_iterator pos) { return m_ht.erase(pos); }
     iterator erase(const_iterator first, const_iterator last) { return m_ht.erase(first, last); }
 
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     size_type erase(const std::basic_string_view<CharT>& key) {
         return m_ht.erase(key.data(), key.size());
     }
@@ -267,7 +267,7 @@ public:
     
     
 
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     /**
      * @copydoc erase_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */
@@ -306,7 +306,7 @@ public:
     /*
      * Lookup
      */    
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     size_type count(const std::basic_string_view<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #else
     size_type count(const CharT* key) const { return m_ht.count(key, std::strlen(key)); }
@@ -316,7 +316,7 @@ public:
     
     
     
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     /**
      * @copydoc count_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const
      */
@@ -348,7 +348,7 @@ public:
     
     
     
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     iterator find(const std::basic_string_view<CharT>& key) {
         return m_ht.find(key.data(), key.size());
     }
@@ -383,7 +383,7 @@ public:
     
     
 
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     /**
      * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */
@@ -443,7 +443,7 @@ public:
     
 
     
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     std::pair<iterator, iterator> equal_range(const std::basic_string_view<CharT>& key) {
         return m_ht.equal_range(key.data(), key.size());
     }
@@ -478,7 +478,7 @@ public:
     
 
     
-#ifdef TSL_HAS_STRING_VIEW 
+#ifdef TSL_AH_HAS_STRING_VIEW 
     /**
      * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */

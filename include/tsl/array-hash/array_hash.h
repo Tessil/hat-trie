@@ -41,28 +41,26 @@
 #include "array_growth_policy.h"
 
 
+/*
+ * __has_include is a bit useless (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79433),
+ * check also __cplusplus version.
+ */
 #ifdef __has_include
-    /*
-     * __has_include is a bit useless (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79433),
-     * check also __cplusplus version.
-     */
-    #if __has_include(<string_view>) && __cplusplus >= 201703L
-    #define TSL_HAS_STRING_VIEW
-    #endif
+#    if __has_include(<string_view>) && __cplusplus >= 201703L
+#        define TSL_AH_HAS_STRING_VIEW
+#    endif
 #endif
 
 
-#ifdef TSL_HAS_STRING_VIEW
-#include <string_view>
+#ifdef TSL_AH_HAS_STRING_VIEW
+#    include <string_view>
 #endif
 
 
-#ifndef tsl_assert
-    #ifdef TSL_DEBUG
-    #define tsl_assert(expr) assert(expr)
-    #else
-    #define tsl_assert(expr) (static_cast<void>(0))
-    #endif
+#ifdef TSL_DEBUG
+#    define tsl_ah_assert(expr) assert(expr)
+#else
+#    define tsl_ah_assert(expr) (static_cast<void>(0))
 #endif
 
 
@@ -378,7 +376,7 @@ public:
         const key_size_type key_sz = as_key_size_type(key_size);
         
         if(end_of_bucket == cend()) {
-            tsl_assert(m_buffer == nullptr);
+            tsl_ah_assert(m_buffer == nullptr);
             
             const size_type buffer_size = entry_required_bytes(key_sz) + sizeof_in_buff<decltype(END_OF_BUCKET)>();
                                             
@@ -392,7 +390,7 @@ public:
             return const_iterator(m_buffer);
         }
         else {
-            tsl_assert(is_end_of_bucket(end_of_bucket.m_position));
+            tsl_ah_assert(is_end_of_bucket(end_of_bucket.m_position));
             
             const size_type current_size = ((end_of_bucket.m_position + size_as_char_t<decltype(END_OF_BUCKET)>()) - 
                                               m_buffer) * sizeof(CharT);
@@ -416,7 +414,7 @@ public:
     }
     
     const_iterator erase(const_iterator position) noexcept {
-        tsl_assert(position.m_position != nullptr && !is_end_of_bucket(position.m_position));
+        tsl_ah_assert(position.m_position != nullptr && !is_end_of_bucket(position.m_position));
         
         // get mutable pointers
         CharT* start_entry = m_buffer + (position.m_position - m_buffer); 
@@ -715,7 +713,7 @@ public:
             m_array_bucket_iterator(array_bucket_iterator),
             m_array_hash(array_hash_p)
         {
-            tsl_assert(m_array_hash != nullptr);
+            tsl_ah_assert(m_array_hash != nullptr);
         }
         
     public:
@@ -737,7 +735,7 @@ public:
             return m_array_bucket_iterator.key_size();
         }
         
-#ifdef TSL_HAS_STRING_VIEW
+#ifdef TSL_AH_HAS_STRING_VIEW
         std::basic_string_view<CharT> key_sv() const {
             return std::basic_string_view<CharT>(key(), key_size());
         }
@@ -759,8 +757,8 @@ public:
         }
         
         array_hash_iterator& operator++() {
-            tsl_assert(m_buckets_iterator != m_array_hash->m_buckets.end());
-            tsl_assert(m_array_bucket_iterator != m_buckets_iterator->cend());
+            tsl_ah_assert(m_buckets_iterator != m_array_hash->m_buckets.end());
+            tsl_ah_assert(m_array_bucket_iterator != m_buckets_iterator->cend());
             
             ++m_array_bucket_iterator;
             if(m_array_bucket_iterator == m_buckets_iterator->cend()) {
@@ -1297,7 +1295,7 @@ private:
         }
         
         new_values.swap(this->m_values);
-        tsl_assert(m_nb_elements == this->m_values.size());
+        tsl_ah_assert(m_nb_elements == this->m_values.size());
     }
     
     /**

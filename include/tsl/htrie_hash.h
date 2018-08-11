@@ -41,6 +41,30 @@
 #include "array-hash/array_map.h"
 #include "array-hash/array_set.h"
 
+
+/*
+ * __has_include is a bit useless (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79433),
+ * check also __cplusplus version.
+ */
+#ifdef __has_include
+#    if __has_include(<string_view>) && __cplusplus >= 201703L
+#        define TSL_HT_HAS_STRING_VIEW
+#    endif
+#endif
+
+
+#ifdef TSL_HT_HAS_STRING_VIEW
+#    include <string_view>
+#endif
+
+
+#ifdef TSL_DEBUG
+#    define tsl_ht_assert(expr) assert(expr)
+#else
+#    define tsl_ht_assert(expr) (static_cast<void>(0))
+#endif
+
+
 namespace tsl {       
     
 namespace detail_htrie_hash {
@@ -164,22 +188,22 @@ private:
         }
         
         trie_node& as_trie_node() noexcept {
-            tsl_assert(is_trie_node());
+            tsl_ht_assert(is_trie_node());
             return static_cast<trie_node&>(*this);
         }
         
         hash_node& as_hash_node() noexcept {
-            tsl_assert(is_hash_node());
+            tsl_ht_assert(is_hash_node());
             return static_cast<hash_node&>(*this);
         }
         
         const trie_node& as_trie_node() const noexcept {
-            tsl_assert(is_trie_node());
+            tsl_ht_assert(is_trie_node());
             return static_cast<const trie_node&>(*this);
         }
         
         const hash_node& as_hash_node() const noexcept {
-            tsl_assert(is_hash_node());
+            tsl_ht_assert(is_hash_node());
             return static_cast<const hash_node&>(*this);
         }
         
@@ -187,7 +211,7 @@ private:
          * @see m_child_of_char
          */
         CharT child_of_char() const noexcept {
-            tsl_assert(parent() != nullptr);
+            tsl_ht_assert(parent() != nullptr);
             return m_child_of_char;
         }
         
@@ -306,7 +330,7 @@ private:
         }
         
         const anode* next_child(const anode& current_child) const noexcept {
-            tsl_assert(current_child.parent() == this);
+            tsl_ht_assert(current_child.parent() == this);
             
             for(std::size_t ichild = as_position(current_child.child_of_char()) + 1; 
                 ichild < m_children.size(); 
@@ -336,7 +360,7 @@ private:
                 }
                 
                 const anode* first_child = current_node->first_child();
-                tsl_assert(first_child != nullptr); // a trie_node must either have a value_node or at least one child.
+                tsl_ht_assert(first_child != nullptr); // a trie_node must either have a value_node or at least one child.
                 if(first_child->is_hash_node()) {
                     return *current_node;
                 }
@@ -489,7 +513,7 @@ public:
             m_array_hash_end_iterator(start_hash_node.array_hash().end()),
             m_read_trie_node_value(false)
         {
-            tsl_assert(!m_current_hash_node->array_hash().empty());
+            tsl_ht_assert(!m_current_hash_node->array_hash().empty());
         }
         
         /**
@@ -499,7 +523,7 @@ public:
             m_current_trie_node(&start_trie_node), m_current_hash_node(nullptr),
             m_read_trie_node_value(true)
         {
-            tsl_assert(m_current_trie_node->val_node() != nullptr);
+            tsl_ht_assert(m_current_trie_node->val_node() != nullptr);
         }
         
         template<bool P = IsPrefixIterator, typename std::enable_if<!P>::type* = nullptr> 
@@ -556,7 +580,7 @@ public:
             std::reverse(key_buffer_out.begin(), key_buffer_out.end());
             
             if(!m_read_trie_node_value) {
-                tsl_assert(m_current_hash_node != nullptr);
+                tsl_ht_assert(m_current_hash_node != nullptr);
                 if(m_current_hash_node->parent() != nullptr) {
                     key_buffer_out.push_back(m_current_hash_node->child_of_char());
                 }
@@ -575,8 +599,8 @@ public:
         template<class U = T, typename std::enable_if<has_value<U>::value>::type* = nullptr>        
         reference value() const {
             if(this->m_read_trie_node_value) {
-                tsl_assert(this->m_current_trie_node != nullptr);
-                tsl_assert(this->m_current_trie_node->val_node() != nullptr);
+                tsl_ht_assert(this->m_current_trie_node != nullptr);
+                tsl_ht_assert(this->m_current_trie_node->val_node() != nullptr);
                 
                 return this->m_current_trie_node->val_node()->m_value;
             }
@@ -597,7 +621,7 @@ public:
         
         htrie_hash_iterator& operator++() {
             if(m_read_trie_node_value) {
-                tsl_assert(m_current_trie_node != nullptr);
+                tsl_ht_assert(m_current_trie_node != nullptr);
                 
                 m_read_trie_node_value = false;
                 
@@ -625,7 +649,7 @@ public:
                     set_as_end_iterator();
                 }
                 else {
-                    tsl_assert(m_current_hash_node != nullptr);
+                    tsl_ht_assert(m_current_hash_node != nullptr);
                     set_next_node_ascending(*m_current_hash_node);
                 }
             }
@@ -675,8 +699,8 @@ public:
         
         template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
         void filter_prefix() {
-            tsl_assert(m_array_hash_iterator != m_array_hash_end_iterator);
-            tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
+            tsl_ht_assert(m_array_hash_iterator != m_array_hash_end_iterator);
+            tsl_ht_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             
             if(m_prefix_filter.empty()) {
                 return;
@@ -692,7 +716,7 @@ public:
                         set_as_end_iterator();
                     }
                     else {
-                        tsl_assert(m_current_hash_node != nullptr);
+                        tsl_ht_assert(m_current_hash_node != nullptr);
                         set_next_node_ascending(*m_current_hash_node);
                     }
                     
@@ -706,8 +730,8 @@ public:
          * If none, try to go back up more in the tree to check the siblings of the ancestors.
          */
         void set_next_node_ascending(anode_type& current_trie_node_child) {
-            tsl_assert(m_current_trie_node != nullptr);
-            tsl_assert(current_trie_node_child.parent() == m_current_trie_node);
+            tsl_ht_assert(m_current_trie_node != nullptr);
+            tsl_ht_assert(current_trie_node_child.parent() == m_current_trie_node);
             
             anode_type* next_node = m_current_trie_node->next_child(current_trie_node_child);
             while(next_node == nullptr && m_current_trie_node->parent() != nullptr) {
@@ -737,7 +761,7 @@ public:
                 else {
                     anode_type* first_child = m_current_trie_node->first_child();
                     // a trie_node must either have a value_node or at least one child.
-                    tsl_assert(first_child != nullptr); 
+                    tsl_ht_assert(first_child != nullptr); 
                     
                     set_current_hash_node(first_child->as_hash_node());
                 }
@@ -745,7 +769,7 @@ public:
         }
         
         void set_current_hash_node(hash_node_type& hnode) {
-            tsl_assert(!hnode.array_hash().empty());
+            tsl_ht_assert(!hnode.array_hash().empty());
                 
             m_current_hash_node = &hnode;
             m_array_hash_iterator = m_current_hash_node->array_hash().begin();
@@ -759,12 +783,12 @@ public:
         }
         
         void skip_hash_node() {
-            tsl_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
+            tsl_ht_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
             if(m_current_trie_node == nullptr) {
                 set_as_end_iterator();
             }
             else {
-                tsl_assert(m_current_hash_node != nullptr);
+                tsl_ht_assert(m_current_hash_node != nullptr);
                 set_next_node_ascending(*m_current_hash_node);
             }
         }
@@ -918,7 +942,7 @@ public:
                 hash_node* hnode = first.m_current_hash_node;
                 first.skip_hash_node();
                 
-                tsl_assert(hnode != nullptr);
+                tsl_ht_assert(hnode != nullptr);
                 hnode->array_hash().shrink_to_fit();
             }
         }
@@ -1191,7 +1215,7 @@ private:
         }
         else {
             const anode* first_child = tnode.first_child();
-            tsl_assert(first_child != nullptr);
+            tsl_ht_assert(first_child != nullptr);
             
             return Iterator(first_child->as_hash_node());
         }
@@ -1320,7 +1344,7 @@ private:
         if(need_burst(hnode)) {
             std::unique_ptr<trie_node> new_node = burst(hnode);
             if(hnode.parent() == nullptr) {
-                tsl_assert(m_root.get() == &hnode);
+                tsl_ht_assert(m_root.get() == &hnode);
                 
                 m_root = std::move(new_node);
                 return insert_impl(*m_root, key, key_size, std::forward<ValueArgs>(value_args)...);
@@ -1351,7 +1375,7 @@ private:
         iterator next_pos = std::next(pos);
         
         if(pos.m_read_trie_node_value) {
-            tsl_assert(pos.m_current_trie_node != nullptr && pos.m_current_trie_node->val_node() != nullptr);
+            tsl_ht_assert(pos.m_current_trie_node != nullptr && pos.m_current_trie_node->val_node() != nullptr);
             
             pos.m_current_trie_node->val_node().reset(nullptr);
             m_nb_elements--;
@@ -1363,7 +1387,7 @@ private:
             return next_pos;
         }
         else {
-            tsl_assert(pos.m_current_hash_node != nullptr);
+            tsl_ht_assert(pos.m_current_hash_node != nullptr);
             auto next_array_hash_it = pos.m_current_hash_node->array_hash().erase(pos.m_array_hash_iterator);
             m_nb_elements--;
             
@@ -1387,23 +1411,23 @@ private:
      * associated to it).
      */
     void clear_empty_nodes(anode& empty_node) noexcept {
-        tsl_assert(!empty_node.is_trie_node() || 
+        tsl_ht_assert(!empty_node.is_trie_node() || 
                     (empty_node.as_trie_node().empty() && empty_node.as_trie_node().val_node() == nullptr));
-        tsl_assert(!empty_node.is_hash_node() || empty_node.as_hash_node().array_hash().empty());
+        tsl_ht_assert(!empty_node.is_hash_node() || empty_node.as_hash_node().array_hash().empty());
 
         
         trie_node* parent = empty_node.parent();
         if(parent == nullptr) {
-            tsl_assert(m_root.get() == &empty_node);
-            tsl_assert(m_nb_elements == 0);
+            tsl_ht_assert(m_root.get() == &empty_node);
+            tsl_ht_assert(m_nb_elements == 0);
             m_root.reset(nullptr);
         }
         else if(parent->val_node() != nullptr || parent->nb_children() > 1) {
             parent->child(empty_node.child_of_char()).reset(nullptr);
         }
         else if(parent->parent() == nullptr) {
-            tsl_assert(m_root.get() == empty_node.parent());
-            tsl_assert(m_nb_elements == 0);
+            tsl_ht_assert(m_root.get() == empty_node.parent());
+            tsl_ht_assert(m_nb_elements == 0);
             m_root.reset(nullptr);
         }
         else {
@@ -1646,7 +1670,7 @@ private:
         }
         
         
-        tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
+        tsl_ht_assert(new_node->val_node() != nullptr || !new_node->empty());
         return new_node;
     } 
     
@@ -1687,7 +1711,7 @@ private:
             }
             
             
-            tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
+            tsl_ht_assert(new_node->val_node() != nullptr || !new_node->empty());
             return new_node;
         }
         catch(...) {
@@ -1721,7 +1745,7 @@ private:
         }
         
         
-        tsl_assert(new_node->val_node() != nullptr || !new_node->empty());
+        tsl_ht_assert(new_node->val_node() != nullptr || !new_node->empty());
         return new_node;
     }
         
