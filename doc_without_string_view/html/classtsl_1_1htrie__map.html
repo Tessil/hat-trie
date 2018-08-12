@@ -78,6 +78,8 @@ Public Types</h2></td></tr>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a09040d4d4481c5b53dbd6bedc78ebce1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a09040d4d4481c5b53dbd6bedc78ebce1">htrie_map</a> (const Hash &amp;hash=Hash())</td></tr>
 <tr class="separator:a09040d4d4481c5b53dbd6bedc78ebce1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29f1d77879976ddd617da163d5f8786e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a29f1d77879976ddd617da163d5f8786e">htrie_map</a> (<a class="el" href="classtsl_1_1htrie__map.html#a7f7b64d3cfd5795e1d1cea424f50e4f1">size_type</a> <a class="el" href="classtsl_1_1htrie__map.html#ad58cdcc90e7c6b80573900de9a9fe8a6">burst_threshold</a>, const Hash &amp;hash=Hash())</td></tr>
+<tr class="separator:a29f1d77879976ddd617da163d5f8786e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2de11e67858920721f965f26e1afe445"><td class="memTemplParams" colspan="2">template&lt;class InputIt &gt; </td></tr>
 <tr class="memitem:a2de11e67858920721f965f26e1afe445"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a2de11e67858920721f965f26e1afe445">htrie_map</a> (InputIt first, InputIt last, const Hash &amp;hash=Hash())</td></tr>
 <tr class="separator:a2de11e67858920721f965f26e1afe445"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -402,7 +404,7 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a09040d4d4481c5b53dbd6bedc78ebce1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a09040d4d4481c5b53dbd6bedc78ebce1">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a09040d4d4481c5b53dbd6bedc78ebce1">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -429,8 +431,46 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
 
 </div>
 </div>
+<a id="a29f1d77879976ddd617da163d5f8786e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29f1d77879976ddd617da163d5f8786e">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a>&lt; CharT, T, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__map.html">htrie_map</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtsl_1_1htrie__map.html#a7f7b64d3cfd5795e1d1cea424f50e4f1">size_type</a>&#160;</td>
+          <td class="paramname"><em>burst_threshold</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Hash &amp;&#160;</td>
+          <td class="paramname"><em>hash</em> = <code>Hash()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a2de11e67858920721f965f26e1afe445"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2de11e67858920721f965f26e1afe445">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2de11e67858920721f965f26e1afe445">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -476,7 +516,7 @@ template&lt;class InputIt &gt; </div>
 </div>
 </div>
 <a id="a4aeceefa0978b656e62799e2a17821f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4aeceefa0978b656e62799e2a17821f9">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4aeceefa0978b656e62799e2a17821f9">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3007,7 +3047,7 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>tsl/<a class="el" href="htrie__map_8h_source.html">htrie_map.h</a></li>
+<li>include/tsl/<a class="el" href="htrie__map_8h_source.html">htrie_map.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

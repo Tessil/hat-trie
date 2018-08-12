@@ -76,6 +76,8 @@ Public Types</h2></td></tr>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa3a00d32e268ed02416eb0cd46b1084e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__set.html#aa3a00d32e268ed02416eb0cd46b1084e">htrie_set</a> (const Hash &amp;hash=Hash())</td></tr>
 <tr class="separator:aa3a00d32e268ed02416eb0cd46b1084e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08653599b52519034264cfb4342fb9a0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__set.html#a08653599b52519034264cfb4342fb9a0">htrie_set</a> (<a class="el" href="classtsl_1_1htrie__set.html#a49adc56dcc3c3def4169e630f13c9723">size_type</a> <a class="el" href="classtsl_1_1htrie__set.html#a5247477021ac022db790988d6cac849a">burst_threshold</a>, const Hash &amp;hash=Hash())</td></tr>
+<tr class="separator:a08653599b52519034264cfb4342fb9a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f16df8f06fa92517ab648033121cb6c"><td class="memTemplParams" colspan="2">template&lt;class InputIt &gt; </td></tr>
 <tr class="memitem:a2f16df8f06fa92517ab648033121cb6c"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__set.html#a2f16df8f06fa92517ab648033121cb6c">htrie_set</a> (InputIt first, InputIt last, const Hash &amp;hash=Hash())</td></tr>
 <tr class="separator:a2f16df8f06fa92517ab648033121cb6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -332,7 +334,7 @@ template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class Ke
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aa3a00d32e268ed02416eb0cd46b1084e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3a00d32e268ed02416eb0cd46b1084e">&#9670;&nbsp;</a></span>htrie_set() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3a00d32e268ed02416eb0cd46b1084e">&#9670;&nbsp;</a></span>htrie_set() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -359,8 +361,46 @@ template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class Ke
 
 </div>
 </div>
+<a id="a08653599b52519034264cfb4342fb9a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08653599b52519034264cfb4342fb9a0">&#9670;&nbsp;</a></span>htrie_set() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtsl_1_1htrie__set.html">tsl::htrie_set</a>&lt; CharT, Hash, KeySizeT &gt;::<a class="el" href="classtsl_1_1htrie__set.html">htrie_set</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtsl_1_1htrie__set.html#a49adc56dcc3c3def4169e630f13c9723">size_type</a>&#160;</td>
+          <td class="paramname"><em>burst_threshold</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Hash &amp;&#160;</td>
+          <td class="paramname"><em>hash</em> = <code>Hash()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a2f16df8f06fa92517ab648033121cb6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f16df8f06fa92517ab648033121cb6c">&#9670;&nbsp;</a></span>htrie_set() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f16df8f06fa92517ab648033121cb6c">&#9670;&nbsp;</a></span>htrie_set() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -406,7 +446,7 @@ template&lt;class InputIt &gt; </div>
 </div>
 </div>
 <a id="ae6dadb101c77489b79b0adae7a9e3101"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae6dadb101c77489b79b0adae7a9e3101">&#9670;&nbsp;</a></span>htrie_set() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6dadb101c77489b79b0adae7a9e3101">&#9670;&nbsp;</a></span>htrie_set() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1644,14 +1684,14 @@ template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class Ke
 
 <p></p>
 <p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
-<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; map = {"/foo", "/foo/bar"};
+<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; set = {"/foo", "/foo/bar"};
 
-map.longest_prefix("/foo"); // returns "/foo"
-map.longest_prefix("/foo/baz"); // returns "/foo"
-map.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
-map.longest_prefix("/foo/bar/"); // returns "/foo/bar"
-map.longest_prefix("/bar"); // returns end()
-map.longest_prefix(""); // returns end()</pre> 
+set.longest_prefix("/foo"); // returns "/foo"
+set.longest_prefix("/foo/baz"); // returns "/foo"
+set.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
+set.longest_prefix("/foo/bar/"); // returns "/foo/bar"
+set.longest_prefix("/bar"); // returns end()
+set.longest_prefix(""); // returns end()</pre> 
 </div>
 </div>
 <a id="a398ec218119d73e3eaaab2ef1691a8a1"></a>
@@ -1682,14 +1722,14 @@ template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class Ke
 
 <p></p>
 <p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
-<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; map = {"/foo", "/foo/bar"};
+<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; set = {"/foo", "/foo/bar"};
 
-map.longest_prefix("/foo"); // returns "/foo"
-map.longest_prefix("/foo/baz"); // returns "/foo"
-map.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
-map.longest_prefix("/foo/bar/"); // returns "/foo/bar"
-map.longest_prefix("/bar"); // returns end()
-map.longest_prefix(""); // returns end()</pre> 
+set.longest_prefix("/foo"); // returns "/foo"
+set.longest_prefix("/foo/baz"); // returns "/foo"
+set.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
+set.longest_prefix("/foo/bar/"); // returns "/foo/bar"
+set.longest_prefix("/bar"); // returns end()
+set.longest_prefix(""); // returns end()</pre> 
 </div>
 </div>
 <a id="a5c31c4b687e738977ff9b27468715b8a"></a>
@@ -1728,14 +1768,14 @@ template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class Ke
 </table>
 </div><div class="memdoc">
 <p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
-<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; map = {"/foo", "/foo/bar"};
+<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; set = {"/foo", "/foo/bar"};
 
-map.longest_prefix("/foo"); // returns "/foo"
-map.longest_prefix("/foo/baz"); // returns "/foo"
-map.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
-map.longest_prefix("/foo/bar/"); // returns "/foo/bar"
-map.longest_prefix("/bar"); // returns end()
-map.longest_prefix(""); // returns end()</pre> 
+set.longest_prefix("/foo"); // returns "/foo"
+set.longest_prefix("/foo/baz"); // returns "/foo"
+set.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
+set.longest_prefix("/foo/bar/"); // returns "/foo/bar"
+set.longest_prefix("/bar"); // returns end()
+set.longest_prefix(""); // returns end()</pre> 
 </div>
 </div>
 <a id="a67404a281d104ef01e422d6e4feef5a3"></a>
@@ -1776,14 +1816,14 @@ template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class Ke
 
 <p></p>
 <p>Return the element in the trie which is the longest prefix of <code>key</code>. If no element in the trie is a prefix of <code>key</code>, the end iterator is returned.</p>
-<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; map = {"/foo", "/foo/bar"};
+<p>Example: </p><pre class="fragment">tsl::htrie_set&lt;char&gt; set = {"/foo", "/foo/bar"};
 
-map.longest_prefix("/foo"); // returns "/foo"
-map.longest_prefix("/foo/baz"); // returns "/foo"
-map.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
-map.longest_prefix("/foo/bar/"); // returns "/foo/bar"
-map.longest_prefix("/bar"); // returns end()
-map.longest_prefix(""); // returns end()</pre> 
+set.longest_prefix("/foo"); // returns "/foo"
+set.longest_prefix("/foo/baz"); // returns "/foo"
+set.longest_prefix("/foo/bar/baz"); // returns "/foo/bar"
+set.longest_prefix("/foo/bar/"); // returns "/foo/bar"
+set.longest_prefix("/bar"); // returns end()
+set.longest_prefix(""); // returns end()</pre> 
 </div>
 </div>
 <a id="a5d4943e3a2ad4a7c0e70d1788128cf81"></a>
@@ -2122,7 +2162,7 @@ template&lt;class CharT , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class Ke
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>tsl/<a class="el" href="htrie__set_8h_source.html">htrie_set.h</a></li>
+<li>include/tsl/<a class="el" href="htrie__set_8h_source.html">htrie_set.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
