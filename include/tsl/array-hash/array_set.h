@@ -66,6 +66,9 @@ template<class CharT,
          class GrowthPolicy = tsl::ah::power_of_two_growth_policy<2>>
 class array_set {
 private:
+    template<typename U>
+    using is_iterator = tsl::detail_array_hash::is_iterator<U>;
+    
     using ht = tsl::detail_array_hash::array_hash<CharT, void, Hash, KeyEqual, StoreNullTerminator, 
                                                   KeySizeT, IndexSizeT, GrowthPolicy>;
     
@@ -87,7 +90,7 @@ public:
     {
     }
     
-    template<class InputIt>
+    template<class InputIt, typename std::enable_if<is_iterator<InputIt>::value>::type* = nullptr>
     array_set(InputIt first, InputIt last,
               size_type bucket_count = ht::DEFAULT_INIT_BUCKET_COUNT,
               const Hash& hash = Hash()): array_set(bucket_count, hash)
@@ -182,7 +185,7 @@ public:
     
     
     
-    template<class InputIt>
+    template<class InputIt, typename std::enable_if<is_iterator<InputIt>::value>::type* = nullptr>
     void insert(InputIt first, InputIt last) {
         if(std::is_base_of<std::forward_iterator_tag, 
                            typename std::iterator_traits<InputIt>::iterator_category>::value) 

@@ -72,11 +72,17 @@
 namespace tsl {
     
 namespace ah {
-/**
- * FNV-1a hash
- */    
+    
 template<class CharT>
 struct str_hash {
+#ifdef TSL_AH_HAS_STRING_VIEW
+    std::size_t operator()(const CharT* key, std::size_t key_size) const {
+        return std::hash<std::basic_string_view<CharT>>()(std::basic_string_view<CharT>(key, key_size));
+    }
+#else
+    /**
+     * FNV-1a hash
+     */
     std::size_t operator()(const CharT* key, std::size_t key_size) const {
         static const std::size_t init = std::size_t((sizeof(std::size_t) == 8)?0xcbf29ce484222325:0x811c9dc5);
         static const std::size_t multiplier = std::size_t((sizeof(std::size_t) == 8)?0x100000001b3:0x1000193);
@@ -89,6 +95,7 @@ struct str_hash {
         
         return hash;
     }
+#endif
 };  
 
 template<class CharT>
@@ -108,6 +115,14 @@ struct str_equal {
 
 
 namespace detail_array_hash {
+
+template<typename T, typename = void>
+struct is_iterator: std::false_type {
+};
+
+template<typename T>
+struct is_iterator<T, typename std::enable_if<!std::is_same<typename std::iterator_traits<T>::iterator_category, void>::value>::type>: std::true_type {
+};
     
 static constexpr bool is_power_of_two(std::size_t value) {
     return value != 0 && (value & (value - 1)) == 0;
