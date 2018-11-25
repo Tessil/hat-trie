@@ -69,7 +69,13 @@ namespace tsl {
     
 namespace detail_htrie_hash {
 
+template<typename T, typename = void>
+struct is_iterator: std::false_type {
+};
 
+template<typename T>
+struct is_iterator<T, typename std::enable_if<!std::is_same<typename std::iterator_traits<T>::iterator_category, void>::value>::type>: std::true_type {
+};
 
 template<typename T, typename... U>
 struct is_related: std::false_type {};

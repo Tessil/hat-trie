@@ -50,6 +50,9 @@ template<class CharT,
          class KeySizeT = std::uint16_t>
 class htrie_set {
 private:
+    template<typename U>
+    using is_iterator = tsl::detail_array_hash::is_iterator<U>;
+    
     using ht = tsl::detail_htrie_hash::htrie_hash<CharT, void, Hash, KeySizeT>;
     
 public:
@@ -74,7 +77,7 @@ public:
     {
     }   
     
-    template<class InputIt>
+    template<class InputIt, typename std::enable_if<is_iterator<InputIt>::value>::type* = nullptr>
     htrie_set(InputIt first, InputIt last,
              const Hash& hash = Hash()): htrie_set(hash)
     {
@@ -169,7 +172,7 @@ public:
        
        
        
-    template<class InputIt>
+    template<class InputIt, typename std::enable_if<is_iterator<InputIt>::value>::type* = nullptr>
     void insert(InputIt first, InputIt last) {
         for(auto it = first; it != last; ++it) {
             insert(*it);
