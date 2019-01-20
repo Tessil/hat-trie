@@ -172,7 +172,7 @@ public:
     }
 #else
     std::pair<iterator, bool> insert(const CharT* key) {
-        return m_ht.emplace(key, std::strlen(key));
+        return m_ht.emplace(key, std::char_traits<CharT>::length(key));
     }
     
     std::pair<iterator, bool> insert(const std::basic_string<CharT>& key) {
@@ -229,7 +229,7 @@ public:
      * @copydoc emplace_ks(const CharT* key, size_type key_size)
      */
     std::pair<iterator, bool> emplace(const CharT* key) {
-        return m_ht.emplace(key, std::strlen(key));
+        return m_ht.emplace(key, std::char_traits<CharT>::length(key));
     }
     
     /**
@@ -257,7 +257,7 @@ public:
     }
 #else    
     size_type erase(const CharT* key) {
-        return m_ht.erase(key, std::strlen(key));
+        return m_ht.erase(key, std::char_traits<CharT>::length(key));
     }
     
     size_type erase(const std::basic_string<CharT>& key) {
@@ -282,7 +282,7 @@ public:
      * @copydoc erase_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */
     size_type erase(const CharT* key, std::size_t precalculated_hash) {
-        return m_ht.erase(key, std::strlen(key), precalculated_hash);
+        return m_ht.erase(key, std::char_traits<CharT>::length(key), precalculated_hash);
     }
     
     /**
@@ -312,7 +312,7 @@ public:
 #ifdef TSL_AH_HAS_STRING_VIEW 
     size_type count(const std::basic_string_view<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #else
-    size_type count(const CharT* key) const { return m_ht.count(key, std::strlen(key)); }
+    size_type count(const CharT* key) const { return m_ht.count(key, std::char_traits<CharT>::length(key)); }
     size_type count(const std::basic_string<CharT>& key) const { return m_ht.count(key.data(), key.size()); }
 #endif
     size_type count_ks(const CharT* key, size_type key_size) const { return m_ht.count(key, key_size); }
@@ -331,7 +331,7 @@ public:
      * @copydoc count_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const
      */
     size_type count(const CharT* key, std::size_t precalculated_hash) const { 
-        return m_ht.count(key, std::strlen(key), precalculated_hash); 
+        return m_ht.count(key, std::char_traits<CharT>::length(key), precalculated_hash); 
     }
     
     /**
@@ -361,11 +361,11 @@ public:
     }
 #else
     iterator find(const CharT* key) {
-        return m_ht.find(key, std::strlen(key));
+        return m_ht.find(key, std::char_traits<CharT>::length(key));
     }
     
     const_iterator find(const CharT* key) const {
-        return m_ht.find(key, std::strlen(key));
+        return m_ht.find(key, std::char_traits<CharT>::length(key));
     }
     
     iterator find(const std::basic_string<CharT>& key) {
@@ -405,14 +405,14 @@ public:
      * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */
     iterator find(const CharT* key, std::size_t precalculated_hash) {
-        return m_ht.find(key, std::strlen(key), precalculated_hash);
+        return m_ht.find(key, std::char_traits<CharT>::length(key), precalculated_hash);
     }
     
     /**
      * @copydoc find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */
     const_iterator find(const CharT* key, std::size_t precalculated_hash) const {
-        return m_ht.find(key, std::strlen(key), precalculated_hash);
+        return m_ht.find(key, std::char_traits<CharT>::length(key), precalculated_hash);
     }
     
     /**
@@ -456,11 +456,11 @@ public:
     }
 #else
     std::pair<iterator, iterator> equal_range(const CharT* key) {
-        return m_ht.equal_range(key, std::strlen(key));
+        return m_ht.equal_range(key, std::char_traits<CharT>::length(key));
     }
     
     std::pair<const_iterator, const_iterator> equal_range(const CharT* key) const {
-        return m_ht.equal_range(key, std::strlen(key));
+        return m_ht.equal_range(key, std::char_traits<CharT>::length(key));
     }
     
     std::pair<iterator, iterator> equal_range(const std::basic_string<CharT>& key) {
@@ -500,14 +500,14 @@ public:
      * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */
     std::pair<iterator, iterator> equal_range(const CharT* key, std::size_t precalculated_hash) {
-        return m_ht.equal_range(key, std::strlen(key), precalculated_hash);
+        return m_ht.equal_range(key, std::char_traits<CharT>::length(key), precalculated_hash);
     }
     
     /**
      * @copydoc equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash)
      */
     std::pair<const_iterator, const_iterator> equal_range(const CharT* key, std::size_t precalculated_hash) const {
-        return m_ht.equal_range(key, std::strlen(key), precalculated_hash);
+        return m_ht.equal_range(key, std::char_traits<CharT>::length(key), precalculated_hash);
     }
     
     /**
@@ -569,7 +569,51 @@ public:
     /*
      * Other
      */
+    /**
+     * Return the `const_iterator it` as an `iterator`.
+     */
     iterator mutable_iterator(const_iterator it) noexcept { return m_ht.mutable_iterator(it); }
+    
+    /**
+     * Serialize the set through the `serializer` parameter.
+     * 
+     * The `serializer` parameter must be a function object that supports the following calls:
+     *  - `void operator()(const U& value);` where the types `std::uint64_t` and `float` must be supported for U.
+     *  - `void operator()(const CharT* value, std::size_t value_size);`
+     * 
+     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, ...) of the types it serializes
+     * in the hands of the `Serializer` function object if compatibilty is required.
+     */
+    template<class Serializer>
+    void serialize(Serializer& serializer) const {
+        m_ht.serialize(serializer);
+    }
+
+    /**
+     * Deserialize a previouly serialized set through the `deserializer` parameter.
+     * 
+     * The `deserializer` parameter must be a function object that supports the following calls:
+     *  - `template<typename U> U operator()();` where the types `std::uint64_t`, `float` and `T` must be supported for U.
+     *  - `void operator()(CharT* value_out, std::size_t value_size);`
+     * 
+     * If the deserialized hash set type is hash compatible with the serialized set, the deserialization process can be
+     * sped up by setting `hash_compatible` to true. To be hash compatible, the Hash (take care of the 32-bits vs 64 bits), 
+     * KeyEqual, GrowthPolicy, StoreNullTerminator, KeySizeT and IndexSizeT must behave the same than the ones used on the 
+     * serialized set. Otherwise the behaviour is undefined with `hash_compatible` sets to true, .
+     * 
+     * The behaviour is undefined if the type `CharT` of the `array_set` is not the same as the
+     * type used during serialization.
+     * 
+     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, size of int, ...) of the types it 
+     * deserializes in the hands of the `Deserializer` function object if compatibilty is required.
+     */
+    template<class Deserializer>
+    static array_set deserialize(Deserializer& deserializer, bool hash_compatible = false) {
+        array_set set(0);
+        set.m_ht.deserialize(deserializer, hash_compatible);
+
+        return set;
+    }
     
     friend bool operator==(const array_set& lhs, const array_set& rhs) {
         if(lhs.size() != rhs.size()) {
@@ -577,7 +621,7 @@ public:
         }
         
         for(auto it = lhs.cbegin(); it != lhs.cend(); ++it) {
-            const auto it_element_rhs = rhs.find(it.key(), it.key_size());
+            const auto it_element_rhs = rhs.find_ks(it.key(), it.key_size());
             if(it_element_rhs == rhs.cend()) {
                 return false;
             }
