@@ -682,6 +682,36 @@ BOOST_AUTO_TEST_CASE(test_serialize_desearialize_with_different_hash) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_serialize_desearialize_map_no_burst) {
+    // test deserialization when there is only a hash node.
+    // set burst_threshold to x+1; insert x values; serialize map; deserialize in new map; check equal.
+    // for deserialization, test it with and without hash compatibility.
+    const std::size_t nb_values = 100;
+
+    
+    tsl::htrie_map<char, move_only_test> map(nb_values + 1);
+    
+    map.insert("", utils::get_value<move_only_test>(0));
+    for(std::size_t i = 1; i < nb_values; i++) {
+        map.insert(utils::get_key<char>(i), utils::get_value<move_only_test>(i));
+    }
+    
+    BOOST_CHECK_EQUAL(map.size(), nb_values);
+
+    
+    
+    serializer serial;
+    map.serialize(serial);
+
+    deserializer dserial(serial.str());
+    auto map_deserialized = decltype(map)::deserialize(dserial, true);
+    BOOST_CHECK(map == map_deserialized);
+
+    deserializer dserial2(serial.str());
+    map_deserialized = decltype(map)::deserialize(dserial2, false);
+    BOOST_CHECK(map_deserialized == map);
+}
+
 /**
  * Various operations on empty map
  */
