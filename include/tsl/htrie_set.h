@@ -508,11 +508,41 @@ public:
     /*
      * Other
      */
+    
+    /**
+     * Serialize the set through the `serializer` parameter.
+     * 
+     * The `serializer` parameter must be a function object that supports the following calls:
+     *  - `void operator()(const U& value);` where the types `std::uint64_t` and `float` must be supported for U.
+     *  - `void operator()(const CharT* value, std::size_t value_size);`
+     * 
+     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, ...) of the types it serializes
+     * in the hands of the `Serializer` function object if compatibilty is required.
+     */
     template<class Serializer>
     void serialize(Serializer& serializer) const {
         m_ht.serialize(serializer);
     }
     
+
+    /**
+     * Deserialize a previouly serialized set through the `deserializer` parameter.
+     * 
+     * The `deserializer` parameter must be a function object that supports the following calls:
+     *  - `template<typename U> U operator()();` where the types `std::uint64_t` and `float` must be supported for U.
+     *  - `void operator()(CharT* value_out, std::size_t value_size);`
+     * 
+     * If the deserialized hash set part of the hat-trie is hash compatible with the serialized set, the deserialization process 
+     * can be sped up by setting `hash_compatible` to true. To be hash compatible, the Hash (take care of the 32-bits vs 64 bits), 
+     * and KeySizeT must behave the same than the ones used in the serialized set. Otherwise the behaviour is undefined 
+     * with `hash_compatible` sets to true.
+     * 
+     * The behaviour is undefined if the type `CharT` of the `htrie_set` is not the same as the
+     * type used during serialization.
+     * 
+     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, size of int, ...) of the types it 
+     * deserializes in the hands of the `Deserializer` function object if compatibilty is required.
+     */
     template<class Deserializer>
     static htrie_set deserialize(Deserializer& deserializer, bool hash_compatible = false) {
         htrie_set set;
