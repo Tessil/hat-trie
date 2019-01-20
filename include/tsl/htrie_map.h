@@ -558,6 +558,19 @@ public:
     /*
      * Other
      */
+    template<class Serializer>
+    void serialize(Serializer& serializer) const {
+        m_ht.serialize(serializer);
+    }
+    
+    template<class Deserializer>
+    static htrie_map deserialize(Deserializer& deserializer, bool hash_compatible = false) {
+        htrie_map map;
+        map.m_ht.deserialize(deserializer, hash_compatible);
+
+        return map;
+    }
+    
     friend bool operator==(const htrie_map& lhs, const htrie_map& rhs) {
         if(lhs.size() != rhs.size()) {
             return false;

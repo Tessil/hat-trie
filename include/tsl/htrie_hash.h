@@ -450,6 +450,11 @@ private:
             m_array_hash.max_load_factor(max_load_factor);
         }
         
+        hash_node(array_hash_type&& array_hash) noexcept(std::is_nothrow_move_constructible<array_hash_type>::value): 
+                anode(anode::node_type::HASH_NODE), m_array_hash(std::move(array_hash))  
+        {
+        }
+        
         hash_node(const hash_node& other) = default;
         
         hash_node(hash_node&& other) = delete;
@@ -698,7 +703,25 @@ public:
             return !(lhs == rhs); 
         }
         
-    private:        
+    private:
+        void hash_node_prefix(std::basic_string<CharT>& key_buffer_out) const {
+            tsl_ht_assert(!m_read_trie_node_value);
+            key_buffer_out.clear();
+            
+            trie_node_type* tnode = m_current_trie_node;
+            while(tnode != nullptr && tnode->parent() != nullptr) {
+                key_buffer_out.push_back(tnode->child_of_char());
+                tnode = tnode->parent();
+            }
+            
+            std::reverse(key_buffer_out.begin(), key_buffer_out.end());
+            
+            tsl_ht_assert(m_current_hash_node != nullptr);
+            if(m_current_hash_node->parent() != nullptr) {
+                key_buffer_out.push_back(m_current_hash_node->child_of_char());
+            }
+        }
+        
         template<bool P = IsPrefixIterator, typename std::enable_if<!P>::type* = nullptr> 
         void filter_prefix() {
         } 
@@ -1203,7 +1226,18 @@ public:
         return m_hash; 
     }
     
-    
+    /*
+     * Other
+     */
+    template<class Serializer>
+    void serialize(Serializer& serializer) const {
+        serialize_impl(serializer);
+    }
+
+    template<class Deserializer>
+    void deserialize(Deserializer& deserializer, bool hash_compatible) {
+        deserialize_impl(deserializer, hash_compatible);
+    }
     
 private:
     /**
@@ -1789,9 +1823,6 @@ private:
         return tnode.child(for_char)->as_hash_node();
     }
     
-    
-    
-    
     iterator mutable_iterator(const_iterator it) noexcept {
         // end iterator or reading from a trie node value
         if(it.m_current_hash_node == nullptr || it.m_read_trie_node_value) {
@@ -1826,11 +1857,202 @@ private:
         }
     }
     
+    template<class Serializer>
+    void serialize_impl(Serializer& serializer) const {
+        const slz_size_type version = SERIALIZATION_PROTOCOL_VERSION;
+        serializer(version);
+        
+        const slz_size_type nb_elements = m_nb_elements;
+        serializer(nb_elements);
+        
+        const float max_load_factor = m_max_load_factor;
+        serializer(max_load_factor);
+        
+        const slz_size_type burst_threshold = m_burst_threshold;
+        serializer(burst_threshold);
+        
+        
+        std::basic_string<CharT> str_buffer;
+        
+        auto it = begin();
+        auto last = end();
+        
+        while(it != last) {
+            // Serialize trie node value
+            if(it.m_read_trie_node_value) {
+                const CharT node_type = static_cast<typename std::underlying_type<slz_node_type>::type>(slz_node_type::TRIE_NODE);
+                serializer(&node_type, 1);
+                
+                it.key(str_buffer);
+                
+                const slz_size_type str_size = str_buffer.size();
+                serializer(str_size);
+                serializer(str_buffer.data(), str_buffer.size());
+                serialize_value(serializer, it);
+                
+                
+                ++it;
+            }
+            // Serialize hash node values
+            else {
+                const CharT node_type = static_cast<typename std::underlying_type<slz_node_type>::type>(slz_node_type::HASH_NODE);
+                serializer(&node_type, 1);
+                
+                it.hash_node_prefix(str_buffer);
+                
+                const slz_size_type str_size = str_buffer.size();
+                serializer(str_size);
+                serializer(str_buffer.data(), str_buffer.size());
+                
+                const hash_node* hnode = it.m_current_hash_node;
+                tsl_ht_assert(hnode != nullptr);
+                hnode->array_hash().serialize(serializer);
+                
+                
+                it.skip_hash_node();
+            }
+        }
+    }
+    
+    template<class Serializer, class U = T,
+             typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    void serialize_value(Serializer& /*serializer*/, const_iterator /*it*/) const {
+    }
+    
+    template<class Serializer, class U = T,
+             typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    void serialize_value(Serializer& serializer, const_iterator it) const {
+        serializer(it.value());
+    }
+
+    template<class Deserializer>
+    void deserialize_impl(Deserializer& deserializer, bool hash_compatible) {
+        tsl_ht_assert(m_nb_elements == 0 && m_root == nullptr); // Current trie must be empty
+        
+        const slz_size_type version = deserialize_value<slz_size_type>(deserializer);
+        // For now we only have one version of the serialization protocol. 
+        // If it doesn't match there is a problem with the file.
+        if(version != SERIALIZATION_PROTOCOL_VERSION) {
+            throw std::runtime_error("Can't deserialize the htrie_map/set. The protocol version header is invalid.");
+        }
+
+        
+        const slz_size_type nb_elements = deserialize_value<slz_size_type>(deserializer);
+        const float max_load_factor = deserialize_value<float>(deserializer);
+        const slz_size_type burst_threshold = deserialize_value<slz_size_type>(deserializer);
+        
+        this->burst_threshold(burst_threshold);
+        this->max_load_factor(max_load_factor);
+        
+        
+        std::vector<CharT> str_buffer;
+        while(m_nb_elements < nb_elements) {
+            CharT node_type_marker;
+            deserializer(&node_type_marker, 1);
+            
+            static_assert(std::is_same<CharT, typename std::underlying_type<slz_node_type>::type>::value, "");
+            const slz_node_type node_type = static_cast<slz_node_type>(node_type_marker);
+            if(node_type == slz_node_type::TRIE_NODE) {
+                const slz_size_type str_size = deserialize_value<slz_size_type>(deserializer);
+                
+                str_buffer.resize(str_size);
+                deserializer(str_buffer.data(), str_size);
+                
+                
+                trie_node* current_node = insert_prefix_trie_nodes(str_buffer.data(), str_size);
+                deserialize_value_node(deserializer, current_node);
+                m_nb_elements++;
+            }
+            else if(node_type == slz_node_type::HASH_NODE) {
+                const slz_size_type str_size = deserialize_value<slz_size_type>(deserializer);
+                
+                if(str_size == 0) {
+                    tsl_ht_assert(m_nb_elements == 0 && !m_root);
+                    
+                    m_root.reset(new hash_node(array_hash_type::deserialize(deserializer, hash_compatible)));
+                    m_nb_elements += m_root->as_hash_node().array_hash().size();
+                    
+                    tsl_ht_assert(m_nb_elements == nb_elements);
+                }
+                else {
+                    str_buffer.resize(str_size);
+                    deserializer(str_buffer.data(), str_size);
+                    
+                    
+                    std::unique_ptr<hash_node> hnode(new hash_node(array_hash_type::deserialize(deserializer, hash_compatible)));
+                    m_nb_elements += hnode->array_hash().size();
+                    
+                    trie_node* current_node = insert_prefix_trie_nodes(str_buffer.data(), str_size - 1);
+                    current_node->set_child(str_buffer[str_size - 1], std::move(hnode)); 
+                }
+            }
+            else {
+                throw std::runtime_error("Unknown node deserialized node type.");
+            }
+        }
+        
+        tsl_ht_assert(m_nb_elements == nb_elements);
+    }
+    
+    trie_node* insert_prefix_trie_nodes(const CharT* key, std::size_t key_size) {
+        if(m_root == nullptr) {
+            m_root.reset(new trie_node());
+        }
+                    
+        trie_node* current_node = &m_root->as_trie_node();
+        for(std::size_t ikey = 0; ikey < key_size; ikey++) {
+            if(current_node->child(key[ikey]) == nullptr) {
+                current_node->set_child(key[ikey], std::unique_ptr<trie_node>(new trie_node()));
+            }
+            
+            current_node = &current_node->child(key[ikey])->as_trie_node();
+        }
+        
+        return current_node;
+    }
+    
+    template<class Deserializer, class U = T,
+             typename std::enable_if<!has_value<U>::value>::type* = nullptr>
+    void deserialize_value_node(Deserializer& /*deserializer*/, trie_node* current_node) {
+        tsl_ht_assert(!current_node->val_node());
+        current_node->val_node().reset(new value_node());
+    }
+    
+    template<class Deserializer, class U = T,
+             typename std::enable_if<has_value<U>::value>::type* = nullptr>
+    void deserialize_value_node(Deserializer& deserializer, trie_node* current_node) {
+        tsl_ht_assert(!current_node->val_node());
+        current_node->val_node().reset(new value_node(deserialize_value<T>(deserializer)));
+    }
+    
+    template<class U, class Deserializer>
+    static U deserialize_value(Deserializer& deserializer) {
+        // MSVC < 2017 is not conformant, circumvent the problem by removing the template keyword
+    #if defined (_MSC_VER) && _MSC_VER < 1910
+        return deserializer.Deserializer::operator()<U>();
+    #else        
+        return deserializer.Deserializer::template operator()<U>();
+    #endif        
+    }
+    
 public:    
     static constexpr float HASH_NODE_DEFAULT_MAX_LOAD_FACTOR = 8.0f;
     static const size_type DEFAULT_BURST_THRESHOLD = 16384;
     
 private:
+
+    /**
+     * Fixed size type used to represent size_type values on serialization. Need to be big enough
+     * to represent a std::size_t on 32 and 64 bits platforms, and must be the same size on both platforms.
+     */
+    using slz_size_type = std::uint64_t;
+    enum class slz_node_type: CharT { TRIE_NODE = 0, HASH_NODE = 1 };
+    
+    /**
+     * Protocol version currenlty used for serialization.
+     */
+    static const slz_size_type SERIALIZATION_PROTOCOL_VERSION = 1;
+    
     static const size_type HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT = 32;
     static const size_type MIN_BURST_THRESHOLD = 4;
     
