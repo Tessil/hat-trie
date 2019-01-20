@@ -84,6 +84,24 @@ template<typename T, typename U>
 struct is_related<T, U>: std::is_same<typename std::remove_cv<typename std::remove_reference<T>::type>::type, 
                                       typename std::remove_cv<typename std::remove_reference<U>::type>::type> {};
 
+template<typename T, typename U>
+static T numeric_cast(U value, const char* error_message = "numeric_cast() failed.") {
+    T ret = static_cast<T>(value);
+    if(static_cast<U>(ret) != value) {
+        throw std::runtime_error(error_message);
+    }
+    
+    const bool is_same_signedness = (std::is_unsigned<T>::value && std::is_unsigned<U>::value) ||
+                                    (std::is_signed<T>::value && std::is_signed<U>::value);
+    if(!is_same_signedness && (ret < T{}) != (value < U{})) {
+        throw std::runtime_error(error_message);
+    }
+    
+    return ret;
+}
+
+
+
 template<class T>
 struct value_node {
     /*
@@ -102,7 +120,6 @@ struct value_node<void> {
 };
 
 
-    
 /**
  * T should be void if there is no value associated to a key (in a set for example).
  */
@@ -1941,7 +1958,7 @@ private:
         const float max_load_factor = deserialize_value<float>(deserializer);
         const slz_size_type burst_threshold = deserialize_value<slz_size_type>(deserializer);
         
-        this->burst_threshold(burst_threshold);
+        this->burst_threshold(numeric_cast<std::size_t>(burst_threshold, "Deserialized burst_threshold is too big."));
         this->max_load_factor(max_load_factor);
         
         
@@ -1953,7 +1970,8 @@ private:
             static_assert(std::is_same<CharT, typename std::underlying_type<slz_node_type>::type>::value, "");
             const slz_node_type node_type = static_cast<slz_node_type>(node_type_marker);
             if(node_type == slz_node_type::TRIE_NODE) {
-                const slz_size_type str_size = deserialize_value<slz_size_type>(deserializer);
+                const std::size_t str_size = numeric_cast<std::size_t>(deserialize_value<slz_size_type>(deserializer), 
+                                                                       "Deserialized str_size is too big.");
                 
                 str_buffer.resize(str_size);
                 deserializer(str_buffer.data(), str_size);
@@ -1964,7 +1982,8 @@ private:
                 m_nb_elements++;
             }
             else if(node_type == slz_node_type::HASH_NODE) {
-                const slz_size_type str_size = deserialize_value<slz_size_type>(deserializer);
+                const std::size_t str_size = numeric_cast<std::size_t>(deserialize_value<slz_size_type>(deserializer), 
+                                                                       "Deserialized str_size is too big.");
                 
                 if(str_size == 0) {
                     tsl_ht_assert(m_nb_elements == 0 && !m_root);
@@ -1987,25 +2006,25 @@ private:
                 }
             }
             else {
-                throw std::runtime_error("Unknown node deserialized node type.");
+                throw std::runtime_error("Unknown deserialized node type.");
             }
         }
         
         tsl_ht_assert(m_nb_elements == nb_elements);
     }
     
-    trie_node* insert_prefix_trie_nodes(const CharT* key, std::size_t key_size) {
+    trie_node* insert_prefix_trie_nodes(const CharT* prefix, std::size_t prefix_size) {
         if(m_root == nullptr) {
             m_root.reset(new trie_node());
         }
                     
         trie_node* current_node = &m_root->as_trie_node();
-        for(std::size_t ikey = 0; ikey < key_size; ikey++) {
-            if(current_node->child(key[ikey]) == nullptr) {
-                current_node->set_child(key[ikey], std::unique_ptr<trie_node>(new trie_node()));
+        for(std::size_t iprefix = 0; iprefix < prefix_size; iprefix++) {
+            if(current_node->child(prefix[iprefix]) == nullptr) {
+                current_node->set_child(prefix[iprefix], std::unique_ptr<trie_node>(new trie_node()));
             }
             
-            current_node = &current_node->child(key[ikey])->as_trie_node();
+            current_node = &current_node->child(prefix[iprefix])->as_trie_node();
         }
         
         return current_node;
