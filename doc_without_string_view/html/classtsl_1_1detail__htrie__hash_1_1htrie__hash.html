@@ -164,6 +164,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a380d565ec4cc424f33396f700c0e50c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d58ad0a3ad181262f9efb838aa9a24b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#add53859fc2680ceff7f937c7b813e774">hasher</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a3d58ad0a3ad181262f9efb838aa9a24b">hash_function</a> () const</td></tr>
 <tr class="separator:a3d58ad0a3ad181262f9efb838aa9a24b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11e7a513c473c03075ba5c78db4c0d20"><td class="memTemplParams" colspan="2">template&lt;class Serializer &gt; </td></tr>
+<tr class="memitem:a11e7a513c473c03075ba5c78db4c0d20"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a11e7a513c473c03075ba5c78db4c0d20">serialize</a> (Serializer &amp;serializer) const</td></tr>
+<tr class="separator:a11e7a513c473c03075ba5c78db4c0d20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bd8f1dc6a44376f5160940e94792f30"><td class="memTemplParams" colspan="2">template&lt;class Deserializer &gt; </td></tr>
+<tr class="memitem:a7bd8f1dc6a44376f5160940e94792f30"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html#a7bd8f1dc6a44376f5160940e94792f30">deserialize</a> (Deserializer &amp;deserializer, bool hash_compatible)</td></tr>
+<tr class="separator:a7bd8f1dc6a44376f5160940e94792f30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -745,6 +751,46 @@ template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
           <td></td>
           <td>)</td>
           <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7bd8f1dc6a44376f5160940e94792f30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bd8f1dc6a44376f5160940e94792f30">&#9670;&nbsp;</a></span>deserialize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
+<div class="memtemplate">
+template&lt;class Deserializer &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::deserialize </td>
+          <td>(</td>
+          <td class="paramtype">Deserializer &amp;&#160;</td>
+          <td class="paramname"><em>deserializer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>hash_compatible</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -1510,6 +1556,36 @@ template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
           <td class="paramtype"><a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt; &amp;&amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
           <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a11e7a513c473c03075ba5c78db4c0d20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11e7a513c473c03075ba5c78db4c0d20">&#9670;&nbsp;</a></span>serialize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT, class T, class Hash, class KeySizeT&gt; </div>
+<div class="memtemplate">
+template&lt;class Serializer &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classtsl_1_1detail__htrie__hash_1_1htrie__hash.html">tsl::detail_htrie_hash::htrie_hash</a>&lt; CharT, T, Hash, KeySizeT &gt;::serialize </td>
+          <td>(</td>
+          <td class="paramtype">Serializer &amp;&#160;</td>
+          <td class="paramname"><em>serializer</em></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>

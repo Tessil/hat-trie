@@ -44,6 +44,7 @@ $(function() {
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classtsl_1_1htrie__map-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -80,9 +81,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a09040d4d4481c5b53dbd6bedc78ebce1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29f1d77879976ddd617da163d5f8786e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a29f1d77879976ddd617da163d5f8786e">htrie_map</a> (<a class="el" href="classtsl_1_1htrie__map.html#a7f7b64d3cfd5795e1d1cea424f50e4f1">size_type</a> <a class="el" href="classtsl_1_1htrie__map.html#ad58cdcc90e7c6b80573900de9a9fe8a6">burst_threshold</a>, const Hash &amp;hash=Hash())</td></tr>
 <tr class="separator:a29f1d77879976ddd617da163d5f8786e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2de11e67858920721f965f26e1afe445"><td class="memTemplParams" colspan="2">template&lt;class InputIt &gt; </td></tr>
-<tr class="memitem:a2de11e67858920721f965f26e1afe445"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a2de11e67858920721f965f26e1afe445">htrie_map</a> (InputIt first, InputIt last, const Hash &amp;hash=Hash())</td></tr>
-<tr class="separator:a2de11e67858920721f965f26e1afe445"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65c471d282bedd3c92e16e45f584cce5"><td class="memTemplParams" colspan="2">template&lt;class InputIt , typename std::enable_if&lt; is_iterator&lt; InputIt &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a65c471d282bedd3c92e16e45f584cce5"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a65c471d282bedd3c92e16e45f584cce5">htrie_map</a> (InputIt first, InputIt last, const Hash &amp;hash=Hash())</td></tr>
+<tr class="separator:a65c471d282bedd3c92e16e45f584cce5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc116e8dba9b796e301605277fc55c17"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#adc116e8dba9b796e301605277fc55c17">htrie_map</a> (std::initializer_list&lt; std::pair&lt; std::basic_string_view&lt; CharT &gt;, T &gt;&gt; init, const Hash &amp;hash=Hash())</td></tr>
 <tr class="separator:adc116e8dba9b796e301605277fc55c17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8aeddc8a9b8c998f731969bdbc6412c9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1htrie__map.html">htrie_map</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a8aeddc8a9b8c998f731969bdbc6412c9">operator=</a> (std::initializer_list&lt; std::pair&lt; std::basic_string_view&lt; CharT &gt;, T &gt;&gt; ilist)</td></tr>
@@ -119,9 +120,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:afd933a958b8607559f57c9ccb96f5ef0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88f56d2bd8d9c5f1070ee7afcf8db356"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="classtsl_1_1htrie__map.html#afe5d944bc6faaf568e86a05f93a96783">iterator</a>, bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a88f56d2bd8d9c5f1070ee7afcf8db356">insert</a> (const std::basic_string_view&lt; CharT &gt; &amp;key, T &amp;&amp;value)</td></tr>
 <tr class="separator:a88f56d2bd8d9c5f1070ee7afcf8db356"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90fd6b1cd561868f74961776d9a55807"><td class="memTemplParams" colspan="2">template&lt;class InputIt &gt; </td></tr>
-<tr class="memitem:a90fd6b1cd561868f74961776d9a55807"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a90fd6b1cd561868f74961776d9a55807">insert</a> (InputIt first, InputIt last)</td></tr>
-<tr class="separator:a90fd6b1cd561868f74961776d9a55807"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae609c40e4ae7135fe07e03bffff43c68"><td class="memTemplParams" colspan="2">template&lt;class InputIt , typename std::enable_if&lt; is_iterator&lt; InputIt &gt;::value &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:ae609c40e4ae7135fe07e03bffff43c68"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#ae609c40e4ae7135fe07e03bffff43c68">insert</a> (InputIt first, InputIt last)</td></tr>
+<tr class="separator:ae609c40e4ae7135fe07e03bffff43c68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4319922e3501a996d01946e160408648"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a4319922e3501a996d01946e160408648">insert</a> (std::initializer_list&lt; std::pair&lt; std::basic_string_view&lt; CharT &gt;, T &gt;&gt; ilist)</td></tr>
 <tr class="separator:a4319922e3501a996d01946e160408648"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af63462cae5a9d5f0cd08f2169f27ab1d"><td class="memTemplParams" colspan="2">template&lt;class... Args&gt; </td></tr>
@@ -200,6 +201,15 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a967538fa13e84fdb15fca45a774f3dc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53f544019bb0020b7d8aacb10448a462"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtsl_1_1htrie__map.html#a84aaf2ab36fec5ede504ee93b07cb6d0">hasher</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a53f544019bb0020b7d8aacb10448a462">hash_function</a> () const</td></tr>
 <tr class="separator:a53f544019bb0020b7d8aacb10448a462"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6dda7bf75bd991a7c515e8e160109c50"><td class="memTemplParams" colspan="2">template&lt;class Serializer &gt; </td></tr>
+<tr class="memitem:a6dda7bf75bd991a7c515e8e160109c50"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a6dda7bf75bd991a7c515e8e160109c50">serialize</a> (Serializer &amp;serializer) const</td></tr>
+<tr class="separator:a6dda7bf75bd991a7c515e8e160109c50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a9ebc57b3df08ecad0a8b411488e611a1"><td class="memTemplParams" colspan="2">template&lt;class Deserializer &gt; </td></tr>
+<tr class="memitem:a9ebc57b3df08ecad0a8b411488e611a1"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classtsl_1_1htrie__map.html">htrie_map</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtsl_1_1htrie__map.html#a9ebc57b3df08ecad0a8b411488e611a1">deserialize</a> (Deserializer &amp;deserializer, bool hash_compatible=false)</td></tr>
+<tr class="separator:a9ebc57b3df08ecad0a8b411488e611a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -434,15 +444,15 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
 
 </div>
 </div>
-<a id="a2de11e67858920721f965f26e1afe445"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2de11e67858920721f965f26e1afe445">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[3/4]</span></h2>
+<a id="a65c471d282bedd3c92e16e45f584cce5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65c471d282bedd3c92e16e45f584cce5">&#9670;&nbsp;</a></span>htrie_map() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <div class="memtemplate">
-template&lt;class InputIt &gt; </div>
+template&lt;class InputIt , typename std::enable_if&lt; is_iterator&lt; InputIt &gt;::value &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -904,6 +914,54 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9ebc57b3df08ecad0a8b411488e611a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ebc57b3df08ecad0a8b411488e611a1">&#9670;&nbsp;</a></span>deserialize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<div class="memtemplate">
+template&lt;class Deserializer &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classtsl_1_1htrie__map.html">htrie_map</a> <a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a>&lt; CharT, T, Hash, KeySizeT &gt;::deserialize </td>
+          <td>(</td>
+          <td class="paramtype">Deserializer &amp;&#160;</td>
+          <td class="paramname"><em>deserializer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>hash_compatible</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Deserialize a previouly serialized map through the <code>deserializer</code> parameter.</p>
+<p>The <code>deserializer</code> parameter must be a function object that supports the following calls:</p><ul>
+<li><code>template&lt;typename U&gt; U operator()();</code> where the types <code>std::uint64_t</code>, <code>float</code> and <code>T</code> must be supported for U.</li>
+<li><code>void operator()(CharT* value_out, std::size_t value_size);</code></li>
+</ul>
+<p>If the deserialized hash map part of the hat-trie is hash compatible with the serialized map, the deserialization process can be sped up by setting <code>hash_compatible</code> to true. To be hash compatible, the Hash (take care of the 32-bits vs 64 bits), and KeySizeT must behave the same than the ones used in the serialized map. Otherwise the behaviour is undefined with <code>hash_compatible</code> sets to true.</p>
+<p>The behaviour is undefined if the type <code>CharT</code> and <code>T</code> of the <code><a class="el" href="classtsl_1_1htrie__map.html">htrie_map</a></code> are not the same as the types used during serialization.</p>
+<p>The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, size of int, ...) of the types it deserializes in the hands of the <code>Deserializer</code> function object if compatibilty is required. </p>
 
 </div>
 </div>
@@ -1785,15 +1843,15 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
 
 </div>
 </div>
-<a id="a90fd6b1cd561868f74961776d9a55807"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a90fd6b1cd561868f74961776d9a55807">&#9670;&nbsp;</a></span>insert() <span class="overload">[3/4]</span></h2>
+<a id="ae609c40e4ae7135fe07e03bffff43c68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae609c40e4ae7135fe07e03bffff43c68">&#9670;&nbsp;</a></span>insert() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
 <div class="memtemplate">
-template&lt;class InputIt &gt; </div>
+template&lt;class InputIt , typename std::enable_if&lt; is_iterator&lt; InputIt &gt;::value &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2273,6 +2331,42 @@ template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6dda7bf75bd991a7c515e8e160109c50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6dda7bf75bd991a7c515e8e160109c50">&#9670;&nbsp;</a></span>serialize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CharT , class T , class Hash  = tsl::ah::str_hash&lt;CharT&gt;, class KeySizeT  = std::uint16_t&gt; </div>
+<div class="memtemplate">
+template&lt;class Serializer &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classtsl_1_1htrie__map.html">tsl::htrie_map</a>&lt; CharT, T, Hash, KeySizeT &gt;::serialize </td>
+          <td>(</td>
+          <td class="paramtype">Serializer &amp;&#160;</td>
+          <td class="paramname"><em>serializer</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Serialize the map through the <code>serializer</code> parameter.</p>
+<p>The <code>serializer</code> parameter must be a function object that supports the following calls:</p><ul>
+<li><code>void operator()(const U&amp; value);</code> where the types <code>std::uint64_t</code>, <code>float</code> and <code>T</code> must be supported for U.</li>
+<li><code>void operator()(const CharT* value, std::size_t value_size);</code></li>
+</ul>
+<p>The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, ...) of the types it serializes in the hands of the <code>Serializer</code> function object if compatibilty is required. </p>
 
 </div>
 </div>
