@@ -102,4 +102,39 @@ BOOST_AUTO_TEST_CASE(test_move_operator) {
     BOOST_CHECK(set2 == (tsl::htrie_set<char>{"test1"}));
 }
 
+/**
+ * serialize and deserialize
+ */
+BOOST_AUTO_TEST_CASE(test_serialize_desearialize) {
+    // insert x values; delete some values; serialize set; deserialize in new set; check equal.
+    // for deserialization, test it with and without hash compatibility.
+    const std::size_t nb_values = 1000;
+
+    
+    tsl::htrie_set<char> set(0);
+    
+    set.insert("");
+    for(std::size_t i = 1; i < nb_values + 40; i++) {
+        set.insert(utils::get_key<char>(i));
+    }
+
+    for(std::size_t i = nb_values; i < nb_values + 40; i++) {
+        set.erase(utils::get_key<char>(i));
+    }
+    BOOST_CHECK_EQUAL(set.size(), nb_values);
+
+    
+    
+    serializer serial;
+    set.serialize(serial);
+
+    deserializer dserial(serial.str());
+    auto set_deserialized = decltype(set)::deserialize(dserial, true);
+    BOOST_CHECK(set_deserialized == set);
+
+    deserializer dserial2(serial.str());
+    set_deserialized = decltype(set)::deserialize(dserial2, false);
+    BOOST_CHECK(set_deserialized == set);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

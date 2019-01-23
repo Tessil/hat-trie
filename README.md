@@ -11,16 +11,17 @@ It's a well adapted structure to store a large number of strings.
   <img src="https://tessil.github.io/images/hat-trie.png" width="600px" />
 </p>
 
-For the àrray hash part, the [array-hash](https://github.com/Tessil/array-hash) project is used and included in the repository.
+For the array hash part, the [array-hash](https://github.com/Tessil/array-hash) project is used and included in the repository.
 
 The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
 ### Overview
 
 - Header-only library, just add the [include](include/) directory to your include path and you are ready to go. If you use CMake, you can also use the `tsl::hat_trie` exported target from the [CMakeLists.txt](CMakeLists.txt).
-- Low memory usage while keeping reasonable performances (see [benchmark](https://github.com/Tessil/hat-trie#benchmark)).
+- Low memory usage while keeping reasonable performances (see [benchmark](#benchmark)).
 - Support prefix searches through `equal_prefix_range` (usefull for autocompletion for example) and prefix erasures through `erase_prefix`.
 - Support longest matching prefix searches through `longest_prefix`.
+- Support for efficient serialization and deserialization (see [example](#serialization) and the `serialize/deserialize` methods in the [API](https://tessil.github.io/hat-trie/doc/html/classtsl_1_1htrie__map.html) for details).
 - Keys are not ordered as they are partially stored in a hash map.
 - All operations modifying the data structure (insert, emplace, erase, ...) invalidate the iterators. 
 - Support null characters in the key (you can thus store binary data in the trie).
@@ -303,6 +304,227 @@ int main() {
 } 
 ```
 
+#### Serialization
+
+The library provides an efficient way to serialize and deserialize a map or a set so that it can be saved to a file or send through the network.
+To do so, it requires the user to provide a function object for both serialization and deserialization.
+
+```c++
+struct serializer {
+    // Must support the following types for U: std::uint64_t, float and T if a map is used.
+    template<typename U>
+    void operator()(const U& value);
+    void operator()(const CharT* value, std::size_t value_size);
+};
+```
+
+```c++
+struct deserializer {
+    // Must support the following types for U: std::uint64_t, float and T if a map is used.
+    template<typename U>
+    U operator()();
+    void operator()(CharT* value_out, std::size_t value_size);
+};
+```
+
+Note that the implementation leaves binary compatibilty (endianness, float binary representation, size of int, ...) of the types it serializes/deserializes in the hands of the provided function objects if compatibilty is required.
+
+More details regarding the `serialize` and `deserialize` methods can be found in the [API](https://tessil.github.io/hat-trie/doc/html/classtsl_1_1htrie__map.html).
+
+```c++
+#include <cassert>
+#include <cstdint>
+#include <fstream>
+#include <type_traits>
+#include <tsl/htrie_map.h>
+
+
+class serializer {
+public:
+    serializer(const char* file_name) {
+        m_ostream.exceptions(m_ostream.badbit | m_ostream.failbit);
+        m_ostream.open(file_name);
+    }
+    
+    template<class T,
+             typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
+    void operator()(const T& value) {
+        m_ostream.write(reinterpret_cast<const char*>(&value), sizeof(T));
+    }
+    
+    void operator()(const char* value, std::size_t value_size) {
+        m_ostream.write(value, value_size);
+    }
+
+private:
+    std::ofstream m_ostream;
+};
+
+class deserializer {
+public:
+    deserializer(const char* file_name) {
+        m_istream.exceptions(m_istream.badbit | m_istream.failbit | m_istream.eofbit);
+        m_istream.open(file_name);
+    }
+    
+    template<class T,
+             typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
+    T operator()() {
+        T value;
+        m_istream.read(reinterpret_cast<char*>(&value), sizeof(T));
+        
+        return value;
+    }
+    
+    void operator()(char* value_out, std::size_t value_size) {
+        m_istream.read(value_out, value_size);
+    }
+
+private:
+    std::ifstream m_istream;
+};
+
+
+int main() {
+    const tsl::htrie_map<char, std::int64_t> map = {{"one", 1}, {"two", 2}, 
+                                                    {"three", 3}, {"four", 4}};
+    
+    
+    const char* file_name = "htrie_map.data";
+    {
+        serializer serial(file_name);
+        map.serialize(serial);
+    }
+    
+    {
+        deserializer dserial(file_name);
+        auto map_deserialized = tsl::htrie_map<char, std::int64_t>::deserialize(dserial);
+        
+        assert(map == map_deserialized);
+    }
+    
+    {
+        deserializer dserial(file_name);
+        
+        /**
+         * If the serialized and deserialized map are hash compatibles (see conditions in API), 
+         * setting the argument to true speed-up the deserialization process as we don't have 
+         * to recalculate the hash of each key. We also know how much space each bucket needs.
+         */
+        const bool hash_compatible = true;
+        auto map_deserialized = 
+            tsl::htrie_map<char, std::int64_t>::deserialize(dserial, hash_compatible);
+        
+        assert(map == map_deserialized);
+    }
+}
+```
+
+##### Serialization with Boost Serialization and compression with zlib
+
+It's possible to use a serialization library to avoid some of the boilerplate if the types to serialize are more complex.
+
+The following example uses Boost Serialization with the Boost zlib compression stream to reduce the size of the resulting serialized file.
+
+
+```c++
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/serialization/split_free.hpp>
+#include <boost/serialization/utility.hpp>
+#include <cassert>
+#include <cstdint>
+#include <fstream>
+#include <tsl/htrie_map.h>
+
+
+template<typename Archive>
+struct serializer {
+    Archive& ar;
+    
+    template<typename T>
+    void operator()(const T& val) { ar & val; }
+    
+    template<typename CharT>
+    void operator()(const CharT* val, std::size_t val_size) {
+        ar.save_binary(reinterpret_cast<const void*>(val), val_size*sizeof(CharT));
+    }   
+};
+
+template<typename Archive>
+struct deserializer {
+    Archive& ar;
+    
+    template<typename T>
+    T operator()() { T val; ar & val; return val; }
+    
+    template<typename CharT>
+    void operator()(CharT* val_out, std::size_t val_size) {
+        ar.load_binary(reinterpret_cast<void*>(val_out), val_size*sizeof(CharT));
+    }  
+};
+
+namespace boost { namespace serialization {
+template<class Archive, class CharT, class T>
+void serialize(Archive & ar, tsl::htrie_map<CharT, T>& map, const unsigned int version) {
+    split_free(ar, map, version); 
+}
+
+template<class Archive, class CharT, class T>
+void save(Archive & ar, const tsl::htrie_map<CharT, T>& map, const unsigned int version) {
+    serializer<Archive> serial{ar};
+    map.serialize(serial);
+}
+
+
+template<class Archive, class CharT, class T>
+void load(Archive & ar, tsl::htrie_map<CharT, T>& map, const unsigned int version) {
+    deserializer<Archive> deserial{ar};
+    map = tsl::htrie_map<CharT, T>::deserialize(deserial);
+}
+}}
+
+
+int main() {
+    const tsl::htrie_map<char, std::int64_t> map = {{"one", 1}, {"two", 2}, 
+                                                    {"three", 3}, {"four", 4}};
+    
+    
+    const char* file_name = "htrie_map.data";
+    {
+        std::ofstream ofs;
+        ofs.exceptions(ofs.badbit | ofs.failbit);
+        ofs.open(file_name, std::ios::binary);
+        
+        boost::iostreams::filtering_ostream fo;
+        fo.push(boost::iostreams::zlib_compressor());
+        fo.push(ofs);
+        
+        boost::archive::binary_oarchive oa(fo);
+        
+        oa << map;
+    }
+    
+    {
+        std::ifstream ifs;
+        ifs.exceptions(ifs.badbit | ifs.failbit | ifs.eofbit);
+        ifs.open(file_name, std::ios::binary);
+        
+        boost::iostreams::filtering_istream fi;
+        fi.push(boost::iostreams::zlib_decompressor());
+        fi.push(ifs);
+        
+        boost::archive::binary_iarchive ia(fi);
+     
+        tsl::htrie_map<char, std::int64_t> map_deserialized;   
+        ia >> map_deserialized;
+        
+        assert(map == map_deserialized);
+    }
+}
+```
 
 ### License
 

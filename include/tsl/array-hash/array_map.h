@@ -765,7 +765,7 @@ public:
      * Serialize the map through the `serializer` parameter.
      * 
      * The `serializer` parameter must be a function object that supports the following calls:
-     *  - `void operator()(const U& value);` where the types `std::uint64_t`, `float` and `T` must be supported for U.
+     *  - `template<typename U> void operator()(const U& value);` where the types `std::uint64_t`, `float` and `T` must be supported for U.
      *  - `void operator()(const CharT* value, std::size_t value_size);`
      * 
      * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, ...) of the types it serializes
@@ -786,7 +786,7 @@ public:
      * If the deserialized hash map type is hash compatible with the serialized map, the deserialization process can be
      * sped up by setting `hash_compatible` to true. To be hash compatible, the Hash (take care of the 32-bits vs 64 bits), 
      * KeyEqual, GrowthPolicy, StoreNullTerminator, KeySizeT and IndexSizeT must behave the same than the ones used on the 
-     * serialized map. Otherwise the behaviour is undefined with `hash_compatible` sets to true, .
+     * serialized map. Otherwise the behaviour is undefined with `hash_compatible` sets to true.
      * 
      * The behaviour is undefined if the type `CharT` and `T` of the `array_map` are not the same as the
      * types used during serialization.
