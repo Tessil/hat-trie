@@ -449,7 +449,7 @@ struct serializer {
     
     template<typename CharT>
     void operator()(const CharT* val, std::size_t val_size) {
-        ar.save_binary((void*) val, val_size*sizeof(CharT));
+        ar.save_binary(reinterpret_cast<const void*>(val), val_size*sizeof(CharT));
     }   
 };
 
@@ -462,7 +462,7 @@ struct deserializer {
     
     template<typename CharT>
     void operator()(CharT* val_out, std::size_t val_size) {
-        ar.load_binary((void*) val_out, val_size*sizeof(CharT));
+        ar.load_binary(reinterpret_cast<void*>(val_out), val_size*sizeof(CharT));
     }  
 };
 
