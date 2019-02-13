@@ -827,12 +827,18 @@ public:
         array_hash_iterator() noexcept: m_array_hash(nullptr) {
         }
         
-        array_hash_iterator(const array_hash_iterator<false>& other) noexcept : 
+        template<bool TIsConst = IsConst, typename std::enable_if<TIsConst>::type* = nullptr>
+        array_hash_iterator(const array_hash_iterator<!TIsConst>& other) noexcept : 
                                                 m_buckets_iterator(other.m_buckets_iterator), 
                                                 m_array_bucket_iterator(other.m_array_bucket_iterator),
                                                 m_array_hash(other.m_array_hash)
         {
         }
+
+        array_hash_iterator(const array_hash_iterator& other) = default;
+        array_hash_iterator(array_hash_iterator&& other) = default;
+        array_hash_iterator& operator=(const array_hash_iterator& other) = default;
+        array_hash_iterator& operator=(array_hash_iterator&& other) = default;
         
         const CharT* key() const {
             return m_array_bucket_iterator.key();

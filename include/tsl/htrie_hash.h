@@ -577,9 +577,11 @@ public:
     public:
         htrie_hash_iterator() noexcept {
         }
-        
-        template<bool P = IsPrefixIterator, typename std::enable_if<!P>::type* = nullptr> 
-        htrie_hash_iterator(const htrie_hash_iterator<false, false>& other) noexcept: 
+
+        // Copy constructor from iterator to const_iterator.
+        template<bool TIsConst = IsConst, bool TIsPrefixIterator = IsPrefixIterator, 
+                 typename std::enable_if<TIsConst && !TIsPrefixIterator>::type* = nullptr> 
+        htrie_hash_iterator(const htrie_hash_iterator<!TIsConst, TIsPrefixIterator>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
             m_array_hash_end_iterator(other.m_array_hash_end_iterator), 
@@ -587,14 +589,21 @@ public:
         {
         }
         
-        template<bool P = IsPrefixIterator, typename std::enable_if<P>::type* = nullptr> 
-        htrie_hash_iterator(const htrie_hash_iterator<false, true>& other) noexcept: 
+        // Copy constructor from iterator to const_iterator.
+        template<bool TIsConst = IsConst, bool TIsPrefixIterator = IsPrefixIterator, 
+                 typename std::enable_if<TIsConst && TIsPrefixIterator>::type* = nullptr> 
+        htrie_hash_iterator(const htrie_hash_iterator<!TIsConst, TIsPrefixIterator>& other) noexcept: 
             m_current_trie_node(other.m_current_trie_node), m_current_hash_node(other.m_current_hash_node), 
             m_array_hash_iterator(other.m_array_hash_iterator), 
             m_array_hash_end_iterator(other.m_array_hash_end_iterator), 
             m_read_trie_node_value(other.m_read_trie_node_value), m_prefix_filter(other.m_prefix_filter)
         {
         }
+
+        htrie_hash_iterator(const htrie_hash_iterator& other) = default;
+        htrie_hash_iterator(htrie_hash_iterator&& other) = default;
+        htrie_hash_iterator& operator=(const htrie_hash_iterator& other) = default;
+        htrie_hash_iterator& operator=(htrie_hash_iterator&& other) = default;
         
         void key(std::basic_string<CharT>& key_buffer_out) const {
             key_buffer_out.clear();
