@@ -77,10 +77,10 @@ BOOST_AUTO_TEST_CASE(test_insert_with_too_long_string) {
         map.insert(utils::get_key<char>(i), utils::get_value<std::int64_t>(i));
     }
     
-    const std::string long_string("a", map.max_key_size());
+    const std::string long_string(map.max_key_size(), 'a');
     BOOST_CHECK(map.insert(long_string, utils::get_value<std::int64_t>(1000)).second);
     
-    const std::string too_long_string("a", map.max_key_size() + 1);
+    const std::string too_long_string(map.max_key_size() + 1, 'a');
     BOOST_CHECK_THROW(map.insert(too_long_string, utils::get_value<std::int64_t>(1001)), std::length_error);
 }
 
