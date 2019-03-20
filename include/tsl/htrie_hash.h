@@ -2063,9 +2063,9 @@ private:
     }
 
     // Same as std::make_unique for non-array types which is only available in C++14 (we need to support C++11).
-    template<typename T, typename... Args>
-    static std::unique_ptr<T> make_unique(Args&&... args) {
-        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    template<typename U, typename... Args>
+    static std::unique_ptr<U> make_unique(Args&&... args) {
+        return std::unique_ptr<U>(new U(std::forward<Args>(args)...));
     }
     
 public:    
