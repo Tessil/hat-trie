@@ -100,12 +100,6 @@ static T numeric_cast(U value, const char* error_message = "numeric_cast() faile
     return ret;
 }
 
-// Same as std::make_unique for non-array types which is only available in C++14 (we need to support C++11).
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args) {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
 
 template<class T>
 struct value_node {
@@ -2066,6 +2060,12 @@ private:
     #else        
         return deserializer.Deserializer::template operator()<U>();
     #endif        
+    }
+
+    // Same as std::make_unique for non-array types which is only available in C++14 (we need to support C++11).
+    template<typename T, typename... Args>
+    static std::unique_ptr<T> make_unique(Args&&... args) {
+        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
     }
     
 public:    
