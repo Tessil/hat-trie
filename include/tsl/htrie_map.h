@@ -36,7 +36,7 @@ namespace tsl {
 /**
  * Implementation of a hat-trie map.
  * 
- * The value T must be either nothrow move-constructible/assignable, copy-constuctible or both.
+ * The value T must be either nothrow move-constructible/assignable, copy-constructible or both.
  * 
  * The size of a key string is limited to std::numeric_limits<KeySizeT>::max() - 1. 
  * That is 65 535 characters by default, but can be raised with the KeySizeT template parameter. 
@@ -566,8 +566,8 @@ public:
      *  - `void operator()(const U& value);` where the types `std::uint64_t`, `float` and `T` must be supported for U.
      *  - `void operator()(const CharT* value, std::size_t value_size);`
      * 
-     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, ...) of the types it serializes
-     * in the hands of the `Serializer` function object if compatibilty is required.
+     * The implementation leaves binary compatibility (endianness, IEEE 754 for floats, ...) of the types it serializes
+     * in the hands of the `Serializer` function object if compatibility is required.
      */
     template<class Serializer>
     void serialize(Serializer& serializer) const {
@@ -576,7 +576,7 @@ public:
     
 
     /**
-     * Deserialize a previouly serialized map through the `deserializer` parameter.
+     * Deserialize a previously serialized map through the `deserializer` parameter.
      * 
      * The `deserializer` parameter must be a function object that supports the following calls:
      *  - `template<typename U> U operator()();` where the types `std::uint64_t`, `float` and `T` must be supported for U.
@@ -590,8 +590,8 @@ public:
      * The behaviour is undefined if the type `CharT` and `T` of the `htrie_map` are not the same as the
      * types used during serialization.
      * 
-     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, size of int, ...) of the types it 
-     * deserializes in the hands of the `Deserializer` function object if compatibilty is required.
+     * The implementation leaves binary compatibility (endianness, IEEE 754 for floats, size of int, ...) of the types it 
+     * deserializes in the hands of the `Deserializer` function object if compatibility is required.
      */
     template<class Deserializer>
     static htrie_map deserialize(Deserializer& deserializer, bool hash_compatible = false) {

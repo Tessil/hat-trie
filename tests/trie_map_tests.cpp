@@ -616,7 +616,7 @@ BOOST_AUTO_TEST_CASE(test_swap) {
 /**
  * serialize and deserialize
  */
-BOOST_AUTO_TEST_CASE(test_serialize_desearialize_empty_map) {
+BOOST_AUTO_TEST_CASE(test_serialize_deserialize_empty_map) {
     // serialize empty map; deserialize in new map; check equal.
     // for deserialization, test it with and without hash compatibility.
     const tsl::htrie_map<char, move_only_test> empty_map;
@@ -634,7 +634,7 @@ BOOST_AUTO_TEST_CASE(test_serialize_desearialize_empty_map) {
     BOOST_CHECK(empty_map_deserialized == empty_map);
 }
 
-BOOST_AUTO_TEST_CASE(test_serialize_desearialize_map) {
+BOOST_AUTO_TEST_CASE(test_serialize_deserialize_map) {
     // insert x values; delete some values; serialize map; deserialize in new map; check equal.
     // for deserialization, test it with and without hash compatibility.
     const std::size_t nb_values = 1000;
@@ -666,7 +666,7 @@ BOOST_AUTO_TEST_CASE(test_serialize_desearialize_map) {
     BOOST_CHECK(map_deserialized == map);
 }
 
-BOOST_AUTO_TEST_CASE(test_serialize_desearialize_with_different_hash) {
+BOOST_AUTO_TEST_CASE(test_serialize_deserialize_with_different_hash) {
     // insert x values; delete some values; serialize map; deserialize it in a new map with an incompatible hash; check equal.
     struct str_hash {
         std::size_t operator()(const char* key, std::size_t key_size) const {
@@ -705,7 +705,7 @@ BOOST_AUTO_TEST_CASE(test_serialize_desearialize_with_different_hash) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(test_serialize_desearialize_map_no_burst) {
+BOOST_AUTO_TEST_CASE(test_serialize_deserialize_map_no_burst) {
     // test deserialization when there is only a hash node.
     // set burst_threshold to x+1; insert x values; serialize map; deserialize in new map; check equal.
     // for deserialization, test it with and without hash compatibility.

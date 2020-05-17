@@ -434,7 +434,7 @@ public:
     /**
      * Append the element 'key' with its potential value at the end of the bucket. 
      * 'end_of_bucket' should point past the end of the last element in the bucket, end() if the bucket
-     * was not intiailized yet. You usually get this value from find_or_end_of_bucket.
+     * was not initialized yet. You usually get this value from find_or_end_of_bucket.
      * 
      * Return the position where the element was actually inserted.
      */
@@ -716,7 +716,7 @@ public:
 protected:
     static constexpr float VECTOR_GROWTH_RATE = 1.5f;
     
-    // TODO use a sparse array? or a std::dequeu
+    // TODO use a sparse array? or a std::deque
     std::vector<T> m_values;
 };
 
@@ -927,7 +927,7 @@ public:
                                        Hash(hash), 
                                        GrowthPolicy(bucket_count), 
                                        m_buckets_data(bucket_count > max_bucket_count()?
-                                                      throw std::length_error("The map exceeds its maxmimum bucket count."):
+                                                      throw std::length_error("The map exceeds its maximum bucket count."):
                                                       bucket_count), 
                                        m_buckets(m_buckets_data.empty()?static_empty_bucket_ptr():m_buckets_data.data()), 
                                        m_nb_elements(0) 
@@ -1102,7 +1102,7 @@ public:
     
     
     iterator erase(const_iterator pos) {
-        if(shoud_clear_old_erased_values()) {
+        if(should_clear_old_erased_values()) {
             clear_old_erased_values();
         }
         
@@ -1134,7 +1134,7 @@ public:
             nb_elements_until_last--;
         }
         
-        if(shoud_clear_old_erased_values()) {
+        if(should_clear_old_erased_values()) {
             clear_old_erased_values();
         }
         
@@ -1148,7 +1148,7 @@ public:
     }
     
     size_type erase(const CharT* key, size_type key_size, std::size_t hash) {
-        if(shoud_clear_old_erased_values()) {
+        if(should_clear_old_erased_values()) {
             clear_old_erased_values();
         }
         
@@ -1411,12 +1411,12 @@ private:
     
     
     template<class U = T, typename std::enable_if<!has_mapped_type<U>::value>::type* = nullptr>
-    bool shoud_clear_old_erased_values(float /*threshold*/ = DEFAULT_CLEAR_OLD_ERASED_VALUE_THRESHOLD) const {
+    bool should_clear_old_erased_values(float /*threshold*/ = DEFAULT_CLEAR_OLD_ERASED_VALUE_THRESHOLD) const {
         return false;
     }
     
     template<class U = T, typename std::enable_if<has_mapped_type<U>::value>::type* = nullptr>
-    bool shoud_clear_old_erased_values(float threshold = DEFAULT_CLEAR_OLD_ERASED_VALUE_THRESHOLD) const {
+    bool should_clear_old_erased_values(float threshold = DEFAULT_CLEAR_OLD_ERASED_VALUE_THRESHOLD) const {
         if(this->m_values.size() == 0) {
             return false;
         }
@@ -1458,7 +1458,7 @@ private:
     }
     
     /**
-     * Return true if a rehash occured.
+     * Return true if a rehash occurred.
      */
     bool grow_on_high_load() {
         if(size() >= m_load_threshold) {
@@ -1521,7 +1521,7 @@ private:
         }
         
         
-        if(shoud_clear_old_erased_values(REHASH_CLEAR_OLD_ERASED_VALUE_THRESHOLD)) {
+        if(should_clear_old_erased_values(REHASH_CLEAR_OLD_ERASED_VALUE_THRESHOLD)) {
             clear_old_erased_values();
         }
         
@@ -1688,7 +1688,7 @@ private:
         
         
         if(load_factor() > this->max_load_factor()) {
-            throw std::runtime_error("Invalid max_load_factor. Check that the serializer and deserializer supports "
+            throw std::runtime_error("Invalid max_load_factor. Check that the serializer and deserializer support "
                                      "floats correctly as they can be converted implicitely to ints.");
         }
     }

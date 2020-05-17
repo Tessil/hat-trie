@@ -516,8 +516,8 @@ public:
      *  - `void operator()(const U& value);` where the types `std::uint64_t` and `float` must be supported for U.
      *  - `void operator()(const CharT* value, std::size_t value_size);`
      * 
-     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, ...) of the types it serializes
-     * in the hands of the `Serializer` function object if compatibilty is required.
+     * The implementation leaves binary compatibility (endianness, IEEE 754 for floats, ...) of the types it serializes
+     * in the hands of the `Serializer` function object if compatibility is required.
      */
     template<class Serializer>
     void serialize(Serializer& serializer) const {
@@ -526,7 +526,7 @@ public:
     
 
     /**
-     * Deserialize a previouly serialized set through the `deserializer` parameter.
+     * Deserialize a previously serialized set through the `deserializer` parameter.
      * 
      * The `deserializer` parameter must be a function object that supports the following calls:
      *  - `template<typename U> U operator()();` where the types `std::uint64_t` and `float` must be supported for U.
@@ -540,8 +540,8 @@ public:
      * The behaviour is undefined if the type `CharT` of the `htrie_set` is not the same as the
      * type used during serialization.
      * 
-     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, size of int, ...) of the types it 
-     * deserializes in the hands of the `Deserializer` function object if compatibilty is required.
+     * The implementation leaves binary compatibility (endianness, IEEE 754 for floats, size of int, ...) of the types it 
+     * deserializes in the hands of the `Deserializer` function object if compatibility is required.
      */
     template<class Deserializer>
     static htrie_set deserialize(Deserializer& deserializer, bool hash_compatible = false) {

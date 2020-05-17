@@ -104,7 +104,7 @@ static T numeric_cast(U value, const char* error_message = "numeric_cast() faile
 template<class T>
 struct value_node {
     /*
-     * Avoid confict with copy constructor 'value_node(const value_node&)'. If we call the copy constructor
+     * Avoid conflict with copy constructor 'value_node(const value_node&)'. If we call the copy constructor
      * with a mutable reference 'value_node(value_node&)', we don't want the forward constructor to be called.
      */
     template<class... Args, typename std::enable_if<!is_related<value_node, Args...>::value>::type* = nullptr>
@@ -196,7 +196,7 @@ private:
         
     public:
         /*
-         * TODO Avoid the virtual to economise 8 bytes. We could use a custom deleter in the std::unique_ptr<anode>
+         * TODO Avoid the virtual to economize 8 bytes. We could use a custom deleter in the std::unique_ptr<anode>
          * we use (as we know if an anode is a trie_node or hash_node).
          */
         virtual ~anode() = default;
@@ -282,7 +282,7 @@ private:
          * trie_node_2 is a child of trie_node_1 through 'b', it will have 'b' as m_child_of_char.
          * hash_node_1 is a child of trie_node_2 through 'a', it will have 'a' as m_child_of_char.
          * 
-         * trie_node_1 has no parent, its m_child_of_char is undeterminated.
+         * trie_node_1 has no parent, its m_child_of_char is undefined.
          */
         CharT m_child_of_char;
         trie_node* m_parent_node;
@@ -989,7 +989,7 @@ public:
             }
             else {
                 /*
-                 * skrink_to_fit on array_hash will invalidate the iterators of array_hash.
+                 * shrink_to_fit on array_hash will invalidate the iterators of array_hash.
                  * Save pointer to array_hash, skip the array_hash_node and then call 
                  * shrink_to_fit on the saved pointer.
                  */

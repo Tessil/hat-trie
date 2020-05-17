@@ -44,7 +44,7 @@ namespace tsl {
  * will return a pointer to this null-terminated string). Otherwise the null character
  * is not stored (which allow an economy of 1 byte per string).
  * 
- * The value `T` must be either nothrow move-constructible, copy-constuctible or both.
+ * The value `T` must be either nothrow move-constructible, copy-constructible or both.
  * 
  * The size of a key string is limited to `std::numeric_limits<KeySizeT>::max() - 1`. 
  * That is 65 535 characters by default, but can be raised with the `KeySizeT` template parameter. 
@@ -294,7 +294,7 @@ public:
     
     
     /**
-     * Erase has an amortized O(1) runtime complexity, but even if it removes the key immediatly,
+     * Erase has an amortized O(1) runtime complexity, but even if it removes the key immediately,
      * it doesn't do the same for the associated value T.
      * 
      * T will only be removed when the ratio between the size of the map and 
@@ -368,7 +368,7 @@ public:
      * @copydoc erase(const_iterator pos)
      * 
      * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
-     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     * as hash_function()(key). Useful to speed-up the lookup to the value if you already have the hash.
      */
     size_type erase_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) {
         return m_ht.erase(key, key_size, precalculated_hash);
@@ -463,7 +463,7 @@ public:
 #endif  
     /**
      * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
-     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     * as hash_function()(key). Useful to speed-up the lookup to the value if you already have the hash.
      */
     T& at_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) { 
         return m_ht.at(key, key_size, precalculated_hash); 
@@ -530,7 +530,7 @@ public:
 #endif
     /**
      * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
-     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     * as hash_function()(key). Useful to speed-up the lookup to the value if you already have the hash.
      */
     size_type count_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) const { 
         return m_ht.count(key, key_size, precalculated_hash); 
@@ -618,7 +618,7 @@ public:
 #endif    
     /**
      * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
-     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     * as hash_function()(key). Useful to speed-up the lookup to the value if you already have the hash.
      */
     iterator find_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) {
         return m_ht.find(key, key_size, precalculated_hash);
@@ -713,7 +713,7 @@ public:
 #endif    
     /**
      * Use the hash value 'precalculated_hash' instead of hashing the key. The hash value should be the same
-     * as hash_function()(key). Usefull to speed-up the lookup to the value if you already have the hash.
+     * as hash_function()(key). Useful to speed-up the lookup to the value if you already have the hash.
      */
     std::pair<iterator, iterator> equal_range_ks(const CharT* key, size_type key_size, std::size_t precalculated_hash) {
         return m_ht.equal_range(key, key_size, precalculated_hash);
@@ -768,8 +768,8 @@ public:
      *  - `template<typename U> void operator()(const U& value);` where the types `std::uint64_t`, `float` and `T` must be supported for U.
      *  - `void operator()(const CharT* value, std::size_t value_size);`
      * 
-     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, ...) of the types it serializes
-     * in the hands of the `Serializer` function object if compatibilty is required.
+     * The implementation leaves binary compatibility (endianness, IEEE 754 for floats, ...) of the types it serializes
+     * in the hands of the `Serializer` function object if compatibility is required.
      */
     template<class Serializer>
     void serialize(Serializer& serializer) const {
@@ -777,7 +777,7 @@ public:
     }
 
     /**
-     * Deserialize a previouly serialized map through the `deserializer` parameter.
+     * Deserialize a previously serialized map through the `deserializer` parameter.
      * 
      * The `deserializer` parameter must be a function object that supports the following calls:
      *  - `template<typename U> U operator()();` where the types `std::uint64_t`, `float` and `T` must be supported for U.
@@ -791,8 +791,8 @@ public:
      * The behaviour is undefined if the type `CharT` and `T` of the `array_map` are not the same as the
      * types used during serialization.
      * 
-     * The implementation leaves binary compatibilty (endianness, IEEE 754 for floats, size of int, ...) of the types it 
-     * deserializes in the hands of the `Deserializer` function object if compatibilty is required.
+     * The implementation leaves binary compatibility (endianness, IEEE 754 for floats, size of int, ...) of the types it 
+     * deserializes in the hands of the `Deserializer` function object if compatibility is required.
      */
     template<class Deserializer>
     static array_map deserialize(Deserializer& deserializer, bool hash_compatible = false) {

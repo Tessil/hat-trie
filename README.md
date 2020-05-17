@@ -19,7 +19,7 @@ The library provides two classes: `tsl::htrie_map` and `tsl::htrie_set`.
 
 - Header-only library, just add the [include](include/) directory to your include path and you are ready to go. If you use CMake, you can also use the `tsl::hat_trie` exported target from the [CMakeLists.txt](CMakeLists.txt).
 - Low memory usage while keeping reasonable performances (see [benchmark](#benchmark)).
-- Support prefix searches through `equal_prefix_range` (usefull for autocompletion for example) and prefix erasures through `erase_prefix`.
+- Support prefix searches through `equal_prefix_range` (useful for autocompletion for example) and prefix erasures through `erase_prefix`.
 - Support longest matching prefix searches through `longest_prefix`.
 - Support for efficient serialization and deserialization (see [example](#serialization) and the `serialize/deserialize` methods in the [API](https://tessil.github.io/hat-trie/doc/html/classtsl_1_1htrie__map.html) for details).
 - Keys are not ordered as they are partially stored in a hash map.
@@ -327,7 +327,7 @@ struct deserializer {
 };
 ```
 
-Note that the implementation leaves binary compatibilty (endianness, float binary representation, size of int, ...) of the types it serializes/deserializes in the hands of the provided function objects if compatibilty is required.
+Note that the implementation leaves binary compatibility (endianness, float binary representation, size of int, ...) of the types it serializes/deserializes in the hands of the provided function objects if compatibility is required.
 
 More details regarding the `serialize` and `deserialize` methods can be found in the [API](https://tessil.github.io/hat-trie/doc/html/classtsl_1_1htrie__map.html).
 
