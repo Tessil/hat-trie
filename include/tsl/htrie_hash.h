@@ -48,7 +48,7 @@
  * version.
  */
 #ifdef __has_include
-#if __has_include(<string_view>) && __cplusplus >= 201703L
+#if __has_include(<string_view>) && (__cplusplus >= 201703L || _MSVC_LANG >= 201703L)
 #define TSL_HT_HAS_STRING_VIEW
 #endif
 #endif
