@@ -121,6 +121,18 @@ struct value_node {
 template <>
 struct value_node<void> {};
 
+template <class CharT, bool HasPrefix>
+struct prefix_filter {};
+
+template <class CharT>
+struct prefix_filter<CharT, true> {
+  prefix_filter() = default;
+  prefix_filter(std::basic_string<CharT> prefix_filter)
+      : m_prefix_filter(std::move(prefix_filter)) {}
+
+  std::basic_string<CharT> m_prefix_filter;
+};
+
 /**
  * T should be void if there is no value associated to a key (in a set for
  * example).
@@ -482,7 +494,7 @@ class htrie_hash {
 
  public:
   template <bool IsConst, bool IsPrefixIterator>
-  class htrie_hash_iterator {
+  class htrie_hash_iterator : private prefix_filter<CharT, IsPrefixIterator> {
     friend class htrie_hash;
 
    private:
@@ -545,8 +557,8 @@ class htrie_hash {
       tsl_ht_assert(m_current_trie_node->val_node() != nullptr);
     }
 
-    template <bool P = IsPrefixIterator,
-              typename std::enable_if<!P>::type* = nullptr>
+    template <bool TIsPrefixIterator = IsPrefixIterator,
+              typename std::enable_if<!TIsPrefixIterator>::type* = nullptr>
     htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode,
                         array_hash_iterator_type begin,
                         array_hash_iterator_type end,
@@ -557,18 +569,18 @@ class htrie_hash {
           m_array_hash_end_iterator(end),
           m_read_trie_node_value(read_trie_node_value) {}
 
-    template <bool P = IsPrefixIterator,
-              typename std::enable_if<P>::type* = nullptr>
+    template <bool TIsPrefixIterator = IsPrefixIterator,
+              typename std::enable_if<TIsPrefixIterator>::type* = nullptr>
     htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode,
                         array_hash_iterator_type begin,
                         array_hash_iterator_type end, bool read_trie_node_value,
                         std::basic_string<CharT> prefix_filter) noexcept
-        : m_current_trie_node(tnode),
+        : prefix_filter<CharT, TIsPrefixIterator>(std::move(prefix_filter)),
+          m_current_trie_node(tnode),
           m_current_hash_node(hnode),
           m_array_hash_iterator(begin),
           m_array_hash_end_iterator(end),
-          m_read_trie_node_value(read_trie_node_value),
-          m_prefix_filter(std::move(prefix_filter)) {}
+          m_read_trie_node_value(read_trie_node_value) {}
 
    public:
     htrie_hash_iterator() noexcept {}
@@ -592,12 +604,12 @@ class htrie_hash {
         typename std::enable_if<TIsConst && TIsPrefixIterator>::type* = nullptr>
     htrie_hash_iterator(
         const htrie_hash_iterator<!TIsConst, TIsPrefixIterator>& other) noexcept
-        : m_current_trie_node(other.m_current_trie_node),
+        : prefix_filter<CharT, TIsPrefixIterator>(other.m_prefix_filter),
+          m_current_trie_node(other.m_current_trie_node),
           m_current_hash_node(other.m_current_hash_node),
           m_array_hash_iterator(other.m_array_hash_iterator),
           m_array_hash_end_iterator(other.m_array_hash_end_iterator),
-          m_read_trie_node_value(other.m_read_trie_node_value),
-          m_prefix_filter(other.m_prefix_filter) {}
+          m_read_trie_node_value(other.m_read_trie_node_value) {}
 
     htrie_hash_iterator(const htrie_hash_iterator& other) = default;
     htrie_hash_iterator(htrie_hash_iterator&& other) = default;
@@ -742,24 +754,24 @@ class htrie_hash {
       }
     }
 
-    template <bool P = IsPrefixIterator,
-              typename std::enable_if<!P>::type* = nullptr>
+    template <bool TIsPrefixIterator = IsPrefixIterator,
+              typename std::enable_if<!TIsPrefixIterator>::type* = nullptr>
     void filter_prefix() {}
 
-    template <bool P = IsPrefixIterator,
-              typename std::enable_if<P>::type* = nullptr>
+    template <bool TIsPrefixIterator = IsPrefixIterator,
+              typename std::enable_if<TIsPrefixIterator>::type* = nullptr>
     void filter_prefix() {
       tsl_ht_assert(m_array_hash_iterator != m_array_hash_end_iterator);
       tsl_ht_assert(!m_read_trie_node_value && m_current_hash_node != nullptr);
 
-      if (m_prefix_filter.empty()) {
+      if (this->m_prefix_filter.empty()) {
         return;
       }
 
-      while ((m_prefix_filter.size() > m_array_hash_iterator.key_size() ||
-              m_prefix_filter.compare(0, m_prefix_filter.size(),
-                                      m_array_hash_iterator.key(),
-                                      m_prefix_filter.size()) != 0)) {
+      while ((this->m_prefix_filter.size() > m_array_hash_iterator.key_size() ||
+              this->m_prefix_filter.compare(
+                  0, this->m_prefix_filter.size(), m_array_hash_iterator.key(),
+                  this->m_prefix_filter.size()) != 0)) {
         ++m_array_hash_iterator;
         if (m_array_hash_iterator == m_array_hash_end_iterator) {
           if (m_current_trie_node == nullptr) {
@@ -849,9 +861,6 @@ class htrie_hash {
     array_hash_iterator_type m_array_hash_end_iterator;
 
     bool m_read_trie_node_value;
-    // TODO can't have void if !IsPrefixIterator, use inheritance
-    typename std::conditional<IsPrefixIterator, std::basic_string<CharT>,
-                              bool>::type m_prefix_filter;
   };
 
  public:
