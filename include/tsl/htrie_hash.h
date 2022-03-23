@@ -574,8 +574,8 @@ class htrie_hash {
     htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode,
                         array_hash_iterator_type begin,
                         array_hash_iterator_type end, bool read_trie_node_value,
-                        std::basic_string<CharT> prefix_filter) noexcept
-        : prefix_filter<CharT, TIsPrefixIterator>(std::move(prefix_filter)),
+                        std::basic_string<CharT> prefix_filter_) noexcept
+        : prefix_filter<CharT, TIsPrefixIterator>(std::move(prefix_filter_)),
           m_current_trie_node(tnode),
           m_current_hash_node(hnode),
           m_array_hash_iterator(begin),
