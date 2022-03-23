@@ -1334,7 +1334,7 @@ class array_hash : private value_container<T>,
   float max_load_factor() const { return m_max_load_factor; }
 
   void max_load_factor(float ml) {
-    m_max_load_factor = std::max(0.1f, ml);
+    m_max_load_factor = std::max(MIN_MAX_LOAD_FACTOR, ml);
     m_load_threshold = size_type(float(bucket_count()) * m_max_load_factor);
   }
 
@@ -1765,6 +1765,7 @@ class array_hash : private value_container<T>,
   static const size_type DEFAULT_INIT_BUCKET_COUNT = 0;
   static constexpr float DEFAULT_MAX_LOAD_FACTOR = 2.0f;
   static const size_type MAX_KEY_SIZE = array_bucket::MAX_KEY_SIZE;
+  static constexpr float MIN_MAX_LOAD_FACTOR = 0.1f;
 
  private:
   /**
