@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/Tessil/hat-trie.svg?branch=master)](https://travis-ci.org/Tessil/hat-trie) [![Build status](https://ci.appveyor.com/api/projects/status/ieafyj08ewb7dfa7/branch/master?svg=true)](https://ci.appveyor.com/project/Tessil/hat-trie/branch/master)
+[![CI](https://github.com/Tessil/hat-trie/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Tessil/hat-trie/actions/workflows/ci.yml)
+
 ## A C++ implementation of a fast and memory efficient HAT-trie
 
 Trie implementation based on the "HAT-trie: A Cache-conscious Trie-based Data Structure for Strings." (Askitis Nikolas and  Sinha Ranjan, 2007) paper. For now, only the pure HAT-trie has been implemented, the hybrid version may arrive later. Details regarding the HAT-trie data structure can be found [here](https://tessil.github.io/2017/06/22/hat-trie.html).
