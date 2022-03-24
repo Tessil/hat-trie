@@ -21,8 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#define BOOST_TEST_DYN_LINK
-
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
 #include <cstddef>
