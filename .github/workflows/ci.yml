@@ -98,8 +98,7 @@ jobs:
       if: runner.os == 'Windows'
 
     - name: Test (Windows)
-      working-directory: ${{github.workspace}}/build
-      run: ./${{matrix.config.cmake-build-type}}/tsl_hat_trie_tests.exe
+      run: ${{github.workspace}}/build/${{matrix.config.cmake-build-type}}/tsl_hat_trie_tests.exe
       if: runner.os == 'Windows'
 
     # Linux or macOS
