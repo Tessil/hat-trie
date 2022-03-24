@@ -1215,7 +1215,8 @@ class htrie_hash {
   float max_load_factor() const { return m_max_load_factor; }
 
   void max_load_factor(float ml) {
-    m_max_load_factor = std::max(array_hash_type::MIN_MAX_LOAD_FACTOR, ml);
+    const float min_max_load_factor = array_hash_type::MIN_MAX_LOAD_FACTOR;
+    m_max_load_factor = std::max(min_max_load_factor, ml);
   }
 
   /*
