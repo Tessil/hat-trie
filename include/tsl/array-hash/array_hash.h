@@ -1334,7 +1334,8 @@ class array_hash : private value_container<T>,
   float max_load_factor() const { return m_max_load_factor; }
 
   void max_load_factor(float ml) {
-    m_max_load_factor = std::max(MIN_MAX_LOAD_FACTOR, ml);
+    const float min_max_load_factor = MIN_MAX_LOAD_FACTOR;
+    m_max_load_factor = std::max(min_max_load_factor, ml);
     m_load_threshold = size_type(float(bucket_count()) * m_max_load_factor);
   }
 
