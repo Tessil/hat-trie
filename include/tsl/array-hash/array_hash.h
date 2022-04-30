@@ -631,9 +631,9 @@ class array_bucket {
    *
    * Start search from buffer_ptr_in_out.
    */
-  bool find_or_end_of_bucket_impl(const CharT* key, size_type key_size,
-                                  const CharT*& buffer_ptr_in_out) const
-      noexcept {
+  bool find_or_end_of_bucket_impl(
+      const CharT* key, size_type key_size,
+      const CharT*& buffer_ptr_in_out) const noexcept {
     while (!is_end_of_bucket(buffer_ptr_in_out)) {
       const key_size_type buffer_key_size = read_key_size(buffer_ptr_in_out);
       const CharT* buffer_str =
