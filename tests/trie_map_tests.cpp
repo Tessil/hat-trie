@@ -360,6 +360,49 @@ BOOST_AUTO_TEST_CASE(test_longest_prefix) {
 }
 
 /**
+ * for_each_prefix_of
+ */
+BOOST_AUTO_TEST_CASE(test_for_each_prefix_of) {
+  using map_type = tsl::htrie_map<char, int>;
+  using path_type = std::vector<std::string>;
+
+  map_type map(4);
+  map = {{"a", 1},      {"aa", 1},      {"aaa", 1},   {"aaaaa", 1},
+         {"aaaaaa", 1}, {"aaaaaaa", 1}, {"ab", 1},    {"abcde", 1},
+         {"abcdf", 1},  {"abcdg", 1},   {"abcdh", 1}, {"babc", 1}};
+
+  std::vector<std::pair<const char*, path_type>> test_vectors = {
+    {"a",       {"a"}},
+    {"aa",      {"a", "aa"}},
+    {"aaa",     {"a", "aa", "aaa"}},
+    {"aaaa",    {"a", "aa", "aaa"}},
+    {"ab",      {"a", "ab"}},
+    {"abc",     {"a", "ab"}},
+    {"abcd",    {"a", "ab"}},
+    {"abcdz",   {"a", "ab"}},
+    {"abcde",   {"a", "ab", "abcde"}},
+    {"abcdef",  {"a", "ab", "abcde"}},
+    {"abcdefg", {"a", "ab", "abcde"}},
+    {"dabc",    {}},
+    {"b",       {}},
+    {"bab",     {}},
+    {"babd",    {}},
+    {"",        {}},
+  };
+
+  for (const auto& v: test_vectors) {
+    path_type p;
+    const path_type& expected = v.second;
+    auto visitor = [&p](map_type::const_iterator it) {p.push_back(it.key());};
+    map.for_each_prefix_of(v.first, visitor);
+    BOOST_CHECK_EQUAL_COLLECTIONS(p.begin(), p.end(),
+                                  expected.begin(), expected.end());
+    if (p != expected)
+      BOOST_TEST_MESSAGE("...for test vector input '" << v.first << "'");
+  }
+}
+
+/**
  * erase_prefix
  */
 BOOST_AUTO_TEST_CASE(test_erase_prefix) {

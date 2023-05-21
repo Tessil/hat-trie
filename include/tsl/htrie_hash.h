@@ -1209,6 +1209,23 @@ class htrie_hash {
     return longest_prefix_impl(*m_root, key, key_size);
   }
 
+  template <class F>
+  void for_each_prefix_of(const CharT* key, size_type key_size, F&& visitor) {
+    if (m_root != nullptr) {
+      for_each_prefix_of_impl<iterator>(*m_root, key, key_size,
+                                        std::forward<F>(visitor));
+    }
+  }
+
+  template <class F>
+  void for_each_prefix_of(const CharT* key, size_type key_size,
+                          F&& visitor) const {
+    if (m_root != nullptr) {
+      for_each_prefix_of_impl<const_iterator>(*m_root, key, key_size,
+                                              std::forward<F>(visitor));
+    }
+  }
+
   /*
    * Hash policy
    */
@@ -1598,6 +1615,61 @@ class htrie_hash {
     }
 
     return longest_found_prefix;
+  }
+
+  template <class Iterator, class N, class F>
+  void for_each_prefix_of_impl(N& search_start_node,
+                               const CharT* value, size_type value_size,
+                               F&& visitor) const {
+    auto* current_node = &search_start_node;
+
+    for (size_type ivalue = 0; ivalue < value_size; ivalue++) {
+      if (current_node->is_trie_node()) {
+        auto& tnode = current_node->as_trie_node();
+
+        if (tnode.val_node() != nullptr) {
+          visitor(Iterator(tnode));
+        }
+
+        if (tnode.child(value[ivalue]) == nullptr) {
+          return;
+        } else {
+          current_node = tnode.child(value[ivalue]).get();
+        }
+      } else {
+        auto& hnode = current_node->as_hash_node();
+
+        /**
+         * Test the presence in the hash node of each substring from the
+         * remaining [ivalue, value_size) string starting from the shortest.
+         * Also test the empty string.
+         */
+        for (std::size_t i = value_size + 1; i > ivalue; i--) {
+          auto it =
+              hnode.array_hash().find_ks(value + ivalue, (value_size - i + 1));
+          if (it != hnode.array_hash().end()) {
+            visitor(Iterator(hnode, it));
+          }
+        }
+
+        return;
+      }
+    }
+
+    if (current_node->is_trie_node()) {
+      auto& tnode = current_node->as_trie_node();
+
+      if (tnode.val_node() != nullptr) {
+        visitor(Iterator(tnode));
+      }
+    } else {
+      auto& hnode = current_node->as_hash_node();
+
+      auto it = hnode.array_hash().find_ks("", 0);
+      if (it != hnode.array_hash().end()) {
+        visitor(Iterator(hnode, it));
+      }
+    }
   }
 
   std::pair<prefix_iterator, prefix_iterator> equal_prefix_range_impl(
