@@ -561,16 +561,16 @@ class htrie_map {
    * Example:
    *
    *     tsl::htrie_map<char, int> map = {{"/foo", 1}, {"/foo/bar", 2}};
-   *     auto print = [](tsl::htrie_map<char>::iterator it) {
+   *     auto print = [](tsl::htrie_map<char, int>::iterator it) {
    *        std::cout << it.key() << "\n";
    *     };
    *
    *     map.for_each_prefix_of("/foo", print); // prints "/foo"
-   *     map.for_each_prefix_of("/foo/baz"); // prints nothing
-   *     map.for_each_prefix_of("/foo/bar/baz"); // prints nothing
-   *     map.for_each_prefix_of("/foo/bar/"); // prints "/foo" and "/foo/bar"
-   *     map.for_each_prefix_of("/bar"); // prints nothing
-   *     map.for_each_prefix_of(""); // prints nothing
+   *     map.for_each_prefix_of("/foo/baz", print); // prints "/foo"
+   *     map.for_each_prefix_of("/foo/bar/baz", print); // prints "/foo" and "/foo/bar"
+   *     map.for_each_prefix_of("/foo/bar/", print); // prints "/foo" and "/foo/bar"
+   *     map.for_each_prefix_of("/bar", print); // prints nothing
+   *     map.for_each_prefix_of("", print); // prints nothing
    */
   template <typename F>
   void for_each_prefix_of_ks(const CharT* key, size_type key_size,

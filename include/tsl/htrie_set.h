@@ -488,11 +488,11 @@ class htrie_set {
    *     };
    *
    *     set.for_each_prefix_of("/foo", print); // prints "/foo"
-   *     set.for_each_prefix_of("/foo/baz"); // prints nothing
-   *     set.for_each_prefix_of("/foo/bar/baz"); // prints nothing
-   *     set.for_each_prefix_of("/foo/bar/"); // prints "/foo" and "/foo/bar"
-   *     set.for_each_prefix_of("/bar"); // prints nothing
-   *     set.for_each_prefix_of(""); // prints nothing
+   *     set.for_each_prefix_of("/foo/baz", print); // prints "/foo"
+   *     set.for_each_prefix_of("/foo/bar/baz", print); // prints "/foo" and "/foo/bar"
+   *     set.for_each_prefix_of("/foo/bar/", print); // prints "/foo" and "/foo/bar"
+   *     set.for_each_prefix_of("/bar", print); // prints nothing
+   *     set.for_each_prefix_of("", print); // prints nothing
    */
   template <typename F>
   void for_each_prefix_of_ks(const CharT* key, size_type key_size,
