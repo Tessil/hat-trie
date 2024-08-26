@@ -406,9 +406,11 @@ class htrie_hash {
     }
 
     bool empty() const noexcept {
-      return std::all_of(
-          m_children.cbegin(), m_children.cend(),
-          [](const std::unique_ptr<anode>& n) { return n == nullptr; });
+      return std::all_of(m_children.cbegin(), m_children.cend(),
+                         [](const std::unique_ptr<anode>& n) {
+                           return n == nullptr;
+                         }) &&
+             m_value_node == nullptr;
     }
 
     std::unique_ptr<anode>& child(CharT for_char) noexcept {
@@ -1475,8 +1477,7 @@ class htrie_hash {
    */
   void clear_empty_nodes(anode& empty_node) noexcept {
     tsl_ht_assert(!empty_node.is_trie_node() ||
-                  (empty_node.as_trie_node().empty() &&
-                   empty_node.as_trie_node().val_node() == nullptr));
+                  empty_node.as_trie_node().empty());
     tsl_ht_assert(!empty_node.is_hash_node() ||
                   empty_node.as_hash_node().array_hash().empty());
 
@@ -1771,7 +1772,7 @@ class htrie_hash {
       }
     }
 
-    tsl_ht_assert(new_node->val_node() != nullptr || !new_node->empty());
+    tsl_ht_assert(!new_node->empty());
     return new_node;
   }
 
@@ -1818,7 +1819,7 @@ class htrie_hash {
         }
       }
 
-      tsl_ht_assert(new_node->val_node() != nullptr || !new_node->empty());
+      tsl_ht_assert(!new_node->empty());
       return new_node;
     } catch (...) {
       // Rollback the values
@@ -1853,7 +1854,7 @@ class htrie_hash {
       }
     }
 
-    tsl_ht_assert(new_node->val_node() != nullptr || !new_node->empty());
+    tsl_ht_assert(!new_node->empty());
     return new_node;
   }
 
