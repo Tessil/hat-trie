@@ -164,12 +164,14 @@ class htrie_hash {
   using const_prefix_iterator = htrie_hash_iterator<true, true>;
 
  private:
+  using ArrayHashIndexSizeT = std::uint16_t;
   using array_hash_type = typename std::conditional<
       has_value<T>::value,
       tsl::array_map<CharT, T, Hash, tsl::ah::str_equal<CharT>, false, KeySizeT,
-                     std::uint16_t, tsl::ah::power_of_two_growth_policy<4>>,
+                     ArrayHashIndexSizeT,
+                     tsl::ah::power_of_two_growth_policy<4>>,
       tsl::array_set<CharT, Hash, tsl::ah::str_equal<CharT>, false, KeySizeT,
-                     std::uint16_t,
+                     ArrayHashIndexSizeT,
                      tsl::ah::power_of_two_growth_policy<4>>>::type;
 
  private:
@@ -1245,7 +1247,11 @@ class htrie_hash {
 
   void burst_threshold(size_type threshold) {
     const size_type min_burst_threshold = MIN_BURST_THRESHOLD;
-    m_burst_threshold = std::max(min_burst_threshold, threshold);
+    const size_type max_burst_threshold = MAX_BURST_THRESHOLD;
+
+    m_burst_threshold = threshold;
+    m_burst_threshold = std::max(m_burst_threshold, min_burst_threshold);
+    m_burst_threshold = std::min(m_burst_threshold, max_burst_threshold);
   }
 
   /*
@@ -2146,6 +2152,8 @@ class htrie_hash {
 
   static const size_type HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT = 32;
   static const size_type MIN_BURST_THRESHOLD = 4;
+  static const size_type MAX_BURST_THRESHOLD =
+      std::numeric_limits<ArrayHashIndexSizeT>::max();
 
   std::unique_ptr<anode> m_root;
   size_type m_nb_elements;
