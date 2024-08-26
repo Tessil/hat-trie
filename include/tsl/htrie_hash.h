@@ -1619,9 +1619,8 @@ class htrie_hash {
   }
 
   template <class Iterator, class N, class F>
-  void for_each_prefix_of_impl(N& search_start_node,
-                               const CharT* value, size_type value_size,
-                               F&& visitor) const {
+  void for_each_prefix_of_impl(N& search_start_node, const CharT* value,
+                               size_type value_size, F&& visitor) const {
     auto* current_node = &search_start_node;
 
     for (size_type ivalue = 0; ivalue < value_size; ivalue++) {

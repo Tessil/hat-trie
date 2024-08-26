@@ -601,8 +601,8 @@ class htrie_map {
    * @copydoc for_each_prefix_of_ks(const CharT*, size_type, F&&)
    */
   template <typename F>
-  void for_each_prefix_of(
-      const std::basic_string_view<CharT>& key, F&& visitor) const {
+  void for_each_prefix_of(const std::basic_string_view<CharT>& key,
+                          F&& visitor) const {
     return m_ht.for_each_prefix_of(key.data(), key.size(),
                                    std::forward<F>(visitor));
   }
