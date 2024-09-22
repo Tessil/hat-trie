@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.8)
 
 project(tsl_hat_trie)
 
@@ -15,8 +15,4 @@ target_sources(tsl_hat_trie INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/a
                                       "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/htrie_map.h"
                                       "${CMAKE_CURRENT_SOURCE_DIR}/include/tsl/htrie_set.h")
 
-
-if(${CMAKE_VERSION} VERSION_GREATER "3.7") 
-    # Only available since version 3.8
-    target_compile_features(tsl_hat_trie INTERFACE cxx_std_11)
-endif()
+target_compile_features(tsl_hat_trie INTERFACE cxx_std_11)
