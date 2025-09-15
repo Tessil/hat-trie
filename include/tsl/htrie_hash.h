@@ -206,13 +206,21 @@ class htrie_hash {
   class anode {
     friend class trie_node;
 
+   protected:
+    // hash_node and trie_node should be deleted/destroyed only via Deleter,
+    // which looks at m_node_type to determine which kind of node to destroy.
+    ~anode() = default;
+
    public:
-    /*
-     * TODO Avoid the virtual to economize 8 bytes. We could use a custom
-     * deleter in the std::unique_ptr<anode> we use (as we know if an anode is a
-     * trie_node or hash_node).
-     */
-    virtual ~anode() = default;
+    struct Deleter {
+      void operator()(anode *self) const noexcept {
+        if (self->is_trie_node()) {
+          delete static_cast<trie_node*>(self);
+        } else {
+          delete static_cast<hash_node*>(self);
+        }
+      }
+    };
 
     bool is_trie_node() const noexcept {
       return m_node_type == node_type::TRIE_NODE;
@@ -297,6 +305,8 @@ class htrie_hash {
         static_cast<typename std::make_unsigned<CharT>::type>(c));
   }
 
+  using UniqueAnodePtr = std::unique_ptr<anode, typename anode::Deleter>;
+
   class trie_node : public anode {
    public:
     explicit trie_node()
@@ -316,10 +326,10 @@ class htrie_hash {
       for (std::size_t ichild = 0; ichild < other.m_children.size(); ichild++) {
         if (other.m_children[ichild] != nullptr) {
           if (other.m_children[ichild]->is_hash_node()) {
-            m_children[ichild] = make_unique<hash_node>(
+            m_children[ichild] = make_unique_anode<hash_node>(
                 other.m_children[ichild]->as_hash_node());
           } else {
-            m_children[ichild] = make_unique<trie_node>(
+            m_children[ichild] = make_unique_anode<trie_node>(
                 other.m_children[ichild]->as_trie_node());
           }
 
@@ -404,36 +414,36 @@ class htrie_hash {
     size_type nb_children() const noexcept {
       return std::count_if(
           m_children.cbegin(), m_children.cend(),
-          [](const std::unique_ptr<anode>& n) { return n != nullptr; });
+          [](const UniqueAnodePtr& n) { return n != nullptr; });
     }
 
     bool empty() const noexcept {
       return std::all_of(m_children.cbegin(), m_children.cend(),
-                         [](const std::unique_ptr<anode>& n) {
+                         [](const UniqueAnodePtr& n) {
                            return n == nullptr;
                          }) &&
              m_value_node == nullptr;
     }
 
-    std::unique_ptr<anode>& child(CharT for_char) noexcept {
+    UniqueAnodePtr& child(CharT for_char) noexcept {
       return m_children[as_position(for_char)];
     }
 
-    const std::unique_ptr<anode>& child(CharT for_char) const noexcept {
+    const UniqueAnodePtr& child(CharT for_char) const noexcept {
       return m_children[as_position(for_char)];
     }
 
-    typename std::array<std::unique_ptr<anode>, ALPHABET_SIZE>::iterator
+    typename std::array<UniqueAnodePtr, ALPHABET_SIZE>::iterator
     begin() noexcept {
       return m_children.begin();
     }
 
-    typename std::array<std::unique_ptr<anode>, ALPHABET_SIZE>::iterator
+    typename std::array<UniqueAnodePtr, ALPHABET_SIZE>::iterator
     end() noexcept {
       return m_children.end();
     }
 
-    void set_child(CharT for_char, std::unique_ptr<anode> child) noexcept {
+    void set_child(CharT for_char, UniqueAnodePtr child) noexcept {
       if (child != nullptr) {
         child->m_child_of_char = for_char;
         child->m_parent_node = this;
@@ -463,7 +473,7 @@ class htrie_hash {
      * (empty() and nb_children() are rarely used so it is not an important
      * variable).
      */
-    std::array<std::unique_ptr<anode>, ALPHABET_SIZE> m_children;
+    std::array<UniqueAnodePtr, ALPHABET_SIZE> m_children;
   };
 
   class hash_node : public anode {
@@ -884,9 +894,9 @@ class htrie_hash {
         m_burst_threshold(other.m_burst_threshold) {
     if (other.m_root != nullptr) {
       if (other.m_root->is_hash_node()) {
-        m_root = make_unique<hash_node>(other.m_root->as_hash_node());
+        m_root = make_unique_anode<hash_node>(other.m_root->as_hash_node());
       } else {
-        m_root = make_unique<trie_node>(other.m_root->as_trie_node());
+        m_root = make_unique_anode<trie_node>(other.m_root->as_trie_node());
       }
     }
   }
@@ -903,12 +913,12 @@ class htrie_hash {
 
   htrie_hash& operator=(const htrie_hash& other) {
     if (&other != this) {
-      std::unique_ptr<anode> new_root = nullptr;
+      UniqueAnodePtr new_root = nullptr;
       if (other.m_root != nullptr) {
         if (other.m_root->is_hash_node()) {
-          new_root = make_unique<hash_node>(other.m_root->as_hash_node());
+          new_root = make_unique_anode<hash_node>(other.m_root->as_hash_node());
         } else {
-          new_root = make_unique<trie_node>(other.m_root->as_trie_node());
+          new_root = make_unique_anode<trie_node>(other.m_root->as_trie_node());
         }
       }
 
@@ -1013,7 +1023,7 @@ class htrie_hash {
     }
 
     if (m_root == nullptr) {
-      m_root = make_unique<hash_node>(m_hash, m_max_load_factor);
+      m_root = make_unique_anode<hash_node>(m_hash, m_max_load_factor);
     }
 
     return insert_impl(*m_root, key, key_size,
@@ -1372,7 +1382,7 @@ class htrie_hash {
         if (tnode.child(key[ikey]) != nullptr) {
           current_node = tnode.child(key[ikey]).get();
         } else {
-          auto hnode = make_unique<hash_node>(m_hash, m_max_load_factor);
+          auto hnode = make_unique_anode<hash_node>(m_hash, m_max_load_factor);
           auto insert_it = hnode->array_hash().emplace_ks(
               key + ikey + 1, key_size - ikey - 1,
               std::forward<ValueArgs>(value_args)...);
@@ -1414,7 +1424,7 @@ class htrie_hash {
                                                 size_type key_size,
                                                 ValueArgs&&... value_args) {
     if (need_burst(hnode)) {
-      std::unique_ptr<trie_node> new_node = burst(hnode);
+      UniqueAnodePtr new_node = burst(hnode);
       if (hnode.parent() == nullptr) {
         tsl_ht_assert(m_root.get() == &hnode);
 
@@ -1759,12 +1769,12 @@ class htrie_hash {
                  !std::is_nothrow_move_assignable<U>::value ||
                  std::is_arithmetic<U>::value ||
                  std::is_pointer<U>::value)>::type* = nullptr>
-  std::unique_ptr<trie_node> burst(hash_node& node) {
+  UniqueAnodePtr burst(hash_node& node) {
     const std::array<size_type, ALPHABET_SIZE> first_char_count =
         get_first_char_count(node.array_hash().cbegin(),
                              node.array_hash().cend());
 
-    auto new_node = make_unique<trie_node>();
+    auto new_node = make_unique_anode<trie_node>();
     for (auto it = node.array_hash().cbegin(); it != node.array_hash().cend();
          ++it) {
       if (it.key_size() == 0) {
@@ -1791,7 +1801,7 @@ class htrie_hash {
                              std::is_nothrow_move_assignable<U>::value &&
                              !std::is_arithmetic<U>::value &&
                              !std::is_pointer<U>::value>::type* = nullptr>
-  std::unique_ptr<trie_node> burst(hash_node& node) {
+  UniqueAnodePtr burst(hash_node& node) {
     /**
      * We burst the node->array_hash() into multiple arrays hash. While doing
      * so, we move each value in the node->array_hash() into the new arrays
@@ -1807,7 +1817,7 @@ class htrie_hash {
           get_first_char_count(node.array_hash().cbegin(),
                                node.array_hash().cend());
 
-      auto new_node = make_unique<trie_node>();
+      auto new_node = make_unique_anode<trie_node>();
       for (auto it = node.array_hash().begin(); it != node.array_hash().end();
            ++it) {
         if (it.key_size() == 0) {
@@ -1842,12 +1852,12 @@ class htrie_hash {
 
   template <class U = T,
             typename std::enable_if<!has_value<U>::value>::type* = nullptr>
-  std::unique_ptr<trie_node> burst(hash_node& node) {
+  UniqueAnodePtr burst(hash_node& node) {
     const std::array<size_type, ALPHABET_SIZE> first_char_count =
         get_first_char_count(node.array_hash().begin(),
                              node.array_hash().end());
 
-    auto new_node = make_unique<trie_node>();
+    auto new_node = make_unique_anode<trie_node>();
     for (auto it = node.array_hash().cbegin(); it != node.array_hash().cend();
          ++it) {
       if (it.key_size() == 0) {
@@ -1887,7 +1897,7 @@ class htrie_hash {
                                     HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT / 2) /
                               m_max_load_factor));
 
-      tnode.set_child(for_char, make_unique<hash_node>(nb_buckets, m_hash,
+      tnode.set_child(for_char, make_unique_anode<hash_node>(nb_buckets, m_hash,
                                                              m_max_load_factor));
     }
 
@@ -2054,7 +2064,7 @@ class htrie_hash {
         if (str_size == 0) {
           tsl_ht_assert(m_nb_elements == 0 && !m_root);
 
-          m_root = make_unique<hash_node>(
+          m_root = make_unique_anode<hash_node>(
               array_hash_type::deserialize(deserializer, hash_compatible));
           m_nb_elements += m_root->as_hash_node().array_hash().size();
 
@@ -2063,7 +2073,7 @@ class htrie_hash {
           str_buffer.resize(str_size);
           deserializer(str_buffer.data(), str_size);
 
-          auto hnode = make_unique<hash_node>(
+          auto hnode = make_unique_anode<hash_node>(
               array_hash_type::deserialize(deserializer, hash_compatible));
           m_nb_elements += hnode->array_hash().size();
 
@@ -2082,13 +2092,13 @@ class htrie_hash {
   trie_node* insert_prefix_trie_nodes(const CharT* prefix,
                                       std::size_t prefix_size) {
     if (m_root == nullptr) {
-      m_root = make_unique<trie_node>();
+      m_root = make_unique_anode<trie_node>();
     }
 
     trie_node* current_node = &m_root->as_trie_node();
     for (std::size_t iprefix = 0; iprefix < prefix_size; iprefix++) {
       if (current_node->child(prefix[iprefix]) == nullptr) {
-        current_node->set_child(prefix[iprefix], make_unique<trie_node>());
+        current_node->set_child(prefix[iprefix], make_unique_anode<trie_node>());
       }
 
       current_node = &current_node->child(prefix[iprefix])->as_trie_node();
@@ -2132,6 +2142,11 @@ class htrie_hash {
     return std::unique_ptr<U>(new U(std::forward<Args>(args)...));
   }
 
+  template <typename U, typename... Args>
+  static std::unique_ptr<U, typename anode::Deleter> make_unique_anode(Args&&... args) {
+    return std::unique_ptr<U, typename anode::Deleter>(new U(std::forward<Args>(args)...));
+  }
+
  public:
   static constexpr float HASH_NODE_DEFAULT_MAX_LOAD_FACTOR = 8.0f;
   static const size_type DEFAULT_BURST_THRESHOLD = 16384;
@@ -2155,7 +2170,7 @@ class htrie_hash {
   static const size_type MAX_BURST_THRESHOLD =
       std::numeric_limits<ArrayHashIndexSizeT>::max();
 
-  std::unique_ptr<anode> m_root;
+  UniqueAnodePtr m_root;
   size_type m_nb_elements;
   Hash m_hash;
   float m_max_load_factor;
