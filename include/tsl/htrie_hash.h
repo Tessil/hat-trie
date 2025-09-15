@@ -260,10 +260,10 @@ class htrie_hash {
    protected:
     enum class node_type : unsigned char { HASH_NODE, TRIE_NODE };
 
-    anode(node_type node_type_)
+    explicit anode(node_type node_type_)
         : m_node_type(node_type_), m_child_of_char(0), m_parent_node(nullptr) {}
 
-    anode(node_type node_type_, CharT child_of_char)
+    explicit anode(node_type node_type_, CharT child_of_char)
         : m_node_type(node_type_),
           m_child_of_char(child_of_char),
           m_parent_node(nullptr) {}
@@ -299,7 +299,7 @@ class htrie_hash {
 
   class trie_node : public anode {
    public:
-    trie_node()
+    explicit trie_node()
         : anode(anode::node_type::TRIE_NODE),
           m_value_node(nullptr),
           m_children() {}
@@ -468,16 +468,16 @@ class htrie_hash {
 
   class hash_node : public anode {
    public:
-    hash_node(const Hash& hash, float max_load_factor)
+    explicit hash_node(const Hash& hash, float max_load_factor)
         : hash_node(HASH_NODE_DEFAULT_INIT_BUCKETS_COUNT, hash,
                     max_load_factor) {}
 
-    hash_node(size_type bucket_count, const Hash& hash, float max_load_factor)
+    explicit hash_node(size_type bucket_count, const Hash& hash, float max_load_factor)
         : anode(anode::node_type::HASH_NODE), m_array_hash(bucket_count, hash) {
       m_array_hash.max_load_factor(max_load_factor);
     }
 
-    hash_node(array_hash_type&& array_hash) noexcept(
+    explicit hash_node(array_hash_type&& array_hash) noexcept(
         std::is_nothrow_move_constructible<array_hash_type>::value)
         : anode(anode::node_type::HASH_NODE),
           m_array_hash(std::move(array_hash)) {}
@@ -533,15 +533,15 @@ class htrie_hash {
     /**
      * Start reading from start_hash_node->array_hash().begin().
      */
-    htrie_hash_iterator(hash_node_type& start_hash_node) noexcept
+    explicit htrie_hash_iterator(hash_node_type& start_hash_node) noexcept
         : htrie_hash_iterator(start_hash_node,
                               start_hash_node.array_hash().begin()) {}
 
     /**
      * Start reading from iterator begin in start_hash_node->array_hash().
      */
-    htrie_hash_iterator(hash_node_type& start_hash_node,
-                        array_hash_iterator_type begin) noexcept
+    explicit htrie_hash_iterator(hash_node_type& start_hash_node,
+                                 array_hash_iterator_type begin) noexcept
         : m_current_trie_node(start_hash_node.parent()),
           m_current_hash_node(&start_hash_node),
           m_array_hash_iterator(begin),
@@ -554,7 +554,7 @@ class htrie_hash {
      * Start reading from the value in start_trie_node.
      * start_trie_node->val_node() should be non-null.
      */
-    htrie_hash_iterator(trie_node_type& start_trie_node) noexcept
+    explicit htrie_hash_iterator(trie_node_type& start_trie_node) noexcept
         : m_current_trie_node(&start_trie_node),
           m_current_hash_node(nullptr),
           m_read_trie_node_value(true) {
@@ -563,10 +563,10 @@ class htrie_hash {
 
     template <bool TIsPrefixIterator = IsPrefixIterator,
               typename std::enable_if<!TIsPrefixIterator>::type* = nullptr>
-    htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode,
-                        array_hash_iterator_type begin,
-                        array_hash_iterator_type end,
-                        bool read_trie_node_value) noexcept
+    explicit htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode,
+                                 array_hash_iterator_type begin,
+                                 array_hash_iterator_type end,
+                                 bool read_trie_node_value) noexcept
         : m_current_trie_node(tnode),
           m_current_hash_node(hnode),
           m_array_hash_iterator(begin),
@@ -575,10 +575,10 @@ class htrie_hash {
 
     template <bool TIsPrefixIterator = IsPrefixIterator,
               typename std::enable_if<TIsPrefixIterator>::type* = nullptr>
-    htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode,
-                        array_hash_iterator_type begin,
-                        array_hash_iterator_type end, bool read_trie_node_value,
-                        std::basic_string<CharT> prefix_filter_) noexcept
+    explicit htrie_hash_iterator(trie_node_type* tnode, hash_node_type* hnode,
+                                 array_hash_iterator_type begin,
+                                 array_hash_iterator_type end, bool read_trie_node_value,
+                                 std::basic_string<CharT> prefix_filter_) noexcept
         : prefix_filter<CharT, TIsPrefixIterator>(std::move(prefix_filter_)),
           m_current_trie_node(tnode),
           m_current_hash_node(hnode),
@@ -868,7 +868,7 @@ class htrie_hash {
   };
 
  public:
-  htrie_hash(const Hash& hash, float max_load_factor, size_type burst_threshold)
+  explicit htrie_hash(const Hash& hash, float max_load_factor, size_type burst_threshold)
       : m_root(nullptr),
         m_nb_elements(0),
         m_hash(hash),
@@ -1888,7 +1888,7 @@ class htrie_hash {
                               m_max_load_factor));
 
       tnode.set_child(for_char, make_unique<hash_node>(nb_buckets, m_hash,
-                                                       m_max_load_factor));
+                                                             m_max_load_factor));
     }
 
     return tnode.child(for_char)->as_hash_node();
