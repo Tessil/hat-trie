@@ -1736,6 +1736,10 @@ class htrie_hash {
       }
     }
 
+    if (hnode.array_hash().empty()) {
+      clear_empty_nodes(hnode);
+    }
+
     return nb_erased;
   }
 

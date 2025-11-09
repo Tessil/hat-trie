@@ -477,6 +477,9 @@ BOOST_AUTO_TEST_CASE(test_erase_prefix_all_1) {
   BOOST_CHECK_EQUAL(map.size(), 1000);
   BOOST_CHECK_EQUAL(map.erase_prefix(""), 1000);
   BOOST_CHECK_EQUAL(map.size(), 0);
+
+  auto range = map.equal_prefix_range("");
+  BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_erase_prefix_all_2) {
@@ -485,6 +488,21 @@ BOOST_AUTO_TEST_CASE(test_erase_prefix_all_2) {
   BOOST_CHECK_EQUAL(map.size(), 1000);
   BOOST_CHECK_EQUAL(map.erase_prefix("Ke"), 1000);
   BOOST_CHECK_EQUAL(map.size(), 0);
+
+  auto range = map.equal_prefix_range("Ke");
+  BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_erase_prefix_all_hash_node) {
+  tsl::htrie_map<char, std::int64_t> map;
+  map = utils::get_filled_map<tsl::htrie_map<char, std::int64_t>>(16, 16);
+
+  BOOST_CHECK_EQUAL(map.size(), 16);
+  BOOST_CHECK_EQUAL(map.erase_prefix("Ke"), 16);
+  BOOST_CHECK_EQUAL(map.size(), 0);
+
+  auto range = map.equal_prefix_range("Ke");
+  BOOST_CHECK_EQUAL(std::distance(range.first, range.second), 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_erase_prefix_none) {
